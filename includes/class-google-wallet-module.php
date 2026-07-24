@@ -21,7 +21,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 	private const WEBSITE_META  = '_loyalty_wallet_website';
 	private const WHATSAPP_META = '_loyalty_wallet_business_whatsapp';
 	private const TEMPLATE_VERSION_META = '_loyalty_wallet_google_wallet_template_version';
-	private const TEMPLATE_VERSION = '3';
+	private const TEMPLATE_VERSION = '4';
 
 	public static function init(): void {
 		add_action( 'template_redirect', array( __CLASS__, 'maybe_render_landing' ), 0 );
@@ -585,9 +585,8 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 							),
 						),
 						array(
-							'twoItems' => array(
-								'startItem' => self::template_item( "object.textModulesData['business_website']" ),
-								'endItem'   => self::template_item( "object.textModulesData['business_whatsapp']" ),
+							'oneItem' => array(
+								'item' => self::template_item( "object.textModulesData['contact_help']" ),
 							),
 						),
 					),
@@ -619,10 +618,12 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 	private static function business_text_modules( int $user_id, string $next_visit ): array {
 		$website  = (string) get_user_meta( $user_id, self::WEBSITE_META, true );
 		$whatsapp = preg_replace( '/\D+/', '', (string) get_user_meta( $user_id, self::WHATSAPP_META, true ) );
+		$contact_help = $whatsapp
+			? 'Toca los tres puntos para llamar o escribir por WhatsApp.'
+			: ( $website ? 'Toca los tres puntos para visitar el sitio web del negocio.' : 'Toca los tres puntos para ver los detalles de contacto.' );
 		return array(
 			array( 'id' => 'next_visit', 'header' => 'Próxima visita', 'body' => $next_visit ),
-			array( 'id' => 'business_website', 'header' => 'Website', 'body' => $website ?: 'No registrado' ),
-			array( 'id' => 'business_whatsapp', 'header' => 'WhatsApp', 'body' => $whatsapp ? '+' . $whatsapp : 'No registrado' ),
+			array( 'id' => 'contact_help', 'header' => 'Contacto', 'body' => $contact_help ),
 		);
 	}
 
