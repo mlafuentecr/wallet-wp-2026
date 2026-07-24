@@ -63,12 +63,12 @@
 		setPanelFields(qrPanel, editingReviews);
 		setPanelFields(googleLoyaltyPanel, editingGoogleLoyalty);
 		section.value = editingName ? 'name' : (editingReviews ? 'reviews' : (editingGoogleLoyalty ? 'google_loyalty' : ''));
-		if (settingsSubmit) settingsSubmit.style.display = selected === 'customers' || selected === 'activity' || editingAccess ? 'none' : '';
+		if (settingsSubmit) settingsSubmit.style.display = selected === 'customers' || selected === 'activity' || editingAccess || editingGoogleLoyalty ? 'none' : '';
 		if (editingName && nameInput) nameInput.focus();
 		else if (editingReviews && placeInput) placeInput.focus();
 		else if (editingGoogleLoyalty) {
-			var publicUrl = document.getElementById('lw-wallet-public-url');
-			if (publicUrl) publicUrl.focus();
+			var loyaltySummary = googleLoyaltyPanel ? googleLoyaltyPanel.querySelector('summary') : null;
+			if (loyaltySummary) loyaltySummary.focus();
 		}
 	}
 	if (nameTab) nameTab.addEventListener('click', function () { selectTab('name'); });

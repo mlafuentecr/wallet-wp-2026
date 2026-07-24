@@ -140,3 +140,18 @@ body:has(#lw-customers-panel:not([hidden])) .lw-code-editor{padding:0!important;
 	#lw-customers-panel .lw-customers-total{width:100%;min-width:0;box-sizing:border-box}
 	#lw-customers-panel .lw-customers-search{box-sizing:border-box;width:100%;padding:12px}
 }
+
+.lw-loyalty-settings-toggle{margin-top:0}
+.lw-loyalty-settings-toggle>summary{padding:17px 18px}
+.lw-loyalty-settings-toggle>summary strong{font-size:14px;color:#172033}
+.lw-loyalty-settings-toggle>summary small{margin-top:4px;font-size:12px;line-height:1.4}
+.lw-loyalty-settings-content{padding:0;border-top:1px solid #e2e8f0}
+.lw-loyalty-settings-content .lw-google-settings-section{margin:0;padding:20px;border:0;border-radius:0;background:transparent}
+.lw-loyalty-settings-actions{padding:0 20px 20px}
+.lw-loyalty-settings-actions .button{box-sizing:border-box;min-height:42px;margin:0;padding:0 20px}
+@media(max-width:600px){
+	.lw-loyalty-settings-toggle>summary{align-items:flex-start;padding:15px}
+	.lw-loyalty-settings-content .lw-google-settings-section{padding:15px}
+	.lw-loyalty-settings-actions{padding:0 15px 15px}
+	.lw-loyalty-settings-actions .button{width:100%}
+}
