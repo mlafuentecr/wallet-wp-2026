@@ -16,6 +16,11 @@
 	var activityPanel = document.getElementById('lw-activity-panel');
 	var loyaltyPanel = document.getElementById('lw-loyalty-settings');
 	var section = document.getElementById('lw-settings-section');
+	if (googleLoyaltyPanel) {
+		var designToggle = googleLoyaltyPanel.querySelector('.lw-wallet-design-toggle');
+		var configurationToggle = googleLoyaltyPanel.querySelector('.lw-loyalty-settings-toggle:not(.lw-wallet-design-toggle)');
+		if (designToggle && configurationToggle) googleLoyaltyPanel.insertBefore(designToggle, configurationToggle);
+	}
 	var settingsSubmit = document.querySelector('#lw-code-editor > form #submit');
 	var nameInput = document.getElementById('lw-wallet-name');
 	var placeInput = document.getElementById('lw-place-id');
