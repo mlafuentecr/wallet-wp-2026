@@ -181,6 +181,7 @@ final class Loyalty_Wallet_Plugin {
 
 		check_admin_referer( 'loyalty_wallet_save_url' );
 		$section = isset( $_POST['settings_section'] ) ? sanitize_key( wp_unslash( $_POST['settings_section'] ) ) : 'qr';
+		$wallet_subsection = isset( $_POST['wallet_subsection'] ) ? sanitize_key( wp_unslash( $_POST['wallet_subsection'] ) ) : 'configuration';
 		if ( 'name' === $section ) {
 			$name = isset( $_POST['wallet_name'] ) ? sanitize_text_field( wp_unslash( $_POST['wallet_name'] ) ) : '';
 			if ( '' === $name ) {
@@ -261,13 +262,13 @@ final class Loyalty_Wallet_Plugin {
 		if ( 'google_loyalty' === $section ) {
 			$wallet_result = Loyalty_Wallet_Google_Wallet_Module::save( $user_id );
 			if ( 'url_saved' !== $wallet_result ) {
-				self::redirect_with_notice( $wallet_result, 'google-loyalty' );
+				self::redirect_with_notice( $wallet_result, 'google-loyalty', $wallet_subsection );
 			}
 			$wallet = Loyalty_Wallet_Google_Wallet_Module::data( $user_id );
 			if ( $wallet['is_configured'] && ! Loyalty_Wallet_Google_Wallet_Module::sync_loyalty_points( $user_id, Loyalty_Wallet_Google_Reviews_Module::review_points( $user_id ) ) ) {
-				self::redirect_with_notice( 'wallet_points_sync_failed', 'google-loyalty' );
+				self::redirect_with_notice( 'wallet_points_sync_failed', 'google-loyalty', $wallet_subsection );
 			}
-			self::redirect_with_notice( 'url_saved', 'google-loyalty' );
+			self::redirect_with_notice( 'url_saved', 'google-loyalty', $wallet_subsection );
 		}
 
 		self::redirect_with_notice( 'invalid' );
@@ -343,10 +344,13 @@ final class Loyalty_Wallet_Plugin {
 		self::redirect_with_notice( 'created', 'loyalty' );
 	}
 
-	private static function redirect_with_notice( string $notice, string $tab = '' ): void {
+	private static function redirect_with_notice( string $notice, string $tab = '', string $subsection = '' ): void {
 		$args = array( 'lw_notice' => $notice );
 		if ( $tab ) {
 			$args['lw_tab'] = $tab;
+		}
+		if ( $subsection ) {
+			$args['lw_section'] = $subsection;
 		}
 		wp_safe_redirect( add_query_arg( $args, admin_url( 'admin.php?page=' . self::MENU_SLUG ) ) );
 		exit;

@@ -144,6 +144,7 @@ body:has(#lw-customers-panel:not([hidden])) .lw-code-editor{padding:0!important;
 }
 
 .lw-loyalty-settings-toggle{margin-top:0}
+.lw-wallet-design-toggle{margin-top:12px}
 .lw-loyalty-settings-toggle>summary{padding:17px 18px}
 .lw-loyalty-settings-toggle>summary strong{font-size:14px;color:#172033}
 .lw-loyalty-settings-toggle>summary small{margin-top:4px;font-size:12px;line-height:1.4}

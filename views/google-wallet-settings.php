@@ -3,7 +3,7 @@
 		<h2>Google Loyalty settings</h2>
 		<p>Configure the Google Wallet loyalty card, public enrollment page and secure issuer credentials.</p>
 	</div>
-	<details class="lw-credentials-toggle lw-loyalty-settings-toggle" <?php echo isset( $_GET['lw_notice'], $_GET['lw_tab'] ) && 'google-loyalty' === sanitize_key( wp_unslash( $_GET['lw_tab'] ) ) ? 'open' : ''; ?>>
+	<details class="lw-credentials-toggle lw-loyalty-settings-toggle" <?php echo isset( $_GET['lw_notice'], $_GET['lw_tab'] ) && 'google-loyalty' === sanitize_key( wp_unslash( $_GET['lw_tab'] ) ) && ( ! isset( $_GET['lw_section'] ) || 'design' !== sanitize_key( wp_unslash( $_GET['lw_section'] ) ) ) ? 'open' : ''; ?>>
 		<summary>
 			<span><strong>Google Loyalty configuration</strong><small>Google Wallet card, public enrollment, issuer and service account</small></span>
 			<i aria-hidden="true"></i>
@@ -17,9 +17,30 @@
 				<small>For phone scanning, use the production URL or your Local Live Link. A <code>.local</code> address only works on this computer.</small>
 				<div class="lw-label-with-link"><label for="lw-wallet-issuer-id">Issuer ID</label><a href="https://pay.google.com/business/console" target="_blank" rel="noopener noreferrer">Open Wallet Console <span aria-hidden="true">↗</span></a></div><input id="lw-wallet-issuer-id" name="wallet_issuer_id" type="text" inputmode="numeric" value="<?php echo esc_attr( $wallet['issuer_id'] ); ?>" placeholder="3388000000022" <?php echo $wallet['uses_constants'] ? 'data-lw-locked="1" disabled' : ''; ?>>
 				<label for="lw-wallet-class-suffix">Loyalty class suffix</label><input id="lw-wallet-class-suffix" name="wallet_class_suffix" type="text" value="<?php echo esc_attr( $wallet['class_suffix'] ); ?>" placeholder="loyalty_wallet_1">
-				<section class="lw-wallet-design-section" aria-labelledby="lw-wallet-design-title">
+				<div class="lw-label-with-link"><label for="lw-wallet-service-email">Service account email</label><a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener noreferrer">Open Service Accounts <span aria-hidden="true">↗</span></a></div><input id="lw-wallet-service-email" name="wallet_service_email" type="email" value="<?php echo esc_attr( $wallet['service_email'] ); ?>" placeholder="wallet-issuer@project.iam.gserviceaccount.com" <?php echo $wallet['uses_constants'] ? 'data-lw-locked="1" disabled' : ''; ?>>
+				<div class="lw-label-with-link"><label for="lw-wallet-service-account-json">Service account private key JSON</label><a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener noreferrer">Manage service account keys <span aria-hidden="true">↗</span></a></div>
+				<div class="lw-service-account-json">
+					<input id="lw-wallet-service-account-json" name="wallet_service_account_json" type="file" accept="application/json,.json" hidden <?php echo $wallet['uses_constants'] ? 'data-lw-locked="1" disabled' : ''; ?>>
+					<label class="button lw-wallet-json-upload-button" for="lw-wallet-service-account-json"><span class="dashicons dashicons-upload"></span><?php echo $wallet['has_private_key'] ? 'Replace credentials JSON' : 'Upload credentials JSON'; ?></label>
+					<span id="lw-wallet-service-account-json-name" class="lw-service-account-json-name"><?php echo $wallet['has_private_key'] ? 'Credentials saved' : 'No JSON uploaded'; ?></span>
+				</div>
+				<small class="lw-wallet-security-note">Upload the JSON downloaded from Google Cloud. The plugin validates it, saves only the service account email and private key, and does not retain the uploaded JSON file. Maximum 1 MB.</small>
+			</section>
+			<div class="lw-loyalty-settings-actions">
+				<button type="submit" class="button button-primary" name="wallet_subsection" value="configuration">Save Loyalty settings</button>
+			</div>
+		</div>
+	</details>
+	<details class="lw-credentials-toggle lw-loyalty-settings-toggle lw-wallet-design-toggle" <?php echo isset( $_GET['lw_notice'], $_GET['lw_tab'], $_GET['lw_section'] ) && 'google-loyalty' === sanitize_key( wp_unslash( $_GET['lw_tab'] ) ) && 'design' === sanitize_key( wp_unslash( $_GET['lw_section'] ) ) ? 'open' : ''; ?>>
+		<summary>
+			<span><strong>Design</strong><small>Card color, program logo and full-width banner</small></span>
+			<i aria-hidden="true"></i>
+		</summary>
+		<div class="lw-loyalty-settings-content">
+			<section class="lw-google-settings-section">
+				<div class="lw-wallet-design-section" aria-labelledby="lw-wallet-design-title">
 					<div class="lw-wallet-design-heading">
-						<div><h3 id="lw-wallet-design-title">Design</h3><p>Customize the Google Wallet card color, program logo and full-width banner.</p></div>
+						<div><h3 id="lw-wallet-design-title">Google Wallet card design</h3><p>Customize the card color, program logo and full-width banner.</p></div>
 						<label class="lw-wallet-color-field" for="lw-wallet-background-color"><span>Card color</span><span><input id="lw-wallet-background-color" name="wallet_background_color" type="color" value="<?php echo esc_attr( $wallet['background_color_input'] ); ?>"><code id="lw-wallet-background-color-value"><?php echo esc_html( strtoupper( $wallet['background_color_input'] ) ); ?></code></span></label>
 					</div>
 					<div class="lw-wallet-logo-row">
@@ -61,18 +82,10 @@
 							<input id="lw-wallet-hero-url" name="wallet_hero_url" type="url" value="<?php echo esc_attr( $wallet['hero_url_input'] ); ?>" placeholder="https://example.com/banner.png">
 						</div>
 					</div>
-				</section>
-				<div class="lw-label-with-link"><label for="lw-wallet-service-email">Service account email</label><a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener noreferrer">Open Service Accounts <span aria-hidden="true">↗</span></a></div><input id="lw-wallet-service-email" name="wallet_service_email" type="email" value="<?php echo esc_attr( $wallet['service_email'] ); ?>" placeholder="wallet-issuer@project.iam.gserviceaccount.com" <?php echo $wallet['uses_constants'] ? 'data-lw-locked="1" disabled' : ''; ?>>
-				<div class="lw-label-with-link"><label for="lw-wallet-service-account-json">Service account private key JSON</label><a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener noreferrer">Manage service account keys <span aria-hidden="true">↗</span></a></div>
-				<div class="lw-service-account-json">
-					<input id="lw-wallet-service-account-json" name="wallet_service_account_json" type="file" accept="application/json,.json" hidden <?php echo $wallet['uses_constants'] ? 'data-lw-locked="1" disabled' : ''; ?>>
-					<label class="button lw-wallet-json-upload-button" for="lw-wallet-service-account-json"><span class="dashicons dashicons-upload"></span><?php echo $wallet['has_private_key'] ? 'Replace credentials JSON' : 'Upload credentials JSON'; ?></label>
-					<span id="lw-wallet-service-account-json-name" class="lw-service-account-json-name"><?php echo $wallet['has_private_key'] ? 'Credentials saved' : 'No JSON uploaded'; ?></span>
 				</div>
-				<small class="lw-wallet-security-note">Upload the JSON downloaded from Google Cloud. The plugin validates it, saves only the service account email and private key, and does not retain the uploaded JSON file. Maximum 1 MB.</small>
 			</section>
 			<div class="lw-loyalty-settings-actions">
-				<button type="submit" class="button button-primary">Save Loyalty settings</button>
+				<button type="submit" class="button button-primary" name="wallet_subsection" value="design">Save Design</button>
 			</div>
 		</div>
 	</details>
