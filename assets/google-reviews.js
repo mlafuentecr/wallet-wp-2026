@@ -98,6 +98,19 @@
 		if (googleWalletLogoUrl) googleWalletLogoUrl.value = '';
 		var previewReader = new FileReader(); previewReader.onload = function (event) { walletLogoPreview.innerHTML = ''; var logoImage = document.createElement('img'); logoImage.src = event.target.result; logoImage.alt = 'New Google Wallet logo preview'; walletLogoPreview.appendChild(logoImage); }; previewReader.readAsDataURL(file);
 	});
+	var walletHeroInput = document.getElementById('lw-wallet-hero-upload'), walletHeroPreview = document.getElementById('lw-wallet-hero-preview');
+	if (walletHeroInput && walletHeroPreview) walletHeroInput.addEventListener('change', function () {
+		var file = walletHeroInput.files && walletHeroInput.files[0];
+		if (!file) return;
+		if (!/^image\/(png|jpeg|webp)$/.test(file.type) || file.size > 5 * 1024 * 1024) { walletHeroInput.value = ''; window.alert('Choose a PNG, JPG or WebP banner under 5 MB.'); return; }
+		var heroMediaId = document.getElementById('lw-google-wallet-hero-media-id');
+		var heroUrl = document.getElementById('lw-wallet-hero-url');
+		if (heroMediaId) heroMediaId.value = '';
+		if (heroUrl) heroUrl.value = '';
+		var heroReader = new FileReader(); heroReader.onload = function (event) { walletHeroPreview.innerHTML = ''; var heroImage = document.createElement('img'); heroImage.src = event.target.result; heroImage.alt = 'New Google Wallet banner preview'; walletHeroPreview.appendChild(heroImage); }; heroReader.readAsDataURL(file);
+	});
+	var walletColor = document.getElementById('lw-wallet-background-color'), walletColorValue = document.getElementById('lw-wallet-background-color-value');
+	if (walletColor && walletColorValue) walletColor.addEventListener('input', function () { walletColorValue.textContent = walletColor.value.toUpperCase(); });
 	var serviceAccountJsonInput = document.getElementById('lw-wallet-service-account-json');
 	var serviceAccountJsonName = document.getElementById('lw-wallet-service-account-json-name');
 	if (serviceAccountJsonInput && serviceAccountJsonName) serviceAccountJsonInput.addEventListener('change', function () {
@@ -117,8 +130,8 @@
 				return;
 			}
 			var frame = window.wp.media({
-				title: 'Choose a logo',
-				button: { text: 'Use this logo' },
+				title: button.dataset.mediaTitle || 'Choose an image',
+				button: { text: button.dataset.mediaButton || 'Use this image' },
 				library: { type: 'image' },
 				multiple: false
 			});
@@ -141,7 +154,7 @@
 					preview.innerHTML = '';
 					var imageElement = document.createElement('img');
 					imageElement.src = previewUrl;
-					imageElement.alt = 'Selected logo preview';
+					imageElement.alt = 'Selected image preview';
 					preview.appendChild(imageElement);
 				}
 			});

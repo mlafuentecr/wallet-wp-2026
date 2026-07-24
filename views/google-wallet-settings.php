@@ -17,26 +17,47 @@
 				<small>For phone scanning, use the production URL or your Local Live Link. A <code>.local</code> address only works on this computer.</small>
 				<div class="lw-label-with-link"><label for="lw-wallet-issuer-id">Issuer ID</label><a href="https://pay.google.com/business/console" target="_blank" rel="noopener noreferrer">Open Wallet Console <span aria-hidden="true">↗</span></a></div><input id="lw-wallet-issuer-id" name="wallet_issuer_id" type="text" inputmode="numeric" value="<?php echo esc_attr( $wallet['issuer_id'] ); ?>" placeholder="3388000000022" <?php echo $wallet['uses_constants'] ? 'data-lw-locked="1" disabled' : ''; ?>>
 				<label for="lw-wallet-class-suffix">Loyalty class suffix</label><input id="lw-wallet-class-suffix" name="wallet_class_suffix" type="text" value="<?php echo esc_attr( $wallet['class_suffix'] ); ?>" placeholder="loyalty_wallet_1">
-				<div class="lw-wallet-logo-row">
-					<div class="lw-wallet-logo-upload">
-						<div id="lw-wallet-logo-preview" class="lw-wallet-logo-preview"><?php if ( $wallet['logo_url'] ) : ?><img src="<?php echo esc_url( $wallet['logo_url'] ); ?>" alt="Google Wallet logo preview"><?php else : ?><span class="dashicons dashicons-format-image"></span><?php endif; ?></div>
-						<div>
-							<strong>Google Wallet program logo</strong>
-							<p>Upload a PNG, JPG or WebP up to 5 MB. We will automatically fit new uploads into a 660 × 660 px PNG with Google's recommended 15% safe padding.</p>
-							<input id="lw-google-wallet-logo-media-id" name="wallet_logo_media_id" type="hidden" value="">
-							<input id="lw-wallet-logo-upload" name="wallet_logo_upload" type="file" accept="image/png,image/jpeg,image/webp" hidden>
-							<div class="lw-logo-actions">
-								<label class="button lw-wallet-upload-button" for="lw-wallet-logo-upload"><span class="dashicons dashicons-upload"></span> Upload logo</label>
-								<button type="button" class="button lw-media-library-button" data-media-target="lw-google-wallet-logo-media-id" data-preview-target="lw-wallet-logo-preview" data-file-target="lw-wallet-logo-upload" data-clear-url="lw-wallet-logo-url"><span class="dashicons dashicons-admin-media"></span> Add from Media Library</button>
+				<section class="lw-wallet-design-section" aria-labelledby="lw-wallet-design-title">
+					<div class="lw-wallet-design-heading">
+						<div><h3 id="lw-wallet-design-title">Design</h3><p>Customize the Google Wallet card color, program logo and full-width banner.</p></div>
+						<label class="lw-wallet-color-field" for="lw-wallet-background-color"><span>Card color</span><span><input id="lw-wallet-background-color" name="wallet_background_color" type="color" value="<?php echo esc_attr( $wallet['background_color_input'] ); ?>"><code id="lw-wallet-background-color-value"><?php echo esc_html( strtoupper( $wallet['background_color_input'] ) ); ?></code></span></label>
+					</div>
+					<div class="lw-wallet-logo-row">
+						<div class="lw-wallet-logo-upload">
+							<div id="lw-wallet-logo-preview" class="lw-wallet-logo-preview"><?php if ( $wallet['logo_url'] ) : ?><img src="<?php echo esc_url( $wallet['logo_url'] ); ?>" alt="Google Wallet logo preview"><?php else : ?><span class="dashicons dashicons-format-image"></span><?php endif; ?></div>
+							<div>
+								<strong>Google Wallet program logo</strong>
+								<p>Recommended: square PNG, minimum 660 × 660 px, with 15% safe padding. Maximum 5 MB.</p>
+								<input id="lw-google-wallet-logo-media-id" name="wallet_logo_media_id" type="hidden" value="">
+								<input id="lw-wallet-logo-upload" name="wallet_logo_upload" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+								<div class="lw-logo-actions">
+									<label class="button lw-wallet-upload-button" for="lw-wallet-logo-upload"><span class="dashicons dashicons-upload"></span> Upload logo</label>
+									<button type="button" class="button lw-media-library-button" data-media-target="lw-google-wallet-logo-media-id" data-preview-target="lw-wallet-logo-preview" data-file-target="lw-wallet-logo-upload" data-clear-url="lw-wallet-logo-url" data-media-title="Choose a Google Wallet logo" data-media-button="Use this logo"><span class="dashicons dashicons-admin-media"></span> Add from Media Library</button>
+								</div>
 							</div>
 						</div>
+						<div class="lw-wallet-logo-url-field">
+							<label for="lw-wallet-logo-url">Or use a public HTTPS logo URL</label>
+							<input id="lw-wallet-logo-url" name="wallet_logo_url" type="url" value="<?php echo esc_attr( $wallet['logo_url_input'] ); ?>" placeholder="https://example.com/logo.png">
+							<small>Use this option when the logo is already hosted on a public HTTPS website.</small>
+						</div>
 					</div>
-					<div class="lw-wallet-logo-url-field">
-						<label for="lw-wallet-logo-url">Or use a public HTTPS logo URL</label>
-						<input id="lw-wallet-logo-url" name="wallet_logo_url" type="url" value="<?php echo esc_attr( $wallet['logo_url_input'] ); ?>" placeholder="https://example.com/logo.png">
-						<small>Use this option when the logo is already hosted on a public HTTPS website.</small>
+					<div class="lw-wallet-hero-row">
+						<div id="lw-wallet-hero-preview" class="lw-wallet-hero-preview"><?php if ( $wallet['hero_url'] ) : ?><img src="<?php echo esc_url( $wallet['hero_url'] ); ?>" alt="Google Wallet banner preview"><?php else : ?><span class="dashicons dashicons-format-image"></span><small>No banner selected</small><?php endif; ?></div>
+						<div class="lw-wallet-hero-controls">
+							<strong>Card banner</strong>
+							<p>Recommended: PNG at 1032 × 812 px (approximately 5:4), with no embedded text. Maximum 5 MB.</p>
+							<input id="lw-google-wallet-hero-media-id" name="wallet_hero_media_id" type="hidden" value="">
+							<input id="lw-wallet-hero-upload" name="wallet_hero_upload" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+							<div class="lw-logo-actions">
+								<label class="button lw-wallet-upload-button" for="lw-wallet-hero-upload"><span class="dashicons dashicons-upload"></span> Upload banner</label>
+								<button type="button" class="button lw-media-library-button" data-media-target="lw-google-wallet-hero-media-id" data-preview-target="lw-wallet-hero-preview" data-file-target="lw-wallet-hero-upload" data-clear-url="lw-wallet-hero-url" data-media-title="Choose a Google Wallet banner" data-media-button="Use this banner"><span class="dashicons dashicons-admin-media"></span> Add from Media Library</button>
+							</div>
+							<label for="lw-wallet-hero-url">Or use a public HTTPS banner URL</label>
+							<input id="lw-wallet-hero-url" name="wallet_hero_url" type="url" value="<?php echo esc_attr( $wallet['hero_url_input'] ); ?>" placeholder="https://example.com/banner.png">
+						</div>
 					</div>
-				</div>
+				</section>
 				<div class="lw-label-with-link"><label for="lw-wallet-service-email">Service account email</label><a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener noreferrer">Open Service Accounts <span aria-hidden="true">↗</span></a></div><input id="lw-wallet-service-email" name="wallet_service_email" type="email" value="<?php echo esc_attr( $wallet['service_email'] ); ?>" placeholder="wallet-issuer@project.iam.gserviceaccount.com" <?php echo $wallet['uses_constants'] ? 'data-lw-locked="1" disabled' : ''; ?>>
 				<div class="lw-label-with-link"><label for="lw-wallet-service-account-json">Service account private key JSON</label><a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener noreferrer">Manage service account keys <span aria-hidden="true">↗</span></a></div>
 				<div class="lw-service-account-json">

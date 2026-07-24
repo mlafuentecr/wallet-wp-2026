@@ -493,6 +493,8 @@ final class Loyalty_Wallet_Plugin {
 			'invalid_wallet_private_key' => array( 'error', 'Enter a valid Google service account private key.' ),
 			'invalid_wallet_service_account_json' => array( 'error', 'Upload a valid Google service account credentials JSON file no larger than 1 MB.' ),
 			'invalid_wallet_logo' => array( 'error', 'Upload a valid PNG, JPG or WebP image no larger than 5 MB.' ),
+			'invalid_wallet_hero' => array( 'error', 'Upload a valid PNG, JPG or WebP banner no larger than 5 MB.' ),
+			'invalid_wallet_design' => array( 'error', 'Choose a valid card color and a public HTTPS banner URL.' ),
 			'invalid_reminder' => array( 'error', 'Complete the reminder date, channel and message.' ),
 			'missing_wallet_email' => array( 'error', 'Add a Wallet notification email before scheduling WhatsApp reminders.' ),
 			'missing_birthday' => array( 'error', 'Add the customer birthday before enabling birthday reminders.' ),
