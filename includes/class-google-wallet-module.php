@@ -14,6 +14,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 	private const WALLET_LOGO_ID = '_loyalty_wallet_google_wallet_logo_id';
 	private const HERO_URL      = '_loyalty_wallet_google_wallet_hero_url';
 	private const HERO_ID       = '_loyalty_wallet_google_wallet_hero_id';
+	private const HERO_RANDOM_SEED = '_loyalty_wallet_google_wallet_hero_random_seed';
 	private const BACKGROUND_COLOR = '_loyalty_wallet_google_wallet_background_color';
 	private const PUBLIC_TOKEN  = '_loyalty_wallet_google_wallet_public_token';
 	private const NAME_META     = '_loyalty_wallet_name';
@@ -21,7 +22,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 	private const WEBSITE_META  = '_loyalty_wallet_website';
 	private const WHATSAPP_META = '_loyalty_wallet_business_whatsapp';
 	private const TEMPLATE_VERSION_META = '_loyalty_wallet_google_wallet_template_version';
-	private const TEMPLATE_VERSION = '4';
+	private const TEMPLATE_VERSION = '5';
 
 	public static function init(): void {
 		add_action( 'template_redirect', array( __CLASS__, 'maybe_render_landing' ), 0 );
@@ -65,10 +66,16 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		}
 		$logo_url = self::public_asset_url( $logo_url, $public_url );
 		$hero_url_input = (string) get_user_meta( $user_id, self::HERO_URL, true );
+		$hero_id        = absint( get_user_meta( $user_id, self::HERO_ID, true ) );
+		$hero_random_seed = sanitize_key( (string) get_user_meta( $user_id, self::HERO_RANDOM_SEED, true ) );
+		$hero_random_seed = $hero_random_seed ?: 'loyalty-wallet-' . $user_id;
+		$hero_mode      = ( $hero_url_input || $hero_id ) ? 'custom' : 'random';
 		$hero_url       = $hero_url_input;
-		if ( ! $hero_url ) {
-			$hero_id  = absint( get_user_meta( $user_id, self::HERO_ID, true ) );
+		if ( ! $hero_url && $hero_id ) {
 			$hero_url = $hero_id ? (string) wp_get_attachment_image_url( $hero_id, 'full' ) : '';
+		}
+		if ( ! $hero_url ) {
+			$hero_url = self::random_hero_url( $hero_random_seed );
 		}
 		$hero_url = self::public_asset_url( $hero_url, $public_url );
 		$background_color = sanitize_hex_color( (string) get_user_meta( $user_id, self::BACKGROUND_COLOR, true ) );
@@ -95,7 +102,9 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 			'logo_id'         => absint( get_user_meta( $user_id, self::WALLET_LOGO_ID, true ) ),
 			'hero_url'        => $hero_url,
 			'hero_url_input'  => $hero_url_input,
-			'hero_id'         => absint( get_user_meta( $user_id, self::HERO_ID, true ) ),
+			'hero_id'         => $hero_id,
+			'hero_mode'       => $hero_mode,
+			'hero_random_seed' => $hero_random_seed,
 			'background_color' => $background_color,
 			'background_color_input' => $background_color ?: '#1a1a1a',
 			'is_configured'   => $has_credentials && $public_url_ready && $logo_url_ready,
@@ -120,6 +129,12 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		$public_url     = isset( $_POST['wallet_public_url'] ) ? esc_url_raw( trim( wp_unslash( $_POST['wallet_public_url'] ) ) ) : '';
 		$logo_url       = isset( $_POST['wallet_logo_url'] ) ? esc_url_raw( trim( wp_unslash( $_POST['wallet_logo_url'] ) ) ) : '';
 		$hero_url       = isset( $_POST['wallet_hero_url'] ) ? esc_url_raw( trim( wp_unslash( $_POST['wallet_hero_url'] ) ) ) : '';
+		$hero_mode      = isset( $_POST['wallet_hero_mode'] ) && 'random' === sanitize_key( wp_unslash( $_POST['wallet_hero_mode'] ) ) ? 'random' : 'custom';
+		$hero_random_seed = isset( $_POST['wallet_hero_random_seed'] ) ? sanitize_key( wp_unslash( $_POST['wallet_hero_random_seed'] ) ) : '';
+		$hero_random_seed = $hero_random_seed ?: 'loyalty-wallet-' . $user_id;
+		if ( $hero_url || ! empty( $_FILES['wallet_hero_upload']['name'] ) || ! empty( $_POST['wallet_hero_media_id'] ) ) {
+			$hero_mode = 'custom';
+		}
 		$background_color = isset( $_POST['wallet_background_color'] ) ? sanitize_hex_color( wp_unslash( $_POST['wallet_background_color'] ) ) : '';
 		$new_private_key = '';
 		$existing        = self::data( $user_id );
@@ -179,21 +194,26 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 			update_user_meta( $user_id, self::WALLET_LOGO_ID, (int) $logo_id );
 			$logo_url = '';
 		}
-		$hero_media_id = isset( $_POST['wallet_hero_media_id'] ) ? absint( $_POST['wallet_hero_media_id'] ) : 0;
-		if ( $hero_media_id ) {
-			if ( ! self::valid_wallet_image( $hero_media_id ) ) {
-				return 'invalid_wallet_hero';
-			}
-			update_user_meta( $user_id, self::HERO_ID, $hero_media_id );
+		if ( 'random' === $hero_mode ) {
+			delete_user_meta( $user_id, self::HERO_ID );
 			$hero_url = '';
-		}
-		if ( ! empty( $_FILES['wallet_hero_upload']['name'] ) ) {
-			$hero_id = self::upload_hero();
-			if ( is_wp_error( $hero_id ) ) {
-				return 'invalid_wallet_hero';
+		} else {
+			$hero_media_id = isset( $_POST['wallet_hero_media_id'] ) ? absint( $_POST['wallet_hero_media_id'] ) : 0;
+			if ( $hero_media_id ) {
+				if ( ! self::valid_wallet_image( $hero_media_id ) ) {
+					return 'invalid_wallet_hero';
+				}
+				update_user_meta( $user_id, self::HERO_ID, $hero_media_id );
+				$hero_url = '';
 			}
-			update_user_meta( $user_id, self::HERO_ID, (int) $hero_id );
-			$hero_url = '';
+			if ( ! empty( $_FILES['wallet_hero_upload']['name'] ) ) {
+				$hero_id = self::upload_hero();
+				if ( is_wp_error( $hero_id ) ) {
+					return 'invalid_wallet_hero';
+				}
+				update_user_meta( $user_id, self::HERO_ID, (int) $hero_id );
+				$hero_url = '';
+			}
 		}
 
 		update_user_meta( $user_id, self::ISSUER_ID, $issuer_id );
@@ -202,6 +222,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		update_user_meta( $user_id, self::PUBLIC_URL, $public_url );
 		update_user_meta( $user_id, self::LOGO_URL, $logo_url );
 		update_user_meta( $user_id, self::HERO_URL, $hero_url );
+		update_user_meta( $user_id, self::HERO_RANDOM_SEED, $hero_random_seed );
 		update_user_meta( $user_id, self::BACKGROUND_COLOR, $background_color );
 		if ( $new_private_key ) {
 			update_user_meta( $user_id, self::PRIVATE_KEY, $new_private_key );
@@ -745,6 +766,11 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		$host   = (string) wp_parse_url( $public_url, PHP_URL_HOST );
 		$port   = wp_parse_url( $public_url, PHP_URL_PORT );
 		return $scheme . '://' . $host . ( $port ? ':' . absint( $port ) : '' ) . $path;
+	}
+
+	private static function random_hero_url( string $seed ): string {
+		$seed = sanitize_key( $seed ) ?: 'loyalty-wallet';
+		return 'https://picsum.photos/seed/' . rawurlencode( $seed ) . '/1032/812.jpg';
 	}
 
 	private static function upload_logo() {

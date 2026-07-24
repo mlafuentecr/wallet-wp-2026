@@ -45,14 +45,18 @@
 					<div class="lw-wallet-hero-row">
 						<div id="lw-wallet-hero-preview" class="lw-wallet-hero-preview"><?php if ( $wallet['hero_url'] ) : ?><img src="<?php echo esc_url( $wallet['hero_url'] ); ?>" alt="Google Wallet banner preview"><?php else : ?><span class="dashicons dashicons-format-image"></span><small>No banner selected</small><?php endif; ?></div>
 						<div class="lw-wallet-hero-controls">
-							<strong>Card banner</strong>
-							<p>Recommended: PNG at 1032 × 812 px (approximately 5:4), with no embedded text. Maximum 5 MB.</p>
+							<div class="lw-wallet-hero-title"><strong>Card banner</strong><?php if ( 'random' === $wallet['hero_mode'] ) : ?><span id="lw-wallet-random-badge">Random banner</span><?php else : ?><span id="lw-wallet-random-badge" hidden>Random banner</span><?php endif; ?></div>
+							<p><strong>Recommended:</strong> PNG, 1032 × 812 px (approximately 5:4), high resolution and no embedded text. JPG and WebP are also accepted. Maximum 5 MB.</p>
+							<input id="lw-wallet-hero-mode" name="wallet_hero_mode" type="hidden" value="<?php echo esc_attr( $wallet['hero_mode'] ); ?>">
+							<input id="lw-wallet-hero-random-seed" name="wallet_hero_random_seed" type="hidden" value="<?php echo esc_attr( $wallet['hero_random_seed'] ); ?>">
 							<input id="lw-google-wallet-hero-media-id" name="wallet_hero_media_id" type="hidden" value="">
 							<input id="lw-wallet-hero-upload" name="wallet_hero_upload" type="file" accept="image/png,image/jpeg,image/webp" hidden>
 							<div class="lw-logo-actions">
 								<label class="button lw-wallet-upload-button" for="lw-wallet-hero-upload"><span class="dashicons dashicons-upload"></span> Upload banner</label>
-								<button type="button" class="button lw-media-library-button" data-media-target="lw-google-wallet-hero-media-id" data-preview-target="lw-wallet-hero-preview" data-file-target="lw-wallet-hero-upload" data-clear-url="lw-wallet-hero-url" data-media-title="Choose a Google Wallet banner" data-media-button="Use this banner"><span class="dashicons dashicons-admin-media"></span> Add from Media Library</button>
+								<button type="button" class="button lw-media-library-button" data-media-target="lw-google-wallet-hero-media-id" data-preview-target="lw-wallet-hero-preview" data-file-target="lw-wallet-hero-upload" data-clear-url="lw-wallet-hero-url" data-mode-target="lw-wallet-hero-mode" data-media-title="Choose a Google Wallet banner" data-media-button="Use this banner"><span class="dashicons dashicons-admin-media"></span> Add from Media Library</button>
+								<button id="lw-wallet-random-hero" type="button" class="button" data-random-base="https://picsum.photos/seed/"><span class="dashicons dashicons-image-rotate"></span> New random banner</button>
 							</div>
+							<small class="lw-wallet-random-help">A free seeded image from <a href="https://picsum.photos/" target="_blank" rel="noopener noreferrer">Lorem Picsum</a> is used until the business uploads its own banner.</small>
 							<label for="lw-wallet-hero-url">Or use a public HTTPS banner URL</label>
 							<input id="lw-wallet-hero-url" name="wallet_hero_url" type="url" value="<?php echo esc_attr( $wallet['hero_url_input'] ); ?>" placeholder="https://example.com/banner.png">
 						</div>

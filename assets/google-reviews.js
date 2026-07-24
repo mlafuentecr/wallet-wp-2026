@@ -98,7 +98,7 @@
 		if (googleWalletLogoUrl) googleWalletLogoUrl.value = '';
 		var previewReader = new FileReader(); previewReader.onload = function (event) { walletLogoPreview.innerHTML = ''; var logoImage = document.createElement('img'); logoImage.src = event.target.result; logoImage.alt = 'New Google Wallet logo preview'; walletLogoPreview.appendChild(logoImage); }; previewReader.readAsDataURL(file);
 	});
-	var walletHeroInput = document.getElementById('lw-wallet-hero-upload'), walletHeroPreview = document.getElementById('lw-wallet-hero-preview');
+	var walletHeroInput = document.getElementById('lw-wallet-hero-upload'), walletHeroPreview = document.getElementById('lw-wallet-hero-preview'), walletHeroMode = document.getElementById('lw-wallet-hero-mode'), walletHeroBadge = document.getElementById('lw-wallet-random-badge');
 	if (walletHeroInput && walletHeroPreview) walletHeroInput.addEventListener('change', function () {
 		var file = walletHeroInput.files && walletHeroInput.files[0];
 		if (!file) return;
@@ -107,7 +107,27 @@
 		var heroUrl = document.getElementById('lw-wallet-hero-url');
 		if (heroMediaId) heroMediaId.value = '';
 		if (heroUrl) heroUrl.value = '';
+		if (walletHeroMode) walletHeroMode.value = 'custom';
+		if (walletHeroBadge) walletHeroBadge.hidden = true;
 		var heroReader = new FileReader(); heroReader.onload = function (event) { walletHeroPreview.innerHTML = ''; var heroImage = document.createElement('img'); heroImage.src = event.target.result; heroImage.alt = 'New Google Wallet banner preview'; walletHeroPreview.appendChild(heroImage); }; heroReader.readAsDataURL(file);
+	});
+	var walletHeroUrl = document.getElementById('lw-wallet-hero-url'), walletHeroRandom = document.getElementById('lw-wallet-random-hero'), walletHeroSeed = document.getElementById('lw-wallet-hero-random-seed');
+	if (walletHeroUrl) walletHeroUrl.addEventListener('input', function () { if (walletHeroUrl.value.trim() && walletHeroMode) walletHeroMode.value = 'custom'; if (walletHeroUrl.value.trim() && walletHeroBadge) walletHeroBadge.hidden = true; });
+	if (walletHeroRandom && walletHeroPreview && walletHeroSeed) walletHeroRandom.addEventListener('click', function () {
+		var seed = 'loyalty-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+		var randomUrl = (walletHeroRandom.dataset.randomBase || 'https://picsum.photos/seed/') + encodeURIComponent(seed) + '/1032/812.jpg';
+		var heroMediaId = document.getElementById('lw-google-wallet-hero-media-id');
+		if (walletHeroInput) walletHeroInput.value = '';
+		if (walletHeroUrl) walletHeroUrl.value = '';
+		if (heroMediaId) heroMediaId.value = '';
+		if (walletHeroMode) walletHeroMode.value = 'random';
+		walletHeroSeed.value = seed;
+		if (walletHeroBadge) walletHeroBadge.hidden = false;
+		walletHeroPreview.innerHTML = '';
+		var randomImage = document.createElement('img');
+		randomImage.src = randomUrl;
+		randomImage.alt = 'Random Google Wallet banner preview';
+		walletHeroPreview.appendChild(randomImage);
 	});
 	var walletColor = document.getElementById('lw-wallet-background-color'), walletColorValue = document.getElementById('lw-wallet-background-color-value');
 	if (walletColor && walletColorValue) walletColor.addEventListener('input', function () { walletColorValue.textContent = walletColor.value.toUpperCase(); });
@@ -146,9 +166,12 @@
 				var preview = document.getElementById(button.dataset.previewTarget);
 				var fileInput = button.dataset.fileTarget ? document.getElementById(button.dataset.fileTarget) : null;
 				var clearUrl = button.dataset.clearUrl ? document.getElementById(button.dataset.clearUrl) : null;
+				var modeInput = button.dataset.modeTarget ? document.getElementById(button.dataset.modeTarget) : null;
 				if (mediaInput) mediaInput.value = selected.id;
 				if (fileInput) fileInput.value = '';
 				if (clearUrl) clearUrl.value = '';
+				if (modeInput) modeInput.value = 'custom';
+				if (modeInput && walletHeroBadge) walletHeroBadge.hidden = true;
 				if (preview) {
 					var previewUrl = selected.sizes && selected.sizes.medium ? selected.sizes.medium.url : selected.url;
 					preview.innerHTML = '';
