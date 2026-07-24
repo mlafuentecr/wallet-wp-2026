@@ -226,7 +226,6 @@ body:has(#lw-customers-panel:not([hidden])) .lw-code-editor{padding:0!important;
 .lw-add-reward{grid-template-columns:minmax(170px,.8fr) minmax(0,1.2fr) 130px auto;border-style:dashed;background:#f3f6fc}
 .lw-add-reward>div strong,.lw-add-reward>div small{display:block}
 .lw-add-reward>div small{margin-top:4px;color:#64748b}
-#lw-customers-panel .lw-open-redemption{color:#3156e8!important;border-color:#9fb3ff!important;background:#f6f8ff!important}
 #lw-customers-panel .lw-last-redemption{display:flex;align-items:center;gap:10px;margin-top:14px;padding:11px 13px;border:1px solid #e1e7f0;border-radius:10px;background:#f8fafc;color:#475569}
 #lw-customers-panel .lw-last-redemption>.dashicons{color:#3156e8}
 #lw-customers-panel .lw-last-redemption small,#lw-customers-panel .lw-last-redemption strong{display:block}
