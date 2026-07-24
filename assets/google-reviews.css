@@ -51,3 +51,92 @@ body:has(#lw-customers-panel:not([hidden])) .lw-code-editor{padding:0!important;
 .lw-configuration-tab b{font-size:18px;transition:transform .2s}.lw-configuration-tab.is-active b{transform:rotate(180deg)}.lw-configuration-nav{display:grid;gap:6px;margin:-2px 0 4px 20px;padding:4px 0 4px 14px;border-left:1px solid #ffffff38}.lw-subnav-tab{display:grid;grid-template-columns:20px minmax(0,1fr);align-items:center;gap:9px;width:100%;padding:10px 11px;border:1px solid transparent;border-radius:9px;background:transparent;color:#dbeafe;text-align:left;cursor:pointer}.lw-subnav-tab .dashicons{width:18px;height:18px;font-size:18px}.lw-subnav-tab strong,.lw-subnav-tab small{display:block}.lw-subnav-tab strong{color:#fff;font-size:12px}.lw-subnav-tab small{margin-top:2px;color:#bfdbfe;font-size:10px;line-height:1.35}.lw-subnav-tab:hover{background:#ffffff12}.lw-subnav-tab.is-active{border-color:#ffffff32;background:#ffffff20;box-shadow:0 4px 10px #1e1b4b20}.lw-google-settings-section{display:grid;gap:11px;padding:20px;border:1px solid #dbe3f0;border-radius:14px;background:#f8fafc}.lw-google-settings-section .lw-google-status{margin:0 0 5px}.lw-google-settings-section input[type=text],.lw-google-settings-section input[type=url],.lw-google-settings-section input[type=email]{box-sizing:border-box;width:100%;min-height:42px;margin:0;border-radius:8px}#lw-google-loyalty-settings:not([hidden]){display:block}@media(max-width:900px){.lw-configuration-nav{margin-left:12px}.lw-google-settings-section{padding:16px}}
 .lw-label-with-link{display:flex;align-items:center;justify-content:space-between;gap:16px}.lw-label-with-link a{font-size:12px;font-weight:600;color:#3156e8;text-decoration:none}.lw-label-with-link a:hover{text-decoration:underline}@media(max-width:520px){.lw-label-with-link{align-items:flex-start;flex-direction:column;gap:5px}}
 .lw-logo-upload input[type=file][hidden],.lw-wallet-logo-upload input[type=file][hidden]{display:none}.lw-logo-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px}.lw-logo-actions .button{display:inline-flex!important;align-items:center;justify-content:center;gap:6px;min-height:36px;margin:0!important}.lw-logo-actions .dashicons{width:17px;height:17px;font-size:17px}.lw-media-library-button{color:#3156e8!important;border-color:#aebdff!important;background:#fff!important}.lw-media-library-button:hover{border-color:#3156e8!important;background:#f5f7ff!important}
+
+/* Customer cards respond to the space inside the WordPress panel, not only the viewport. */
+#lw-customers-panel .lw-customer{container-type:inline-size;overflow:hidden}
+#lw-customers-panel .lw-customer-top,
+#lw-customers-panel .lw-customer-bottom,
+#lw-customers-panel .lw-customer-actions,
+#lw-customers-panel .lw-customer-contact-row,
+#lw-customers-panel .lw-customer-metrics,
+#lw-customers-panel .lw-visit-stats{min-width:0}
+#lw-customers-panel .lw-customer-actions .button{box-sizing:border-box}
+#lw-customers-panel .lw-customer-contact-row>a,
+#lw-customers-panel .lw-customer-contact-row>span{min-width:0}
+#lw-customers-panel .lw-customer-contact-row>a{overflow-wrap:anywhere}
+
+@container (max-width:1050px){
+	#lw-customers-panel .lw-customer-top{align-items:stretch;flex-direction:column;gap:20px}
+	#lw-customers-panel .lw-customer-actions{
+		display:grid!important;
+		grid-template-columns:repeat(auto-fit,minmax(145px,1fr));
+		width:100%;
+		padding:18px 0 0;
+		border-top:1px solid #e6ebf2;
+		border-left:0;
+	}
+	#lw-customers-panel .lw-customer-actions .button{width:100%;min-width:0;margin:0}
+	#lw-customers-panel .lw-customer-contact-row{
+		display:grid;
+		grid-template-columns:repeat(2,minmax(0,1fr));
+		justify-content:stretch;
+		gap:15px 24px;
+	}
+	#lw-customers-panel .lw-customer-contact-row>i{display:none}
+	#lw-customers-panel .lw-customer-metrics{justify-content:stretch}
+	#lw-customers-panel .lw-customer-metrics .lw-visit-stats{
+		display:grid;
+		grid-template-columns:repeat(3,minmax(0,1fr));
+		width:100%;
+		margin:0;
+	}
+	#lw-customers-panel .lw-visit-stats>div{
+		box-sizing:border-box;
+		justify-content:center;
+		width:100%;
+		min-width:0;
+		padding:0 14px;
+	}
+	#lw-customers-panel .lw-visit-stats>div:first-child{padding-left:0;border-left:0}
+}
+
+@container (max-width:620px){
+	#lw-customers-panel .lw-customer{padding:20px!important}
+	#lw-customers-panel .lw-customer-name{font-size:20px}
+	#lw-customers-panel .lw-customer-rating{
+		display:grid;
+		grid-template-columns:minmax(0,1fr);
+		align-items:start;
+		gap:7px;
+	}
+	#lw-customers-panel .lw-customer-rating>span:first-child{display:block}
+	#lw-customers-panel .lw-customer-rating>i{display:none}
+	#lw-customers-panel .lw-customer-rating>a{width:max-content;max-width:100%}
+	#lw-customers-panel .lw-customer-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+	#lw-customers-panel .lw-customer-actions .button{min-height:44px;padding:0 10px!important}
+	#lw-customers-panel .lw-customer-bottom{padding:22px 0}
+	#lw-customers-panel .lw-customer-contact-row{grid-template-columns:1fr;gap:14px}
+	#lw-customers-panel .lw-customer-contact-row>a,
+	#lw-customers-panel .lw-customer-contact-row>span{width:100%;white-space:normal}
+	#lw-customers-panel .lw-customer-metrics{padding-top:20px}
+	#lw-customers-panel .lw-visit-stats>div{align-items:flex-start;justify-content:flex-start;gap:8px;padding:0 8px}
+	#lw-customers-panel .lw-stat-icon{width:38px;height:38px}
+	#lw-customers-panel .lw-visit-stats small{font-size:11px}
+	#lw-customers-panel .lw-visit-stats strong{font-size:18px}
+}
+
+@container (max-width:420px){
+	#lw-customers-panel .lw-customer-actions{grid-template-columns:1fr}
+	#lw-customers-panel .lw-customer-metrics .lw-visit-stats{grid-template-columns:1fr;gap:14px}
+	#lw-customers-panel .lw-visit-stats>div{
+		padding:0!important;
+		border-left:0;
+	}
+}
+
+@media(max-width:782px){
+	#lw-customers-panel .lw-customers-header{padding:22px!important}
+	#lw-customers-panel .lw-customers-header h2{font-size:25px}
+	#lw-customers-panel .lw-customers-total{width:100%;min-width:0;box-sizing:border-box}
+	#lw-customers-panel .lw-customers-search{box-sizing:border-box;width:100%;padding:12px}
+}
