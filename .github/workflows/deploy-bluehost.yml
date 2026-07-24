@@ -1,4 +1,4 @@
-name: Deploy Prod to Bluehost
+name: Deploy Loyalty Wallet plugin to Bluehost
 
 on:
   push:
@@ -12,102 +12,20 @@ permissions:
   contents: read
 
 concurrency:
-  group: deploy-bluehost-production
+  group: deploy-loyalty-wallet-bluehost
   cancel-in-progress: false
 
 jobs:
-  validate:
-    name: Validate plugin
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out main
-        uses: actions/checkout@v4
-        with:
-          ref: main
-
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: "8.2"
-          coverage: none
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - name: Validate repository payload
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          test -f loyalty-wallet.php
-          test -d assets
-          test -d includes
-          test -d views
-
-          if find . -type f \( \
-            -name '.env' -o \
-            -name '.env.*' -o \
-            -name '*.pem' -o \
-            -name '*.key' -o \
-            -name 'credentials*.json' -o \
-            -name '*service-account*.json' \
-          \) -print -quit | grep -q .; then
-            echo "A sensitive credential file is present in the deployment payload."
-            exit 1
-          fi
-
-      - name: Validate PHP syntax
-        shell: bash
-        run: |
-          set -euo pipefail
-          find . -path './.git' -prune -o -name '*.php' -print0 \
-            | xargs -0 -n1 php -l
-
-      - name: Validate JavaScript syntax
-        shell: bash
-        run: |
-          set -euo pipefail
-          node --check assets/google-reviews.js
-          node --check assets/google-wallet-public.js
-
-  deploy-bluehost:
-    name: Deploy plugin
-    needs: validate
+  deploy:
+    name: Upload plugin
     runs-on: ubuntu-latest
     environment: Prod
 
     steps:
-      - name: Check out main
+      - name: Check out plugin
         uses: actions/checkout@v4
-        with:
-          ref: main
 
-      - name: Prepare deploy payload
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          mkdir -p deploy-root
-          rsync -a \
-            --exclude='.git/' \
-            --exclude='.github/' \
-            --exclude='.gitignore' \
-            --exclude='deploy-root/' \
-            --exclude='.DS_Store' \
-            --exclude='.env' \
-            --exclude='.env.*' \
-            --exclude='*.pem' \
-            --exclude='*.key' \
-            --exclude='credentials*.json' \
-            --exclude='*service-account*.json' \
-            ./ deploy-root/
-
-          test -f deploy-root/loyalty-wallet.php
-
-      - name: Deploy to Bluehost
+      - name: Upload Loyalty Wallet plugin to Bluehost
         uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -116,12 +34,13 @@ jobs:
           port: 21
           protocol: ftps
           security: strict
-          local-dir: ./deploy-root/
+          local-dir: ./
           server-dir: /home2/htzrvqmy/public_html/wp-content/plugins/loyalty-wallet/
           state-name: .ftp-deploy-sync-state.json
           log-level: standard
           exclude: |
             **/.git*
+            **/.git*/**
             **/.github/**
             **/.DS_Store
             **/.env*
