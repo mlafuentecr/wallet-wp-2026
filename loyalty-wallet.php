@@ -506,6 +506,12 @@ final class Loyalty_Wallet_Plugin {
 		if ( ! isset( $messages[ $notice ] ) ) {
 			return;
 		}
+		if ( 'wallet_points_sync_failed' === $notice ) {
+			$sync_error = sanitize_text_field( (string) get_user_meta( get_current_user_id(), '_loyalty_wallet_google_wallet_sync_error', true ) );
+			if ( $sync_error ) {
+				$messages[ $notice ][1] .= ' Google response: ' . $sync_error;
+			}
+		}
 		printf( '<div class="notice notice-%1$s inline"><p><strong>%2$s</strong>%3$s</p></div>', esc_attr( $messages[ $notice ][0] ), esc_html( $messages[ $notice ][1] ), $password ? ' Temporary password: <code>' . esc_html( $password ) . '</code> (copy it now)' : '' );
 	}
 
