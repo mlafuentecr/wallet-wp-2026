@@ -527,7 +527,6 @@ final class Loyalty_Wallet_Plugin {
 			'invalid_place_id' => array( 'error', 'Enter a valid Google Place ID.' ),
 			'invalid_name'     => array( 'error', 'Enter a wallet or business name.' ),
 			'invalid_program_name' => array( 'error', 'Enter a loyalty program name.' ),
-			'invalid_wallet_contact_help' => array( 'error', 'Enter the contact instruction shown on the Google Wallet card.' ),
 			'invalid_logo'     => array( 'error', 'Choose a valid JPG, PNG or WebP logo under 5 MB.' ),
 			'invalid_wallet_email' => array( 'error', 'Enter a valid wallet notification email.' ),
 			'invalid_business_website' => array( 'error', 'Enter a valid business website URL.' ),

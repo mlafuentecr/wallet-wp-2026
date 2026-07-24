@@ -202,7 +202,9 @@
 		if (walletCardPreview && walletColor) walletCardPreview.style.setProperty('--lw-card-color', walletColor.value);
 		if (walletCardProgramName && programNameInput) walletCardProgramName.textContent = programNameInput.value.trim() || ((nameInput ? nameInput.value.trim() : '') + ' Loyalty').trim();
 		var walletCardContactHelp = document.getElementById('lw-card-preview-contact-help');
-		if (walletCardContactHelp && contactHelpInput) walletCardContactHelp.textContent = contactHelpInput.value.trim() || 'Toca los tres puntos para llamar o escribir por WhatsApp.';
+		var walletCardContact = document.getElementById('lw-card-preview-contact');
+		if (walletCardContactHelp && contactHelpInput) walletCardContactHelp.textContent = contactHelpInput.value.trim();
+		if (walletCardContact && contactHelpInput) walletCardContact.hidden = !contactHelpInput.value.trim();
 		syncWalletCardImage(walletLogoPreview, walletCardLogo, 'dashicons-store');
 		syncWalletCardImage(walletHeroPreview, walletCardBanner, '');
 	}

@@ -291,6 +291,7 @@ body:has(#lw-customers-panel:not([hidden])) .lw-code-editor{padding:0!important;
 .lw-card-preview-fields small,.lw-card-preview-contact small{font-size:11px;font-weight:400;opacity:.9}
 .lw-card-preview-fields strong{margin-top:4px;font-size:14px;line-height:1.35}
 .lw-card-preview-contact{margin:2px -16px 0;padding:13px 16px 0;border-top:1px solid #ffffff20}
+.lw-card-preview-contact[hidden]{display:none}
 .lw-card-preview-contact strong{margin-top:4px;font-size:13px;line-height:1.4}
 .lw-card-preview-qr{display:grid;place-items:center;gap:7px;margin-top:3px}
 .lw-card-preview-qr img{display:block;width:132px;height:132px;padding:9px;border-radius:14px;background:#fff}

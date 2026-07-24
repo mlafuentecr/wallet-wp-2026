@@ -62,9 +62,9 @@
 								<small>This is the main title shown on the Google Wallet card.</small>
 							</section>
 							<section class="lw-design-control-card">
-								<label for="lw-wallet-contact-help">Contact instruction</label>
-								<textarea id="lw-wallet-contact-help" name="wallet_contact_help" maxlength="160" rows="3" required><?php echo esc_textarea( $wallet['contact_help'] ); ?></textarea>
-								<small>Shown under “Contacto” on the Google Wallet card.</small>
+								<label for="lw-wallet-contact-help">Optional card message</label>
+								<textarea id="lw-wallet-contact-help" name="wallet_contact_help" maxlength="160" rows="3" placeholder="Toca los tres puntos para llamar o escribir por WhatsApp."><?php echo esc_textarea( $wallet['contact_help'] ); ?></textarea>
+								<small>Only this text is shown on the Google Wallet card. Leave it empty to hide the section.</small>
 							</section>
 							<section class="lw-design-control-card">
 								<label class="lw-wallet-color-field" for="lw-wallet-background-color"><span>Card color</span><span><input id="lw-wallet-background-color" name="wallet_background_color" type="color" value="<?php echo esc_attr( $wallet['background_color_input'] ); ?>"><code id="lw-wallet-background-color-value"><?php echo esc_html( strtoupper( $wallet['background_color_input'] ) ); ?></code></span></label>
@@ -114,7 +114,7 @@
 									<div class="lw-card-preview-brand"><span id="lw-card-preview-logo"><?php if ( $wallet['logo_url'] ) : ?><img src="<?php echo esc_url( $wallet['logo_url'] ); ?>" alt=""><?php else : ?><span class="dashicons dashicons-store"></span><?php endif; ?></span><strong>[TEST ONLY] <?php echo esc_html( $preview_wallet_name ); ?></strong></div>
 									<h4 id="lw-card-preview-program-name"><?php echo esc_html( $preview_program_name ); ?></h4>
 									<div class="lw-card-preview-fields"><span><small>Nombre</small><strong><?php echo esc_html( $preview_name ); ?></strong></span><span><small>Próxima visita</small><strong><?php echo esc_html( $preview_next_visit ); ?></strong></span></div>
-									<div class="lw-card-preview-contact"><small>Contacto</small><strong id="lw-card-preview-contact-help"><?php echo esc_html( $wallet['contact_help'] ); ?></strong></div>
+									<div id="lw-card-preview-contact" class="lw-card-preview-contact" <?php echo $wallet['contact_help'] ? '' : 'hidden'; ?>><strong id="lw-card-preview-contact-help"><?php echo esc_html( $wallet['contact_help'] ); ?></strong></div>
 									<div class="lw-card-preview-qr"><img src="<?php echo esc_url( $preview_qr_url ); ?>" alt="Preview QR code"><strong><?php echo esc_html( $preview_points ); ?> puntos</strong></div>
 								</div>
 								<div id="lw-card-preview-banner" class="lw-card-preview-banner"><?php if ( $wallet['hero_url'] ) : ?><img src="<?php echo esc_url( $wallet['hero_url'] ); ?>" alt=""><?php endif; ?></div>

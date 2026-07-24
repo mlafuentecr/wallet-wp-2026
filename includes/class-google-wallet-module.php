@@ -33,7 +33,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 	private const WEBSITE_META  = '_loyalty_wallet_website';
 	private const WHATSAPP_META = '_loyalty_wallet_business_whatsapp';
 	private const TEMPLATE_VERSION_META = '_loyalty_wallet_google_wallet_template_version';
-	private const TEMPLATE_VERSION = '7';
+	private const TEMPLATE_VERSION = '8';
 
 	public static function init(): void {
 		add_action( 'template_redirect', array( __CLASS__, 'maybe_render_landing' ), 0 );
@@ -171,7 +171,8 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		}
 		$background_color = isset( $_POST['wallet_background_color'] ) ? sanitize_hex_color( wp_unslash( $_POST['wallet_background_color'] ) ) : '';
 		$program_name     = isset( $_POST['wallet_program_name'] ) ? sanitize_text_field( wp_unslash( $_POST['wallet_program_name'] ) ) : '';
-		$contact_help     = isset( $_POST['wallet_contact_help'] ) ? sanitize_textarea_field( wp_unslash( $_POST['wallet_contact_help'] ) ) : '';
+		$contact_help_posted = isset( $_POST['wallet_contact_help'] );
+		$contact_help     = $contact_help_posted ? sanitize_textarea_field( wp_unslash( $_POST['wallet_contact_help'] ) ) : '';
 		$promo_enabled    = isset( $_POST['wallet_promo_enabled'] ) && '1' === sanitize_text_field( wp_unslash( $_POST['wallet_promo_enabled'] ) );
 		$promo_title      = isset( $_POST['wallet_promo_title'] ) ? sanitize_text_field( wp_unslash( $_POST['wallet_promo_title'] ) ) : '';
 		$promo_body       = isset( $_POST['wallet_promo_body'] ) ? sanitize_text_field( wp_unslash( $_POST['wallet_promo_body'] ) ) : '';
@@ -183,7 +184,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		$new_private_key = '';
 		$existing        = self::data( $user_id );
 		$program_name    = $program_name ?: $existing['program_name'];
-		$contact_help    = $contact_help ?: $existing['contact_help'];
+		$contact_help    = $contact_help_posted ? $contact_help : $existing['contact_help'];
 		$promo_title     = $promo_title ?: $existing['promo_title'];
 		$promo_body      = $promo_body ?: $existing['promo_body'];
 		$appointment_label = $appointment_label ?: $existing['appointment_label'];
@@ -215,9 +216,6 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		}
 		if ( '' === $program_name ) {
 			return 'invalid_program_name';
-		}
-		if ( '' === $contact_help ) {
-			return 'invalid_wallet_contact_help';
 		}
 		if ( $promo_image_url && ! self::is_public_https_url( $promo_image_url ) ) {
 			return 'invalid_wallet_promotion';
@@ -769,16 +767,19 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 	}
 
 	private static function business_text_modules( int $user_id, string $next_visit ): array {
-		return array(
+		$modules = array(
 			array( 'id' => 'next_visit', 'header' => 'Próxima visita', 'body' => $next_visit ),
-			array( 'id' => 'contact_help', 'header' => 'Contacto', 'body' => self::contact_help( $user_id ) ),
 		);
+		$contact_help = self::contact_help( $user_id );
+		if ( '' !== $contact_help ) {
+			$modules[] = array( 'id' => 'contact_help', 'body' => $contact_help );
+		}
+		return $modules;
 	}
 
 	private static function contact_help( int $user_id ): string {
-		$saved = trim( (string) get_user_meta( $user_id, self::CONTACT_HELP_META, true ) );
-		if ( $saved ) {
-			return $saved;
+		if ( metadata_exists( 'user', $user_id, self::CONTACT_HELP_META ) ) {
+			return trim( (string) get_user_meta( $user_id, self::CONTACT_HELP_META, true ) );
 		}
 		return 'Toca los tres puntos para llamar o escribir por WhatsApp.';
 	}
