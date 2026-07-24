@@ -41,6 +41,7 @@ final class Loyalty_Wallet_Plugin {
 		add_action( 'admin_post_loyalty_wallet_toggle_preview', array( __CLASS__, 'toggle_preview' ) );
 		add_action( 'admin_post_loyalty_wallet_create_client', array( __CLASS__, 'create_client' ) );
 		add_action( 'admin_post_loyalty_wallet_save_url', array( __CLASS__, 'save_client_url' ) );
+		add_action( 'admin_post_loyalty_wallet_restore_promotion_settings', array( __CLASS__, 'restore_promotion_settings' ) );
 		add_action( 'admin_post_loyalty_wallet_add_customer', array( __CLASS__, 'add_customer' ) );
 		add_action( 'admin_post_loyalty_wallet_update_customer', array( __CLASS__, 'update_customer' ) );
 		add_action( 'admin_post_loyalty_wallet_delete_customer', array( __CLASS__, 'delete_customer' ) );
@@ -308,6 +309,22 @@ final class Loyalty_Wallet_Plugin {
 		self::redirect_with_notice( Loyalty_Wallet_Customers_Module::add( get_current_user_id() ) );
 	}
 
+	public static function restore_promotion_settings(): void {
+		if ( ! current_user_can( self::CAPABILITY ) ) {
+			wp_die( esc_html__( 'You do not have permission to restore promotion settings.', 'loyalty-wallet' ) );
+		}
+		check_admin_referer( 'loyalty_wallet_restore_promotion_settings', 'loyalty_wallet_restore_promotion_nonce' );
+		$user_id = get_current_user_id();
+		$result  = Loyalty_Wallet_Google_Wallet_Module::restore_promotion_settings( $user_id );
+		if ( 'wallet_promotions_restored' === $result ) {
+			$wallet = Loyalty_Wallet_Google_Wallet_Module::data( $user_id );
+			if ( $wallet['is_configured'] && ! Loyalty_Wallet_Google_Wallet_Module::sync_loyalty_points( $user_id, Loyalty_Wallet_Google_Reviews_Module::review_points( $user_id ) ) ) {
+				self::redirect_with_notice( 'wallet_points_sync_failed', 'google-loyalty', 'promotions' );
+			}
+		}
+		self::redirect_with_notice( $result, 'google-loyalty', 'promotions' );
+	}
+
 	public static function update_customer(): void {
 		if ( ! current_user_can( self::CAPABILITY ) ) {
 			wp_die( esc_html__( 'You do not have permission to edit customers.', 'loyalty-wallet' ) );
@@ -547,6 +564,8 @@ final class Loyalty_Wallet_Plugin {
 			'wallet_configuration_saved' => array( 'success', 'Google Loyalty configuration saved successfully.' ),
 			'wallet_design_saved' => array( 'success', 'Google Wallet card design saved successfully.' ),
 			'wallet_promotions_saved' => array( 'success', 'Promotions and appointment settings saved successfully.' ),
+			'wallet_promotions_restored' => array( 'success', 'The previous promotions and appointment settings were restored.' ),
+			'wallet_no_promotion_backup' => array( 'error', 'No previous promotions backup is available yet.' ),
 			'invalid_reminder' => array( 'error', 'Complete the reminder date, channel and message.' ),
 			'invalid_global_messages' => array( 'error', 'Complete all global message templates. Each message can contain up to 2,000 characters.' ),
 			'missing_wallet_email' => array( 'error', 'Add a Wallet notification email before scheduling WhatsApp reminders.' ),

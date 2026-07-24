@@ -1,4 +1,8 @@
-<div id="lw-google-loyalty-settings" class="lw-settings-panel" role="tabpanel" aria-labelledby="lw-google-loyalty-tab" hidden>
+<?php
+$wallet_notice = isset( $_GET['lw_notice'] ) ? sanitize_key( wp_unslash( $_GET['lw_notice'] ) ) : '';
+$promotion_was_saved = in_array( $wallet_notice, array( 'wallet_promotions_saved', 'wallet_points_sync_failed', 'wallet_promotions_restored' ), true );
+?>
+<div id="lw-google-loyalty-settings" class="lw-settings-panel" role="tabpanel" aria-labelledby="lw-google-loyalty-tab" data-wallet-user-id="<?php echo esc_attr( get_current_user_id() ); ?>" data-promotions-saved="<?php echo $promotion_was_saved ? '1' : '0'; ?>" hidden>
 	<div class="lw-settings-heading">
 		<h2>Google Loyalty settings</h2>
 		<p>Configure the Google Wallet loyalty card, public enrollment page and secure issuer credentials.</p>
@@ -188,6 +192,10 @@
 			</section>
 			<div class="lw-loyalty-settings-actions">
 				<button type="submit" class="button button-primary" name="wallet_subsection" value="promotions">Save Promotions &amp; appointments</button>
+				<?php if ( ! empty( $wallet['promotion_history_count'] ) ) : ?>
+					<?php wp_nonce_field( 'loyalty_wallet_restore_promotion_settings', 'loyalty_wallet_restore_promotion_nonce' ); ?>
+					<button type="submit" class="button" name="action" value="loyalty_wallet_restore_promotion_settings"><span class="dashicons dashicons-backup"></span> Restore previous version</button>
+				<?php endif; ?>
 			</div>
 		</div>
 	</details>

@@ -25,6 +25,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 	private const APPOINTMENT_ENABLED = '_loyalty_wallet_google_wallet_appointment_enabled';
 	private const APPOINTMENT_URL     = '_loyalty_wallet_google_wallet_appointment_url';
 	private const APPOINTMENT_LABEL   = '_loyalty_wallet_google_wallet_appointment_label';
+	private const PROMOTION_HISTORY   = '_loyalty_wallet_google_wallet_promotion_history';
 	private const PUBLIC_TOKEN  = '_loyalty_wallet_google_wallet_public_token';
 	private const NAME_META     = '_loyalty_wallet_name';
 	private const PROGRAM_NAME_META = '_loyalty_wallet_program_name';
@@ -141,6 +142,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 			'appointment_enabled' => '1' === (string) get_user_meta( $user_id, self::APPOINTMENT_ENABLED, true ),
 			'appointment_url'     => (string) get_user_meta( $user_id, self::APPOINTMENT_URL, true ),
 			'appointment_label'   => (string) get_user_meta( $user_id, self::APPOINTMENT_LABEL, true ) ?: 'Hacer cita',
+			'promotion_history_count' => count( self::promotion_history( $user_id ) ),
 			'is_configured'   => $has_credentials && $public_url_ready && $logo_url_ready,
 			'configuration_error' => $configuration_error,
 			'uses_constants'  => defined( 'LOYALTY_WALLET_GOOGLE_ISSUER_ID' ) || defined( 'LOYALTY_WALLET_GOOGLE_SERVICE_ACCOUNT_EMAIL' ) || defined( 'LOYALTY_WALLET_GOOGLE_PRIVATE_KEY' ),
@@ -323,28 +325,88 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 			$promo_image_url = '';
 		}
 
-		update_user_meta( $user_id, self::ISSUER_ID, $issuer_id );
-		update_user_meta( $user_id, self::CLASS_SUFFIX, $class_suffix ?: 'loyalty_wallet_' . $user_id );
-		update_user_meta( $user_id, self::SERVICE_EMAIL, $service_email );
-		update_user_meta( $user_id, self::PUBLIC_URL, $public_url );
-		update_user_meta( $user_id, self::LOGO_URL, $logo_url );
-		update_user_meta( $user_id, self::HERO_URL, $hero_url );
-		update_user_meta( $user_id, self::HERO_RANDOM_SEED, $hero_random_seed );
-		update_user_meta( $user_id, self::BACKGROUND_COLOR, $background_color );
-		update_user_meta( $user_id, self::PROGRAM_NAME_META, $program_name );
-		update_user_meta( $user_id, self::CONTACT_HELP_META, mb_substr( $contact_help, 0, 160 ) );
-		update_user_meta( $user_id, self::PROMO_ENABLED, $promo_enabled ? '1' : '0' );
-		update_user_meta( $user_id, self::PROMO_TITLE, mb_substr( $promo_title, 0, 60 ) );
-		update_user_meta( $user_id, self::PROMO_BODY, mb_substr( $promo_body, 0, 50 ) );
-		update_user_meta( $user_id, self::PROMO_URL, $promo_url );
-		update_user_meta( $user_id, self::PROMO_IMAGE_URL, $promo_image_url );
-		update_user_meta( $user_id, self::APPOINTMENT_ENABLED, $appointment_enabled ? '1' : '0' );
-		update_user_meta( $user_id, self::APPOINTMENT_URL, $appointment_url );
-		update_user_meta( $user_id, self::APPOINTMENT_LABEL, mb_substr( $appointment_label, 0, 30 ) );
-		if ( $new_private_key ) {
-			update_user_meta( $user_id, self::PRIVATE_KEY, $new_private_key );
+		if ( 'configuration' === $subsection ) {
+			update_user_meta( $user_id, self::ISSUER_ID, $issuer_id );
+			update_user_meta( $user_id, self::CLASS_SUFFIX, $class_suffix ?: 'loyalty_wallet_' . $user_id );
+			update_user_meta( $user_id, self::SERVICE_EMAIL, $service_email );
+			update_user_meta( $user_id, self::PUBLIC_URL, $public_url );
+			if ( $new_private_key ) {
+				update_user_meta( $user_id, self::PRIVATE_KEY, $new_private_key );
+			}
+		}
+		if ( 'design' === $subsection ) {
+			update_user_meta( $user_id, self::LOGO_URL, $logo_url );
+			update_user_meta( $user_id, self::HERO_URL, $hero_url );
+			update_user_meta( $user_id, self::HERO_RANDOM_SEED, $hero_random_seed );
+			update_user_meta( $user_id, self::BACKGROUND_COLOR, $background_color );
+			update_user_meta( $user_id, self::PROGRAM_NAME_META, $program_name );
+			update_user_meta( $user_id, self::CONTACT_HELP_META, mb_substr( $contact_help, 0, 160 ) );
+		}
+		if ( 'promotions' === $subsection ) {
+			self::backup_promotion_settings( $user_id, $existing );
+			update_user_meta( $user_id, self::PROMO_ENABLED, $promo_enabled ? '1' : '0' );
+			update_user_meta( $user_id, self::PROMO_TITLE, mb_substr( $promo_title, 0, 60 ) );
+			update_user_meta( $user_id, self::PROMO_BODY, mb_substr( $promo_body, 0, 50 ) );
+			update_user_meta( $user_id, self::PROMO_URL, $promo_url );
+			update_user_meta( $user_id, self::PROMO_IMAGE_URL, $promo_image_url );
+			update_user_meta( $user_id, self::APPOINTMENT_ENABLED, $appointment_enabled ? '1' : '0' );
+			update_user_meta( $user_id, self::APPOINTMENT_URL, $appointment_url );
+			update_user_meta( $user_id, self::APPOINTMENT_LABEL, mb_substr( $appointment_label, 0, 30 ) );
 		}
 		return 'url_saved';
+	}
+
+	public static function restore_promotion_settings( int $user_id ): string {
+		$history = self::promotion_history( $user_id );
+		$backup  = array_pop( $history );
+		if ( ! is_array( $backup ) ) {
+			return 'wallet_no_promotion_backup';
+		}
+
+		update_user_meta( $user_id, self::PROMOTION_HISTORY, $history );
+		update_user_meta( $user_id, self::PROMO_ENABLED, ! empty( $backup['promo_enabled'] ) ? '1' : '0' );
+		update_user_meta( $user_id, self::PROMO_TITLE, sanitize_text_field( (string) ( $backup['promo_title'] ?? '' ) ) );
+		update_user_meta( $user_id, self::PROMO_BODY, sanitize_text_field( (string) ( $backup['promo_body'] ?? '' ) ) );
+		update_user_meta( $user_id, self::PROMO_URL, esc_url_raw( (string) ( $backup['promo_url'] ?? '' ) ) );
+		update_user_meta( $user_id, self::PROMO_IMAGE_URL, esc_url_raw( (string) ( $backup['promo_image_url_input'] ?? '' ) ) );
+		update_user_meta( $user_id, self::PROMO_IMAGE_ID, absint( $backup['promo_image_id'] ?? 0 ) );
+		update_user_meta( $user_id, self::APPOINTMENT_ENABLED, ! empty( $backup['appointment_enabled'] ) ? '1' : '0' );
+		update_user_meta( $user_id, self::APPOINTMENT_URL, esc_url_raw( (string) ( $backup['appointment_url'] ?? '' ) ) );
+		update_user_meta( $user_id, self::APPOINTMENT_LABEL, sanitize_text_field( (string) ( $backup['appointment_label'] ?? '' ) ) );
+		return 'wallet_promotions_restored';
+	}
+
+	private static function backup_promotion_settings( int $user_id, array $wallet ): void {
+		$history   = self::promotion_history( $user_id );
+		$snapshot  = array(
+			'promo_enabled'       => ! empty( $wallet['promo_enabled'] ),
+			'promo_title'         => (string) ( $wallet['promo_title'] ?? '' ),
+			'promo_body'          => (string) ( $wallet['promo_body'] ?? '' ),
+			'promo_url'           => (string) ( $wallet['promo_url'] ?? '' ),
+			'promo_image_url_input' => (string) ( $wallet['promo_image_url_input'] ?? '' ),
+			'promo_image_id'      => absint( $wallet['promo_image_id'] ?? 0 ),
+			'appointment_enabled' => ! empty( $wallet['appointment_enabled'] ),
+			'appointment_url'     => (string) ( $wallet['appointment_url'] ?? '' ),
+			'appointment_label'   => (string) ( $wallet['appointment_label'] ?? '' ),
+			'saved_at'            => current_time( 'mysql' ),
+		);
+		$last = $history ? end( $history ) : null;
+		if ( is_array( $last ) ) {
+			$comparison_last = $last;
+			unset( $comparison_last['saved_at'] );
+			$comparison_snapshot = $snapshot;
+			unset( $comparison_snapshot['saved_at'] );
+			if ( $comparison_last === $comparison_snapshot ) {
+				return;
+			}
+		}
+		$history[] = $snapshot;
+		update_user_meta( $user_id, self::PROMOTION_HISTORY, array_slice( $history, -10 ) );
+	}
+
+	private static function promotion_history( int $user_id ): array {
+		$history = get_user_meta( $user_id, self::PROMOTION_HISTORY, true );
+		return is_array( $history ) ? array_values( array_filter( $history, 'is_array' ) ) : array();
 	}
 
 	private static function service_account_credentials_from_upload() {

@@ -174,6 +174,7 @@
 	var walletPromoEnabled = document.getElementById('lw-wallet-promo-enabled');
 	var walletPromoTitle = document.getElementById('lw-wallet-promo-title');
 	var walletPromoBody = document.getElementById('lw-wallet-promo-body');
+	var walletPromoUrl = document.getElementById('lw-wallet-promo-url');
 	var walletPromoPreview = document.getElementById('lw-card-promo-preview');
 	var walletPromoPreviewTitle = document.getElementById('lw-card-promo-title');
 	var walletPromoPreviewBody = document.getElementById('lw-card-promo-body');
@@ -216,6 +217,31 @@
 		if (walletAppointmentPreview && walletAppointmentEnabled) walletAppointmentPreview.hidden = !walletAppointmentEnabled.checked;
 		if (walletAppointmentPreviewLabel && walletAppointmentLabel) walletAppointmentPreviewLabel.textContent = walletAppointmentLabel.value.trim() || 'Hacer cita';
 		if (walletAppointmentPreview && walletAppointmentUrl) walletAppointmentPreview.href = walletAppointmentUrl.value.trim() || '#';
+	}
+	var promotionDraftFields = [walletPromoEnabled, walletPromoTitle, walletPromoBody, walletPromoUrl, walletPromoImageUrl, walletAppointmentEnabled, walletAppointmentLabel, walletAppointmentUrl].filter(Boolean);
+	var promotionDraftKey = googleLoyaltyPanel ? 'loyaltyWalletPromotionDraft:' + (googleLoyaltyPanel.dataset.walletUserId || '0') : '';
+	function savePromotionDraft() {
+		if (!promotionDraftKey || !window.localStorage) return;
+		var draft = {};
+		promotionDraftFields.forEach(function (field) { draft[field.id] = field.type === 'checkbox' ? field.checked : field.value; });
+		window.localStorage.setItem(promotionDraftKey, JSON.stringify(draft));
+	}
+	if (promotionDraftKey && window.localStorage) {
+		if (googleLoyaltyPanel.dataset.promotionsSaved === '1') {
+			window.localStorage.removeItem(promotionDraftKey);
+		} else {
+			try {
+				var promotionDraft = JSON.parse(window.localStorage.getItem(promotionDraftKey) || '{}');
+				promotionDraftFields.forEach(function (field) {
+					if (!Object.prototype.hasOwnProperty.call(promotionDraft, field.id)) return;
+					if (field.type === 'checkbox') field.checked = !!promotionDraft[field.id];
+					else field.value = String(promotionDraft[field.id] || '');
+				});
+			} catch (error) {
+				window.localStorage.removeItem(promotionDraftKey);
+			}
+		}
+		promotionDraftFields.forEach(function (field) { field.addEventListener(field.type === 'checkbox' ? 'change' : 'input', savePromotionDraft); });
 	}
 	if (programNameInput) programNameInput.addEventListener('input', syncWalletCardPreview);
 	if (contactHelpInput) contactHelpInput.addEventListener('input', syncWalletCardPreview);
