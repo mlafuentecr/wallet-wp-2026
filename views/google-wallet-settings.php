@@ -117,7 +117,7 @@ $promotion_was_saved = in_array( $wallet_notice, array( 'wallet_promotions_saved
 								<div class="lw-card-preview-body">
 									<div class="lw-card-preview-brand"><span id="lw-card-preview-logo"><?php if ( $wallet['logo_url'] ) : ?><img src="<?php echo esc_url( $wallet['logo_url'] ); ?>" alt=""><?php else : ?><span class="dashicons dashicons-store"></span><?php endif; ?></span><strong>[TEST ONLY] <?php echo esc_html( $preview_wallet_name ); ?></strong></div>
 									<h4 id="lw-card-preview-program-name"><?php echo esc_html( $preview_program_name ); ?></h4>
-									<div class="lw-card-preview-fields"><span><small>Nombre</small><strong><?php echo esc_html( $preview_name ); ?></strong></span><span><small>Próxima visita</small><strong><?php echo esc_html( $preview_next_visit ); ?></strong></span></div>
+									<div class="lw-card-preview-fields"><span><small>Nombre</small><strong><?php echo esc_html( $preview_name ); ?></strong></span><span><small>Próxima visita</small><strong><?php echo esc_html( $preview_next_visit ); ?></strong></span><span><small>Puntos</small><strong><?php echo esc_html( $preview_points ); ?></strong></span></div>
 									<div id="lw-card-preview-contact" class="lw-card-preview-contact" <?php echo $wallet['contact_help'] ? '' : 'hidden'; ?>><strong id="lw-card-preview-contact-help"><?php echo esc_html( $wallet['contact_help'] ); ?></strong></div>
 									<div class="lw-card-preview-qr"><img src="<?php echo esc_url( $preview_qr_url ); ?>" alt="Preview QR code"></div>
 								</div>

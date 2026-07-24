@@ -34,7 +34,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 	private const WEBSITE_META  = '_loyalty_wallet_website';
 	private const WHATSAPP_META = '_loyalty_wallet_business_whatsapp';
 	private const TEMPLATE_VERSION_META = '_loyalty_wallet_google_wallet_template_version';
-	private const TEMPLATE_VERSION = '10';
+	private const TEMPLATE_VERSION = '11';
 
 	public static function init(): void {
 		add_action( 'template_redirect', array( __CLASS__, 'maybe_render_landing' ), 0 );
@@ -792,9 +792,10 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 				'cardTemplateOverride' => array(
 					'cardRowTemplateInfos' => array(
 						array(
-							'twoItems' => array(
+							'threeItems' => array(
 								'startItem' => self::template_item( 'object.accountName' ),
-								'endItem'   => self::template_item( "object.textModulesData['next_visit']" ),
+								'middleItem' => self::template_item( "object.textModulesData['next_visit']" ),
+								'endItem'    => self::template_item( 'object.loyaltyPoints.balance' ),
 							),
 						),
 						array(
