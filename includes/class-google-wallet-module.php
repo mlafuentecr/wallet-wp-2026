@@ -17,9 +17,32 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 	private const LOGO_META     = '_loyalty_wallet_logo_id';
 	private const WEBSITE_META  = '_loyalty_wallet_website';
 	private const WHATSAPP_META = '_loyalty_wallet_business_whatsapp';
+	private const TEMPLATE_VERSION_META = '_loyalty_wallet_google_wallet_template_version';
+	private const TEMPLATE_VERSION = '2';
 
 	public static function init(): void {
 		add_action( 'template_redirect', array( __CLASS__, 'maybe_render_landing' ), 0 );
+		add_action( 'admin_init', array( __CLASS__, 'maybe_upgrade_template' ) );
+	}
+
+	public static function maybe_upgrade_template(): void {
+		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+		if ( 'loyalty-wallet' !== $page || ! is_user_logged_in() ) {
+			return;
+		}
+
+		$user_id = get_current_user_id();
+		if ( self::TEMPLATE_VERSION === (string) get_user_meta( $user_id, self::TEMPLATE_VERSION_META, true ) ) {
+			return;
+		}
+
+		$wallet = self::data( $user_id );
+		if (
+			$wallet['is_configured']
+			&& self::sync_loyalty_points( $user_id, Loyalty_Wallet_Google_Reviews_Module::review_points( $user_id ) )
+		) {
+			update_user_meta( $user_id, self::TEMPLATE_VERSION_META, self::TEMPLATE_VERSION );
+		}
 	}
 
 	public static function data( int $user_id ): array {
@@ -207,6 +230,27 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		}
 
 		$class_id  = $wallet['issuer_id'] . '.' . $wallet['class_suffix'];
+		$class_patch = wp_remote_request(
+			'https://walletobjects.googleapis.com/walletobjects/v1/loyaltyClass/' . rawurlencode( $class_id ),
+			array(
+				'method'  => 'PATCH',
+				'timeout' => 20,
+				'headers' => array(
+					'Authorization' => 'Bearer ' . $access_token,
+					'Content-Type'  => 'application/json',
+				),
+				'body'    => wp_json_encode( self::loyalty_class_fields( $user_id, $wallet ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
+			)
+		);
+		$class_status = wp_remote_retrieve_response_code( $class_patch );
+		if ( is_wp_error( $class_patch ) || ( 404 !== $class_status && ( $class_status < 200 || $class_status >= 300 ) ) ) {
+			$message = is_wp_error( $class_patch )
+				? $class_patch->get_error_message()
+				: 'HTTP ' . $class_status . ': ' . wp_remote_retrieve_body( $class_patch );
+			update_user_meta( $user_id, '_loyalty_wallet_google_wallet_sync_error', sanitize_text_field( substr( $message, 0, 1000 ) ) );
+			return false;
+		}
+
 		$list_url  = add_query_arg(
 			array(
 				'classId'    => $class_id,
@@ -244,15 +288,13 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 			if ( ! $object_id || $class_id !== (string) ( $resource['classId'] ?? '' ) ) {
 				continue;
 			}
-			$customer = $customers_by_object[ $object_id ] ?? array();
-			$payload  = $customer
-				? self::customer_object_fields( $user_id, $customer )
-				: array(
-					'loyaltyPoints' => array(
-						'label'   => 'Puntos',
-						'balance' => array( 'int' => min( 100000, max( 0, $points ) ) ),
-					),
-				);
+			$customer = $customers_by_object[ $object_id ] ?? array(
+				'name'             => sanitize_text_field( (string) ( $resource['accountName'] ?? 'Loyalty member' ) ),
+				'points'           => absint( $resource['loyaltyPoints']['balance']['int'] ?? $points ),
+				'wallet_member_id' => sanitize_text_field( (string) ( $resource['accountId'] ?? $resource['barcode']['value'] ?? '' ) ),
+				'next_visit'       => '',
+			);
+			$payload  = self::customer_object_fields( $user_id, $customer );
 
 			$patch = wp_remote_request(
 				'https://walletobjects.googleapis.com/walletobjects/v1/loyaltyObject/' . rawurlencode( $object_id ),
@@ -410,7 +452,6 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		$class_id    = $wallet['issuer_id'] . '.' . $wallet['class_suffix'];
 		$full_object = $wallet['issuer_id'] . '.' . $object_id;
 		$origin      = (string) wp_parse_url( self::landing_url( $user_id ), PHP_URL_HOST );
-		$logo_url    = $wallet['logo_url'];
 		$points      = absint( $google['review_points'] ?? 0 );
 		$next_visit  = 'No programada';
 		$business_links = self::business_links( $user_id );
@@ -422,17 +463,12 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 			}
 		}
 
-		$loyalty_class = array(
-			'id'           => $class_id,
-			'issuerName'   => $wallet_name = (string) get_user_meta( $user_id, self::NAME_META, true ) ?: 'Loyalty Wallet',
-			'reviewStatus' => 'UNDER_REVIEW',
-			'programName'  => $wallet_name . ' Loyalty',
-			'accountNameLabel' => 'Nombre',
-			'accountIdLabel'   => 'Cliente',
-			'programLogo'  => array(
-				'sourceUri'         => array( 'uri' => $logo_url ),
-				'contentDescription' => array( 'defaultValue' => array( 'language' => 'en-US', 'value' => $wallet_name . ' logo' ) ),
+		$loyalty_class = array_merge(
+			array(
+				'id'           => $class_id,
+				'reviewStatus' => 'UNDER_REVIEW',
 			),
+			self::loyalty_class_fields( $user_id, $wallet )
 		);
 		$loyalty_object = array(
 			'id'            => $full_object,
@@ -442,9 +478,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 			'accountName'   => $member_name ?: 'Loyalty member',
 			'loyaltyPoints' => array( 'label' => 'Puntos', 'balance' => array( 'int' => $points ) ),
 			'barcode'       => array( 'type' => 'QR_CODE', 'value' => $member_id, 'alternateText' => $points . ' puntos' ),
-			'textModulesData' => array(
-				array( 'id' => 'next_visit', 'header' => 'Próxima visita', 'body' => $next_visit ),
-			),
+			'textModulesData' => self::business_text_modules( $user_id, $next_visit ),
 		);
 		if ( $business_links ) {
 			$loyalty_object['linksModuleData'] = array( 'uris' => $business_links );
@@ -478,15 +512,65 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 			'accountName'   => sanitize_text_field( (string) ( $customer['name'] ?? 'Loyalty member' ) ),
 			'loyaltyPoints' => array( 'label' => 'Puntos', 'balance' => array( 'int' => $points ) ),
 			'barcode'       => array( 'type' => 'QR_CODE', 'value' => $member_id, 'alternateText' => $points . ' puntos' ),
-			'textModulesData' => array(
-				array( 'id' => 'next_visit', 'header' => 'Próxima visita', 'body' => $next_display ),
-			),
+			'textModulesData' => self::business_text_modules( $user_id, $next_display ),
 		);
 		$links = self::business_links( $user_id );
 		if ( $links ) {
 			$fields['linksModuleData'] = array( 'uris' => $links );
 		}
 		return $fields;
+	}
+
+	private static function loyalty_class_fields( int $user_id, array $wallet ): array {
+		$wallet_name = (string) get_user_meta( $user_id, self::NAME_META, true ) ?: 'Loyalty Wallet';
+		return array(
+			'issuerName'       => $wallet_name,
+			'programName'      => $wallet_name . ' Loyalty',
+			'accountNameLabel' => 'Nombre',
+			'accountIdLabel'   => 'Cliente',
+			'programLogo'      => array(
+				'sourceUri'          => array( 'uri' => $wallet['logo_url'] ),
+				'contentDescription' => array( 'defaultValue' => array( 'language' => 'es', 'value' => $wallet_name . ' logo' ) ),
+			),
+			'classTemplateInfo' => array(
+				'cardTemplateOverride' => array(
+					'cardRowTemplateInfos' => array(
+						array(
+							'twoItems' => array(
+								'startItem' => self::template_item( 'object.accountName' ),
+								'endItem'   => self::template_item( "object.textModulesData['next_visit']" ),
+							),
+						),
+						array(
+							'twoItems' => array(
+								'startItem' => self::template_item( "object.textModulesData['business_website']" ),
+								'endItem'   => self::template_item( "object.textModulesData['business_whatsapp']" ),
+							),
+						),
+					),
+				),
+			),
+		);
+	}
+
+	private static function template_item( string $field_path ): array {
+		return array(
+			'firstValue' => array(
+				'fields' => array(
+					array( 'fieldPath' => $field_path ),
+				),
+			),
+		);
+	}
+
+	private static function business_text_modules( int $user_id, string $next_visit ): array {
+		$website  = (string) get_user_meta( $user_id, self::WEBSITE_META, true );
+		$whatsapp = preg_replace( '/\D+/', '', (string) get_user_meta( $user_id, self::WHATSAPP_META, true ) );
+		return array(
+			array( 'id' => 'next_visit', 'header' => 'Próxima visita', 'body' => $next_visit ),
+			array( 'id' => 'business_website', 'header' => 'Website', 'body' => $website ?: 'No registrado' ),
+			array( 'id' => 'business_whatsapp', 'header' => 'WhatsApp', 'body' => $whatsapp ? '+' . $whatsapp : 'No registrado' ),
+		);
 	}
 
 	private static function business_links( int $user_id ): array {
