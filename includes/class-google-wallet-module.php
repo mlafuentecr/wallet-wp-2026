@@ -34,7 +34,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 	private const WEBSITE_META  = '_loyalty_wallet_website';
 	private const WHATSAPP_META = '_loyalty_wallet_business_whatsapp';
 	private const TEMPLATE_VERSION_META = '_loyalty_wallet_google_wallet_template_version';
-	private const TEMPLATE_VERSION = '8';
+	private const TEMPLATE_VERSION = '9';
 
 	public static function init(): void {
 		add_action( 'template_redirect', array( __CLASS__, 'maybe_render_landing' ), 0 );
@@ -725,7 +725,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 			'accountId'     => $member_id,
 			'accountName'   => $member_name ?: 'Loyalty member',
 			'loyaltyPoints' => array( 'label' => 'Puntos', 'balance' => array( 'int' => $points ) ),
-			'barcode'       => array( 'type' => 'QR_CODE', 'value' => $member_id, 'alternateText' => $points . ' puntos' ),
+			'barcode'       => array( 'type' => 'QR_CODE', 'value' => $member_id, 'alternateText' => ' ' ),
 			'textModulesData' => self::business_text_modules( $user_id, $next_visit ),
 		);
 		if ( $business_links ) {
@@ -762,7 +762,8 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 			'barcode'       => array(
 				'type'          => 'QR_CODE',
 				'value'         => Loyalty_Wallet_Rewards_Module::barcode_payload( $user_id, $customer ),
-				'alternateText' => sprintf( '%s · %d puntos · %s', sanitize_text_field( (string) ( $customer['name'] ?? 'Cliente' ) ), $points, $member_id ),
+				// Google displays the encoded value when alternateText is omitted.
+				'alternateText' => ' ',
 			),
 			'textModulesData' => self::business_text_modules( $user_id, $next_display ),
 		);

@@ -353,7 +353,6 @@ body:has(#lw-customers-panel:not([hidden])) .lw-code-editor{padding:0!important;
 .lw-card-preview-contact strong{margin-top:4px;font-size:13px;line-height:1.4}
 .lw-card-preview-qr{display:grid;place-items:center;gap:7px;margin-top:3px}
 .lw-card-preview-qr img{display:block;width:132px;height:132px;padding:9px;border-radius:14px;background:#fff}
-.lw-card-preview-qr strong{font-size:13px;font-weight:500}
 .lw-card-preview-banner{min-height:170px;background:#1f2937}
 .lw-card-preview-banner:empty{display:grid;place-items:center}
 .lw-card-preview-banner:empty:after{content:"Banner preview";color:#94a3b8;font-size:11px}

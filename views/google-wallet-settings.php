@@ -119,7 +119,7 @@ $promotion_was_saved = in_array( $wallet_notice, array( 'wallet_promotions_saved
 									<h4 id="lw-card-preview-program-name"><?php echo esc_html( $preview_program_name ); ?></h4>
 									<div class="lw-card-preview-fields"><span><small>Nombre</small><strong><?php echo esc_html( $preview_name ); ?></strong></span><span><small>Próxima visita</small><strong><?php echo esc_html( $preview_next_visit ); ?></strong></span></div>
 									<div id="lw-card-preview-contact" class="lw-card-preview-contact" <?php echo $wallet['contact_help'] ? '' : 'hidden'; ?>><strong id="lw-card-preview-contact-help"><?php echo esc_html( $wallet['contact_help'] ); ?></strong></div>
-									<div class="lw-card-preview-qr"><img src="<?php echo esc_url( $preview_qr_url ); ?>" alt="Preview QR code"><strong><?php echo esc_html( $preview_points ); ?> puntos</strong></div>
+									<div class="lw-card-preview-qr"><img src="<?php echo esc_url( $preview_qr_url ); ?>" alt="Preview QR code"></div>
 								</div>
 								<div id="lw-card-preview-banner" class="lw-card-preview-banner"><?php if ( $wallet['hero_url'] ) : ?><img src="<?php echo esc_url( $wallet['hero_url'] ); ?>" alt=""><?php endif; ?></div>
 							</div>
