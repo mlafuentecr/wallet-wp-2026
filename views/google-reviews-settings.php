@@ -2,7 +2,7 @@
 	<div class="lw-settings-heading"><h2>Google Reviews settings</h2><p>Connect the business listing used by the review QR code.</p></div>
 	<section class="lw-direct-review-link">
 		<div class="lw-direct-review-icon"><span class="dashicons dashicons-star-filled"></span></div>
-		<div><label for="lw-google-review-url">Google review link</label><p>Use the direct “Ask for reviews” link supplied by Google. It will be the destination of the QR review button.</p></div>
+		<div><label for="lw-google-review-url">Google review link</label><p><a href="https://support.google.com/business/answer/3474122" target="_blank" rel="noopener noreferrer">How to get your “Ask for reviews” link from Google <span aria-hidden="true">↗</span></a></p></div>
 		<div class="lw-direct-review-input"><input id="lw-google-review-url" name="google_review_url" type="url" value="<?php echo esc_attr( $google['review_url_input'] ); ?>" placeholder="https://g.page/r/.../review"><a id="lw-open-review-link" class="button" href="<?php echo esc_url( $google['review_url'] ?: '#' ); ?>" target="_blank" rel="noopener noreferrer">Open link <span aria-hidden="true">↗</span></a></div>
 	</section>
 	<section class="lw-review-reward" aria-labelledby="lw-review-reward-title">
