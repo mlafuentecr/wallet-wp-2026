@@ -39,48 +39,77 @@
 		<div class="lw-loyalty-settings-content">
 			<section class="lw-google-settings-section">
 				<div class="lw-wallet-design-section" aria-labelledby="lw-wallet-design-title">
+					<?php
+					$preview_wallet_name = (string) get_user_meta( get_current_user_id(), '_loyalty_wallet_name', true );
+					$preview_wallet_name = $preview_wallet_name ?: 'Loyalty Wallet';
+					$preview_customers   = Loyalty_Wallet_Customers_Module::all( get_current_user_id() );
+					$preview_customer    = $preview_customers ? end( $preview_customers ) : array();
+					$preview_name        = (string) ( $preview_customer['name'] ?? 'Nombre del cliente' );
+					$preview_points      = absint( $preview_customer['points'] ?? Loyalty_Wallet_Google_Reviews_Module::review_points( get_current_user_id() ) );
+					$preview_next_visit  = ! empty( $preview_customer['next_visit'] ) ? (string) $preview_customer['next_visit'] : 'No programada';
+					$preview_qr_value    = $preview_customer ? Loyalty_Wallet_Rewards_Module::barcode_payload( get_current_user_id(), $preview_customer ) : 'LOYALTY-WALLET-PREVIEW';
+					$preview_qr_url      = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=' . rawurlencode( $preview_qr_value );
+					?>
 					<div class="lw-wallet-design-heading">
-						<div><h3 id="lw-wallet-design-title">Google Wallet card design</h3><p>Customize the card color, program logo and full-width banner.</p></div>
-						<label class="lw-wallet-color-field" for="lw-wallet-background-color"><span>Card color</span><span><input id="lw-wallet-background-color" name="wallet_background_color" type="color" value="<?php echo esc_attr( $wallet['background_color_input'] ); ?>"><code id="lw-wallet-background-color-value"><?php echo esc_html( strtoupper( $wallet['background_color_input'] ) ); ?></code></span></label>
+						<div><h3 id="lw-wallet-design-title">Google Wallet card design</h3><p>Edit the controls on the left and preview the card on the right.</p></div>
 					</div>
-					<div class="lw-wallet-logo-row">
-						<div class="lw-wallet-logo-upload">
-							<div id="lw-wallet-logo-preview" class="lw-wallet-logo-preview"><?php if ( $wallet['logo_url'] ) : ?><img src="<?php echo esc_url( $wallet['logo_url'] ); ?>" alt="Google Wallet logo preview"><?php else : ?><span class="dashicons dashicons-format-image"></span><?php endif; ?></div>
-							<div>
-								<strong>Google Wallet program logo</strong>
-								<p>Recommended: square PNG, minimum 660 × 660 px, with 15% safe padding. Maximum 5 MB.</p>
-								<input id="lw-google-wallet-logo-media-id" name="wallet_logo_media_id" type="hidden" value="">
-								<input id="lw-wallet-logo-upload" name="wallet_logo_upload" type="file" accept="image/png,image/jpeg,image/webp" hidden>
-								<div class="lw-logo-actions">
-									<label class="button lw-wallet-upload-button" for="lw-wallet-logo-upload"><span class="dashicons dashicons-upload"></span> Upload logo</label>
-									<button type="button" class="button lw-media-library-button" data-media-target="lw-google-wallet-logo-media-id" data-preview-target="lw-wallet-logo-preview" data-file-target="lw-wallet-logo-upload" data-clear-url="lw-wallet-logo-url" data-media-title="Choose a Google Wallet logo" data-media-button="Use this logo"><span class="dashicons dashicons-admin-media"></span> Add from Media Library</button>
+					<div class="lw-wallet-design-workspace">
+						<div class="lw-wallet-design-controls">
+							<section class="lw-design-control-card">
+								<label class="lw-wallet-color-field" for="lw-wallet-background-color"><span>Card color</span><span><input id="lw-wallet-background-color" name="wallet_background_color" type="color" value="<?php echo esc_attr( $wallet['background_color_input'] ); ?>"><code id="lw-wallet-background-color-value"><?php echo esc_html( strtoupper( $wallet['background_color_input'] ) ); ?></code></span></label>
+							</section>
+							<section class="lw-design-control-card">
+								<div class="lw-wallet-logo-upload">
+									<div id="lw-wallet-logo-preview" class="lw-wallet-logo-preview"><?php if ( $wallet['logo_url'] ) : ?><img src="<?php echo esc_url( $wallet['logo_url'] ); ?>" alt="Google Wallet logo preview"><?php else : ?><span class="dashicons dashicons-format-image"></span><?php endif; ?></div>
+									<div>
+										<strong>Google Wallet program logo</strong>
+										<p>Square PNG, minimum 660 × 660 px, with 15% safe padding. Maximum 5 MB.</p>
+										<input id="lw-google-wallet-logo-media-id" name="wallet_logo_media_id" type="hidden" value="">
+										<input id="lw-wallet-logo-upload" name="wallet_logo_upload" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+										<div class="lw-logo-actions">
+											<label class="button lw-wallet-upload-button" for="lw-wallet-logo-upload"><span class="dashicons dashicons-upload"></span> Upload logo</label>
+											<button type="button" class="button lw-media-library-button" data-media-target="lw-google-wallet-logo-media-id" data-preview-target="lw-wallet-logo-preview" data-file-target="lw-wallet-logo-upload" data-clear-url="lw-wallet-logo-url" data-media-title="Choose a Google Wallet logo" data-media-button="Use this logo"><span class="dashicons dashicons-admin-media"></span> Media Library</button>
+										</div>
+									</div>
 								</div>
+								<div class="lw-wallet-logo-url-field">
+									<label for="lw-wallet-logo-url">Public HTTPS logo URL</label>
+									<input id="lw-wallet-logo-url" name="wallet_logo_url" type="url" value="<?php echo esc_attr( $wallet['logo_url_input'] ); ?>" placeholder="https://example.com/logo.png">
+								</div>
+							</section>
+							<section class="lw-design-control-card lw-design-banner-control">
+								<div id="lw-wallet-hero-preview" class="lw-wallet-hero-preview"><?php if ( $wallet['hero_url'] ) : ?><img src="<?php echo esc_url( $wallet['hero_url'] ); ?>" alt="Google Wallet banner preview"><?php else : ?><span class="dashicons dashicons-format-image"></span><small>No banner selected</small><?php endif; ?></div>
+								<div class="lw-wallet-hero-controls">
+									<div class="lw-wallet-hero-title"><strong>Card banner</strong><?php if ( 'random' === $wallet['hero_mode'] ) : ?><span id="lw-wallet-random-badge">Random banner</span><?php else : ?><span id="lw-wallet-random-badge" hidden>Random banner</span><?php endif; ?></div>
+									<p>Recommended: PNG 1032 × 812 px, approximately 5:4, no embedded text. Maximum 5 MB.</p>
+									<input id="lw-wallet-hero-mode" name="wallet_hero_mode" type="hidden" value="<?php echo esc_attr( $wallet['hero_mode'] ); ?>">
+									<input id="lw-wallet-hero-random-seed" name="wallet_hero_random_seed" type="hidden" value="<?php echo esc_attr( $wallet['hero_random_seed'] ); ?>">
+									<input id="lw-google-wallet-hero-media-id" name="wallet_hero_media_id" type="hidden" value="">
+									<input id="lw-wallet-hero-upload" name="wallet_hero_upload" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+									<div class="lw-logo-actions">
+										<label class="button lw-wallet-upload-button" for="lw-wallet-hero-upload"><span class="dashicons dashicons-upload"></span> Upload banner</label>
+										<button type="button" class="button lw-media-library-button" data-media-target="lw-google-wallet-hero-media-id" data-preview-target="lw-wallet-hero-preview" data-file-target="lw-wallet-hero-upload" data-clear-url="lw-wallet-hero-url" data-mode-target="lw-wallet-hero-mode" data-media-title="Choose a Google Wallet banner" data-media-button="Use this banner"><span class="dashicons dashicons-admin-media"></span> Media Library</button>
+										<button id="lw-wallet-random-hero" type="button" class="button" data-random-base="https://picsum.photos/seed/"><span class="dashicons dashicons-image-rotate"></span> Random</button>
+									</div>
+									<label for="lw-wallet-hero-url">Public HTTPS banner URL</label>
+									<input id="lw-wallet-hero-url" name="wallet_hero_url" type="url" value="<?php echo esc_attr( $wallet['hero_url_input'] ); ?>" placeholder="https://example.com/banner.png">
+								</div>
+							</section>
+						</div>
+						<aside class="lw-wallet-live-preview" aria-label="Google Wallet card preview">
+							<div class="lw-live-preview-heading"><span><strong>Live preview</strong><small>Approximate Google Wallet appearance</small></span><span class="dashicons dashicons-smartphone"></span></div>
+							<div id="lw-wallet-card-preview" class="lw-wallet-card-preview" style="--lw-card-color:<?php echo esc_attr( $wallet['background_color_input'] ); ?>">
+								<div class="lw-card-preview-body">
+									<div class="lw-card-preview-brand"><span id="lw-card-preview-logo"><?php if ( $wallet['logo_url'] ) : ?><img src="<?php echo esc_url( $wallet['logo_url'] ); ?>" alt=""><?php else : ?><span class="dashicons dashicons-store"></span><?php endif; ?></span><strong>[TEST ONLY] <?php echo esc_html( $preview_wallet_name ); ?></strong></div>
+									<h4><?php echo esc_html( $preview_wallet_name ); ?> Loyalty</h4>
+									<div class="lw-card-preview-fields"><span><small>Nombre</small><strong><?php echo esc_html( $preview_name ); ?></strong></span><span><small>Próxima visita</small><strong><?php echo esc_html( $preview_next_visit ); ?></strong></span></div>
+									<div class="lw-card-preview-contact"><small>Contacto</small><strong>Toca los tres puntos para llamar o escribir por WhatsApp.</strong></div>
+									<div class="lw-card-preview-qr"><img src="<?php echo esc_url( $preview_qr_url ); ?>" alt="Preview QR code"><strong><?php echo esc_html( $preview_points ); ?> puntos</strong></div>
+								</div>
+								<div id="lw-card-preview-banner" class="lw-card-preview-banner"><?php if ( $wallet['hero_url'] ) : ?><img src="<?php echo esc_url( $wallet['hero_url'] ); ?>" alt=""><?php endif; ?></div>
 							</div>
-						</div>
-						<div class="lw-wallet-logo-url-field">
-							<label for="lw-wallet-logo-url">Or use a public HTTPS logo URL</label>
-							<input id="lw-wallet-logo-url" name="wallet_logo_url" type="url" value="<?php echo esc_attr( $wallet['logo_url_input'] ); ?>" placeholder="https://example.com/logo.png">
-							<small>Use this option when the logo is already hosted on a public HTTPS website.</small>
-						</div>
-					</div>
-					<div class="lw-wallet-hero-row">
-						<div id="lw-wallet-hero-preview" class="lw-wallet-hero-preview"><?php if ( $wallet['hero_url'] ) : ?><img src="<?php echo esc_url( $wallet['hero_url'] ); ?>" alt="Google Wallet banner preview"><?php else : ?><span class="dashicons dashicons-format-image"></span><small>No banner selected</small><?php endif; ?></div>
-						<div class="lw-wallet-hero-controls">
-							<div class="lw-wallet-hero-title"><strong>Card banner</strong><?php if ( 'random' === $wallet['hero_mode'] ) : ?><span id="lw-wallet-random-badge">Random banner</span><?php else : ?><span id="lw-wallet-random-badge" hidden>Random banner</span><?php endif; ?></div>
-							<p><strong>Recommended:</strong> PNG, 1032 × 812 px (approximately 5:4), high resolution and no embedded text. JPG and WebP are also accepted. Maximum 5 MB.</p>
-							<input id="lw-wallet-hero-mode" name="wallet_hero_mode" type="hidden" value="<?php echo esc_attr( $wallet['hero_mode'] ); ?>">
-							<input id="lw-wallet-hero-random-seed" name="wallet_hero_random_seed" type="hidden" value="<?php echo esc_attr( $wallet['hero_random_seed'] ); ?>">
-							<input id="lw-google-wallet-hero-media-id" name="wallet_hero_media_id" type="hidden" value="">
-							<input id="lw-wallet-hero-upload" name="wallet_hero_upload" type="file" accept="image/png,image/jpeg,image/webp" hidden>
-							<div class="lw-logo-actions">
-								<label class="button lw-wallet-upload-button" for="lw-wallet-hero-upload"><span class="dashicons dashicons-upload"></span> Upload banner</label>
-								<button type="button" class="button lw-media-library-button" data-media-target="lw-google-wallet-hero-media-id" data-preview-target="lw-wallet-hero-preview" data-file-target="lw-wallet-hero-upload" data-clear-url="lw-wallet-hero-url" data-mode-target="lw-wallet-hero-mode" data-media-title="Choose a Google Wallet banner" data-media-button="Use this banner"><span class="dashicons dashicons-admin-media"></span> Add from Media Library</button>
-								<button id="lw-wallet-random-hero" type="button" class="button" data-random-base="https://picsum.photos/seed/"><span class="dashicons dashicons-image-rotate"></span> New random banner</button>
-							</div>
-							<small class="lw-wallet-random-help">A free seeded image from <a href="https://picsum.photos/" target="_blank" rel="noopener noreferrer">Lorem Picsum</a> is used until the business uploads its own banner.</small>
-							<label for="lw-wallet-hero-url">Or use a public HTTPS banner URL</label>
-							<input id="lw-wallet-hero-url" name="wallet_hero_url" type="url" value="<?php echo esc_attr( $wallet['hero_url_input'] ); ?>" placeholder="https://example.com/banner.png">
-						</div>
+							<p>Google may adjust typography and spacing depending on the device.</p>
+						</aside>
 					</div>
 				</div>
 			</section>
