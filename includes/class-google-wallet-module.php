@@ -28,11 +28,12 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 	private const PUBLIC_TOKEN  = '_loyalty_wallet_google_wallet_public_token';
 	private const NAME_META     = '_loyalty_wallet_name';
 	private const PROGRAM_NAME_META = '_loyalty_wallet_program_name';
+	private const CONTACT_HELP_META = '_loyalty_wallet_google_wallet_contact_help';
 	private const LOGO_META     = '_loyalty_wallet_logo_id';
 	private const WEBSITE_META  = '_loyalty_wallet_website';
 	private const WHATSAPP_META = '_loyalty_wallet_business_whatsapp';
 	private const TEMPLATE_VERSION_META = '_loyalty_wallet_google_wallet_template_version';
-	private const TEMPLATE_VERSION = '6';
+	private const TEMPLATE_VERSION = '7';
 
 	public static function init(): void {
 		add_action( 'template_redirect', array( __CLASS__, 'maybe_render_landing' ), 0 );
@@ -92,6 +93,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		$wallet_name      = (string) get_user_meta( $user_id, self::NAME_META, true ) ?: 'Loyalty Wallet';
 		$program_name     = (string) get_user_meta( $user_id, self::PROGRAM_NAME_META, true );
 		$program_name     = $program_name ?: $wallet_name . ' Loyalty';
+		$contact_help     = self::contact_help( $user_id );
 		$promo_image_url_input = (string) get_user_meta( $user_id, self::PROMO_IMAGE_URL, true );
 		$promo_image_id        = absint( get_user_meta( $user_id, self::PROMO_IMAGE_ID, true ) );
 		$promo_image_url       = $promo_image_url_input;
@@ -128,6 +130,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 			'background_color' => $background_color,
 			'background_color_input' => $background_color ?: '#1a1a1a',
 			'program_name'     => $program_name,
+			'contact_help'     => $contact_help,
 			'promo_enabled'    => '1' === (string) get_user_meta( $user_id, self::PROMO_ENABLED, true ),
 			'promo_title'      => (string) get_user_meta( $user_id, self::PROMO_TITLE, true ) ?: 'Promociones',
 			'promo_body'       => (string) get_user_meta( $user_id, self::PROMO_BODY, true ) ?: 'Revisa promociones disponibles',
@@ -168,6 +171,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		}
 		$background_color = isset( $_POST['wallet_background_color'] ) ? sanitize_hex_color( wp_unslash( $_POST['wallet_background_color'] ) ) : '';
 		$program_name     = isset( $_POST['wallet_program_name'] ) ? sanitize_text_field( wp_unslash( $_POST['wallet_program_name'] ) ) : '';
+		$contact_help     = isset( $_POST['wallet_contact_help'] ) ? sanitize_textarea_field( wp_unslash( $_POST['wallet_contact_help'] ) ) : '';
 		$promo_enabled    = isset( $_POST['wallet_promo_enabled'] ) && '1' === sanitize_text_field( wp_unslash( $_POST['wallet_promo_enabled'] ) );
 		$promo_title      = isset( $_POST['wallet_promo_title'] ) ? sanitize_text_field( wp_unslash( $_POST['wallet_promo_title'] ) ) : '';
 		$promo_body       = isset( $_POST['wallet_promo_body'] ) ? sanitize_text_field( wp_unslash( $_POST['wallet_promo_body'] ) ) : '';
@@ -179,6 +183,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		$new_private_key = '';
 		$existing        = self::data( $user_id );
 		$program_name    = $program_name ?: $existing['program_name'];
+		$contact_help    = $contact_help ?: $existing['contact_help'];
 		$promo_title     = $promo_title ?: $existing['promo_title'];
 		$promo_body      = $promo_body ?: $existing['promo_body'];
 		$appointment_label = $appointment_label ?: $existing['appointment_label'];
@@ -210,6 +215,9 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		}
 		if ( '' === $program_name ) {
 			return 'invalid_program_name';
+		}
+		if ( '' === $contact_help ) {
+			return 'invalid_wallet_contact_help';
 		}
 		if ( $promo_image_url && ! self::is_public_https_url( $promo_image_url ) ) {
 			return 'invalid_wallet_promotion';
@@ -297,6 +305,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		update_user_meta( $user_id, self::HERO_RANDOM_SEED, $hero_random_seed );
 		update_user_meta( $user_id, self::BACKGROUND_COLOR, $background_color );
 		update_user_meta( $user_id, self::PROGRAM_NAME_META, $program_name );
+		update_user_meta( $user_id, self::CONTACT_HELP_META, mb_substr( $contact_help, 0, 160 ) );
 		update_user_meta( $user_id, self::PROMO_ENABLED, $promo_enabled ? '1' : '0' );
 		update_user_meta( $user_id, self::PROMO_TITLE, mb_substr( $promo_title, 0, 60 ) );
 		update_user_meta( $user_id, self::PROMO_BODY, mb_substr( $promo_body, 0, 50 ) );
@@ -760,15 +769,18 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 	}
 
 	private static function business_text_modules( int $user_id, string $next_visit ): array {
-		$website  = (string) get_user_meta( $user_id, self::WEBSITE_META, true );
-		$whatsapp = preg_replace( '/\D+/', '', (string) get_user_meta( $user_id, self::WHATSAPP_META, true ) );
-		$contact_help = $whatsapp
-			? 'Toca los tres puntos para llamar o escribir por WhatsApp.'
-			: ( $website ? 'Toca los tres puntos para visitar el sitio web del negocio.' : 'Toca los tres puntos para ver los detalles de contacto.' );
 		return array(
 			array( 'id' => 'next_visit', 'header' => 'Próxima visita', 'body' => $next_visit ),
-			array( 'id' => 'contact_help', 'header' => 'Contacto', 'body' => $contact_help ),
+			array( 'id' => 'contact_help', 'header' => 'Contacto', 'body' => self::contact_help( $user_id ) ),
 		);
+	}
+
+	private static function contact_help( int $user_id ): string {
+		$saved = trim( (string) get_user_meta( $user_id, self::CONTACT_HELP_META, true ) );
+		if ( $saved ) {
+			return $saved;
+		}
+		return 'Toca los tres puntos para llamar o escribir por WhatsApp.';
 	}
 
 	private static function business_links( int $user_id ): array {

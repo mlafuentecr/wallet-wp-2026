@@ -260,6 +260,7 @@ body:has(#lw-customers-panel:not([hidden])) .lw-code-editor{padding:0!important;
 .lw-wallet-design-workspace{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(320px,.88fr);align-items:start;gap:20px}
 .lw-wallet-design-controls{display:grid;gap:13px;min-width:0}
 .lw-design-control-card{display:grid;gap:13px;padding:15px;border:1px solid #d6e0ee;border-radius:12px;background:#fff}
+.lw-design-control-card textarea{box-sizing:border-box;width:100%;min-height:76px;margin:0;border-radius:8px;resize:vertical}
 .lw-design-control-card .lw-wallet-logo-upload{grid-template-columns:82px minmax(0,1fr);padding:0;border:0;background:transparent}
 .lw-design-control-card .lw-wallet-logo-preview{width:82px;height:82px;border-radius:12px}
 .lw-design-control-card .lw-wallet-logo-upload p{margin:4px 0 9px}

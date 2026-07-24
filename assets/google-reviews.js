@@ -28,6 +28,7 @@
 	var settingsSubmit = document.querySelector('#lw-code-editor > form #submit');
 	var nameInput = document.getElementById('lw-wallet-name');
 	var programNameInput = document.getElementById('lw-wallet-program-name');
+	var contactHelpInput = document.getElementById('lw-wallet-contact-help');
 	var placeInput = document.getElementById('lw-place-id');
 	var mapsInput = document.getElementById('lw-maps-url');
 	var pointsInput = document.getElementById('lw-review-points');
@@ -200,6 +201,8 @@
 	function syncWalletCardPreview() {
 		if (walletCardPreview && walletColor) walletCardPreview.style.setProperty('--lw-card-color', walletColor.value);
 		if (walletCardProgramName && programNameInput) walletCardProgramName.textContent = programNameInput.value.trim() || ((nameInput ? nameInput.value.trim() : '') + ' Loyalty').trim();
+		var walletCardContactHelp = document.getElementById('lw-card-preview-contact-help');
+		if (walletCardContactHelp && contactHelpInput) walletCardContactHelp.textContent = contactHelpInput.value.trim() || 'Toca los tres puntos para llamar o escribir por WhatsApp.';
 		syncWalletCardImage(walletLogoPreview, walletCardLogo, 'dashicons-store');
 		syncWalletCardImage(walletHeroPreview, walletCardBanner, '');
 	}
@@ -213,6 +216,7 @@
 		if (walletAppointmentPreview && walletAppointmentUrl) walletAppointmentPreview.href = walletAppointmentUrl.value.trim() || '#';
 	}
 	if (programNameInput) programNameInput.addEventListener('input', syncWalletCardPreview);
+	if (contactHelpInput) contactHelpInput.addEventListener('input', syncWalletCardPreview);
 	[walletPromoTitle, walletPromoBody, walletAppointmentLabel, walletAppointmentUrl].forEach(function (field) { if (field) field.addEventListener('input', syncWalletActionsPreview); });
 	[walletPromoEnabled, walletAppointmentEnabled].forEach(function (field) { if (field) field.addEventListener('change', syncWalletActionsPreview); });
 	if (walletColor && walletColorValue) walletColor.addEventListener('input', function () { walletColorValue.textContent = walletColor.value.toUpperCase(); syncWalletCardPreview(); });
