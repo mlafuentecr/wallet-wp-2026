@@ -18,6 +18,7 @@ require_once LOYALTY_WALLET_DIR . 'includes/class-google-wallet-module.php';
 require_once LOYALTY_WALLET_DIR . 'includes/class-customers-module.php';
 require_once LOYALTY_WALLET_DIR . 'includes/class-google-identity-module.php';
 require_once LOYALTY_WALLET_DIR . 'includes/class-engagement-module.php';
+require_once LOYALTY_WALLET_DIR . 'includes/class-businesses-module.php';
 
 final class Loyalty_Wallet_Plugin {
 	private const CAPABILITY   = 'access_loyalty_wallet';
@@ -43,6 +44,7 @@ final class Loyalty_Wallet_Plugin {
 		add_action( 'admin_post_loyalty_wallet_add_visit', array( __CLASS__, 'add_visit' ) );
 		add_action( 'admin_post_loyalty_wallet_save_reminder', array( __CLASS__, 'save_reminder' ) );
 		add_action( 'admin_post_loyalty_wallet_mark_reminder_sent', array( __CLASS__, 'mark_reminder_sent' ) );
+		add_action( 'admin_post_loyalty_wallet_export_business_customers', array( 'Loyalty_Wallet_Businesses_Module', 'export_csv' ) );
 		add_action( 'loyalty_wallet_run_engagement_reminder', array( 'Loyalty_Wallet_Engagement_Module', 'run' ), 10, 2 );
 		add_action( 'admin_head', array( __CLASS__, 'admin_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
@@ -51,12 +53,17 @@ final class Loyalty_Wallet_Plugin {
 	}
 
 	public static function enqueue_assets(): void {
-		if ( isset( $_GET['page'] ) && self::MENU_SLUG === sanitize_key( wp_unslash( $_GET['page'] ) ) ) {
+		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+		if ( self::MENU_SLUG === $page ) {
 			if ( current_user_can( 'upload_files' ) ) {
 				wp_enqueue_media();
 			}
 			wp_enqueue_style( 'loyalty-wallet-google-reviews', LOYALTY_WALLET_URL . 'assets/google-reviews.css', array(), (string) filemtime( LOYALTY_WALLET_DIR . 'assets/google-reviews.css' ) );
 			wp_enqueue_script( 'loyalty-wallet-google-reviews', LOYALTY_WALLET_URL . 'assets/google-reviews.js', array(), (string) filemtime( LOYALTY_WALLET_DIR . 'assets/google-reviews.js' ), true );
+		}
+		if ( 'loyalty-wallet-businesses' === $page && current_user_can( 'manage_options' ) ) {
+			wp_enqueue_style( 'loyalty-wallet-businesses', LOYALTY_WALLET_URL . 'assets/businesses.css', array(), (string) filemtime( LOYALTY_WALLET_DIR . 'assets/businesses.css' ) );
+			wp_enqueue_script( 'loyalty-wallet-businesses', LOYALTY_WALLET_URL . 'assets/businesses.js', array(), (string) filemtime( LOYALTY_WALLET_DIR . 'assets/businesses.js' ), true );
 		}
 	}
 
@@ -85,6 +92,14 @@ final class Loyalty_Wallet_Plugin {
 			array( __CLASS__, 'render_page' ),
 			'dashicons-tickets-alt',
 			2
+		);
+		add_submenu_page(
+			self::MENU_SLUG,
+			'Businesses',
+			'Businesses',
+			'manage_options',
+			'loyalty-wallet-businesses',
+			array( 'Loyalty_Wallet_Businesses_Module', 'render_page' )
 		);
 	}
 
