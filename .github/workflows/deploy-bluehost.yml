@@ -33,7 +33,7 @@ jobs:
           protocol: ftpss
           security: loose
           local-dir: ./
-          server-dir: ./x/
+          server-dir: /x/
           state-name: .ftp-deploy-sync-state.json
           log-level: standard
           exclude: |
