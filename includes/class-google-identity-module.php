@@ -65,7 +65,8 @@ final class Loyalty_Wallet_Google_Identity_Module {
 		}
 
 		$sub     = sanitize_text_field( (string) ( $claims['sub'] ?? '' ) );
-		$name    = sanitize_text_field( (string) ( $claims['name'] ?? '' ) );
+		$google_name = trim( sanitize_text_field( (string) ( $claims['given_name'] ?? '' ) ) . ' ' . sanitize_text_field( (string) ( $claims['family_name'] ?? '' ) ) );
+		$name    = Loyalty_Wallet_Customers_Module::person_name( $google_name ?: (string) ( $claims['name'] ?? '' ) );
 		$email   = sanitize_email( (string) ( $claims['email'] ?? '' ) );
 		$picture = esc_url_raw( (string) ( $claims['picture'] ?? '' ) );
 		if ( ! $sub || ! $name || ! is_email( $email ) ) {

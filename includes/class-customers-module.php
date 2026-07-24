@@ -14,6 +14,11 @@ final class Loyalty_Wallet_Customers_Module {
 		}
 		$migrated = false;
 		foreach ( $customers as &$customer ) {
+			$clean_name = self::person_name( (string) ( $customer['name'] ?? '' ) );
+			if ( $clean_name && $clean_name !== (string) ( $customer['name'] ?? '' ) ) {
+				$customer['name'] = $clean_name;
+				$migrated = true;
+			}
 			if ( ! array_key_exists( 'review_source', $customer ) ) {
 				$customer['review_source'] = ! empty( $customer['rating'] ) ? 'google' : 'wallet';
 				$migrated = true;
@@ -40,8 +45,14 @@ final class Loyalty_Wallet_Customers_Module {
 		return array_values( $customers );
 	}
 
+	public static function person_name( string $name ): string {
+		$name = sanitize_text_field( $name );
+		$name = preg_replace( '/\s*\([^()]*\)\s*$/u', '', $name );
+		return trim( preg_replace( '/\s+/u', ' ', (string) $name ) );
+	}
+
 	public static function add( int $user_id ): string {
-		$name = isset( $_POST['customer_name'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_name'] ) ) : '';
+		$name = isset( $_POST['customer_name'] ) ? self::person_name( wp_unslash( $_POST['customer_name'] ) ) : '';
 		$email = isset( $_POST['customer_email'] ) ? sanitize_email( wp_unslash( $_POST['customer_email'] ) ) : '';
 		$phone = isset( $_POST['customer_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_phone'] ) ) : '';
 		$review = isset( $_POST['customer_review'] ) ? sanitize_textarea_field( wp_unslash( $_POST['customer_review'] ) ) : '';
@@ -113,7 +124,7 @@ final class Loyalty_Wallet_Customers_Module {
 			}
 
 			$customer['google_sub']       = $sub;
-			$customer['name']             = sanitize_text_field( (string) ( $identity['name'] ?? $customer['name'] ?? '' ) );
+			$customer['name']             = self::person_name( (string) ( $identity['name'] ?? $customer['name'] ?? '' ) );
 			$customer['email']            = $email;
 			$customer['phone']            = sanitize_text_field( (string) ( $identity['phone'] ?? $customer['phone'] ?? '' ) );
 			$customer['picture']          = esc_url_raw( (string) ( $identity['picture'] ?? '' ) );
@@ -133,7 +144,7 @@ final class Loyalty_Wallet_Customers_Module {
 		if ( null === $match ) {
 			$customer = array(
 				'id'                    => wp_generate_uuid4(),
-				'name'                  => sanitize_text_field( (string) ( $identity['name'] ?? '' ) ),
+				'name'                  => self::person_name( (string) ( $identity['name'] ?? '' ) ),
 				'email'                 => $email,
 				'phone'                 => sanitize_text_field( (string) ( $identity['phone'] ?? '' ) ),
 				'contact_preference'    => 'whatsapp',
@@ -164,7 +175,7 @@ final class Loyalty_Wallet_Customers_Module {
 
 	public static function update( int $user_id ): string {
 		$id = isset( $_POST['customer_id'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_id'] ) ) : '';
-		$name = isset( $_POST['customer_name'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_name'] ) ) : '';
+		$name = isset( $_POST['customer_name'] ) ? self::person_name( wp_unslash( $_POST['customer_name'] ) ) : '';
 		$email = isset( $_POST['customer_email'] ) ? sanitize_email( wp_unslash( $_POST['customer_email'] ) ) : '';
 		$phone = isset( $_POST['customer_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_phone'] ) ) : '';
 		$review = isset( $_POST['customer_review'] ) ? sanitize_textarea_field( wp_unslash( $_POST['customer_review'] ) ) : '';
