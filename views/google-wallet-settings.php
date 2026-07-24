@@ -175,7 +175,7 @@ $promotion_was_saved = in_array( $wallet_notice, array( 'wallet_promotions_saved
 							</label>
 							<div class="lw-appointment-fields">
 								<label for="lw-wallet-appointment-label">Button label<input id="lw-wallet-appointment-label" name="wallet_appointment_label" type="text" value="<?php echo esc_attr( $wallet['appointment_label'] ); ?>" maxlength="30" placeholder="Hacer cita"></label>
-								<label for="lw-wallet-appointment-url">Booking URL<input id="lw-wallet-appointment-url" name="wallet_appointment_url" type="url" value="<?php echo esc_attr( $wallet['appointment_url'] ); ?>" placeholder="https://example.com/citas"></label>
+								<label for="lw-wallet-appointment-url">Booking URL<input id="lw-wallet-appointment-url" name="wallet_appointment_url" type="url" value="<?php echo esc_attr( $wallet['appointment_url'] ); ?>" placeholder="https://example.com/citas"><small>Optional when Business WhatsApp is configured; the button will open WhatsApp automatically.</small></label>
 							</div>
 						</section>
 					</div>

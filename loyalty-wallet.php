@@ -560,7 +560,7 @@ final class Loyalty_Wallet_Plugin {
 			'invalid_wallet_hero' => array( 'error', 'Upload a valid PNG, JPG or WebP banner no larger than 5 MB.' ),
 			'invalid_wallet_design' => array( 'error', 'Choose a valid card color and a public HTTPS banner URL.' ),
 			'invalid_wallet_promotion' => array( 'error', 'Complete the promotion title and public HTTPS URL. The optional image must be a valid PNG, JPG or WebP under 5 MB.' ),
-			'invalid_wallet_appointment' => array( 'error', 'Complete the appointment button label and public HTTPS booking URL.' ),
+			'invalid_wallet_appointment' => array( 'error', 'Add a button label and a public HTTPS booking URL, or leave the URL empty and configure Business WhatsApp under Negocio.' ),
 			'wallet_configuration_saved' => array( 'success', 'Google Loyalty configuration saved successfully.' ),
 			'wallet_design_saved' => array( 'success', 'Google Wallet card design saved successfully.' ),
 			'wallet_promotions_saved' => array( 'success', 'Promotions and appointment settings saved successfully.' ),

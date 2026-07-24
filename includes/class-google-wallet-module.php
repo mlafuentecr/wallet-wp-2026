@@ -219,6 +219,12 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 			$appointment_url     = $existing['appointment_url'];
 			$appointment_label   = $existing['appointment_label'];
 		}
+		if ( 'promotions' === $subsection && $appointment_enabled && ! $appointment_url ) {
+			$business_whatsapp = preg_replace( '/\D+/', '', (string) get_user_meta( $user_id, self::WHATSAPP_META, true ) );
+			if ( strlen( $business_whatsapp ) >= 8 && strlen( $business_whatsapp ) <= 15 ) {
+				$appointment_url = 'https://wa.me/' . $business_whatsapp;
+			}
+		}
 		if ( 'configuration' === $subsection && ! $existing['uses_constants'] && ! empty( $_FILES['wallet_service_account_json']['name'] ) ) {
 			$credentials = self::service_account_credentials_from_upload();
 			if ( is_wp_error( $credentials ) ) {
