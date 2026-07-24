@@ -80,6 +80,9 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		}
 		$hero_url = self::public_asset_url( $hero_url, $public_url );
 		$background_color = sanitize_hex_color( (string) get_user_meta( $user_id, self::BACKGROUND_COLOR, true ) );
+		$wallet_name      = (string) get_user_meta( $user_id, self::NAME_META, true ) ?: 'Loyalty Wallet';
+		$program_name     = (string) get_user_meta( $user_id, self::PROGRAM_NAME_META, true );
+		$program_name     = $program_name ?: $wallet_name . ' Loyalty';
 		$has_credentials = (bool) ( $issuer_id && $class_suffix && is_email( $service_email ) && $private_key );
 		$public_url_ready = self::is_public_https_url( $public_url );
 		$logo_url_ready   = self::is_public_https_url( $logo_url );
@@ -108,6 +111,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 			'hero_random_seed' => $hero_random_seed,
 			'background_color' => $background_color,
 			'background_color_input' => $background_color ?: '#1a1a1a',
+			'program_name'     => $program_name,
 			'is_configured'   => $has_credentials && $public_url_ready && $logo_url_ready,
 			'configuration_error' => $configuration_error,
 			'uses_constants'  => defined( 'LOYALTY_WALLET_GOOGLE_ISSUER_ID' ) || defined( 'LOYALTY_WALLET_GOOGLE_SERVICE_ACCOUNT_EMAIL' ) || defined( 'LOYALTY_WALLET_GOOGLE_PRIVATE_KEY' ),
@@ -137,8 +141,10 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 			$hero_mode = 'custom';
 		}
 		$background_color = isset( $_POST['wallet_background_color'] ) ? sanitize_hex_color( wp_unslash( $_POST['wallet_background_color'] ) ) : '';
+		$program_name     = isset( $_POST['wallet_program_name'] ) ? sanitize_text_field( wp_unslash( $_POST['wallet_program_name'] ) ) : '';
 		$new_private_key = '';
 		$existing        = self::data( $user_id );
+		$program_name    = $program_name ?: $existing['program_name'];
 		if ( ! $existing['uses_constants'] && ! empty( $_FILES['wallet_service_account_json']['name'] ) ) {
 			$credentials = self::service_account_credentials_from_upload();
 			if ( is_wp_error( $credentials ) ) {
@@ -164,6 +170,9 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		}
 		if ( ! $background_color ) {
 			return 'invalid_wallet_design';
+		}
+		if ( '' === $program_name ) {
+			return 'invalid_program_name';
 		}
 		if ( $has_any && ( ! preg_match( '/^\d{5,30}$/', $issuer_id ) || ! preg_match( '/^[a-z0-9_-]{3,60}$/', $class_suffix ) || ! is_email( $service_email ) ) ) {
 			return 'invalid_wallet_settings';
@@ -225,6 +234,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		update_user_meta( $user_id, self::HERO_URL, $hero_url );
 		update_user_meta( $user_id, self::HERO_RANDOM_SEED, $hero_random_seed );
 		update_user_meta( $user_id, self::BACKGROUND_COLOR, $background_color );
+		update_user_meta( $user_id, self::PROGRAM_NAME_META, $program_name );
 		if ( $new_private_key ) {
 			update_user_meta( $user_id, self::PRIVATE_KEY, $new_private_key );
 		}

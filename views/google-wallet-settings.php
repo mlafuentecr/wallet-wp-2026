@@ -42,8 +42,7 @@
 					<?php
 					$preview_wallet_name = (string) get_user_meta( get_current_user_id(), '_loyalty_wallet_name', true );
 					$preview_wallet_name = $preview_wallet_name ?: 'Loyalty Wallet';
-					$preview_program_name = (string) get_user_meta( get_current_user_id(), '_loyalty_wallet_program_name', true );
-					$preview_program_name = $preview_program_name ?: $preview_wallet_name . ' Loyalty';
+					$preview_program_name = $wallet['program_name'];
 					$preview_customers   = Loyalty_Wallet_Customers_Module::all( get_current_user_id() );
 					$preview_customer    = $preview_customers ? end( $preview_customers ) : array();
 					$preview_name        = (string) ( $preview_customer['name'] ?? 'Nombre del cliente' );
@@ -57,6 +56,11 @@
 					</div>
 					<div class="lw-wallet-design-workspace">
 						<div class="lw-wallet-design-controls">
+							<section class="lw-design-control-card">
+								<label for="lw-wallet-program-name">Loyalty program name</label>
+								<input id="lw-wallet-program-name" name="wallet_program_name" type="text" value="<?php echo esc_attr( $preview_program_name ); ?>" placeholder="Croc's Rewards" maxlength="120" required>
+								<small>This is the main title shown on the Google Wallet card.</small>
+							</section>
 							<section class="lw-design-control-card">
 								<label class="lw-wallet-color-field" for="lw-wallet-background-color"><span>Card color</span><span><input id="lw-wallet-background-color" name="wallet_background_color" type="color" value="<?php echo esc_attr( $wallet['background_color_input'] ); ?>"><code id="lw-wallet-background-color-value"><?php echo esc_html( strtoupper( $wallet['background_color_input'] ) ); ?></code></span></label>
 							</section>
