@@ -25,6 +25,7 @@
 	}
 	var settingsSubmit = document.querySelector('#lw-code-editor > form #submit');
 	var nameInput = document.getElementById('lw-wallet-name');
+	var programNameInput = document.getElementById('lw-wallet-program-name');
 	var placeInput = document.getElementById('lw-place-id');
 	var mapsInput = document.getElementById('lw-maps-url');
 	var pointsInput = document.getElementById('lw-review-points');
@@ -153,6 +154,7 @@
 	var walletCardPreview = document.getElementById('lw-wallet-card-preview');
 	var walletCardLogo = document.getElementById('lw-card-preview-logo');
 	var walletCardBanner = document.getElementById('lw-card-preview-banner');
+	var walletCardProgramName = document.getElementById('lw-card-preview-program-name');
 	var walletLogoUrlInput = document.getElementById('lw-wallet-logo-url');
 	function syncWalletCardImage(source, target, fallbackIcon) {
 		if (!source || !target) return;
@@ -171,9 +173,11 @@
 	}
 	function syncWalletCardPreview() {
 		if (walletCardPreview && walletColor) walletCardPreview.style.setProperty('--lw-card-color', walletColor.value);
+		if (walletCardProgramName && programNameInput) walletCardProgramName.textContent = programNameInput.value.trim() || ((nameInput ? nameInput.value.trim() : '') + ' Loyalty').trim();
 		syncWalletCardImage(walletLogoPreview, walletCardLogo, 'dashicons-store');
 		syncWalletCardImage(walletHeroPreview, walletCardBanner, '');
 	}
+	if (programNameInput) programNameInput.addEventListener('input', syncWalletCardPreview);
 	if (walletColor && walletColorValue) walletColor.addEventListener('input', function () { walletColorValue.textContent = walletColor.value.toUpperCase(); syncWalletCardPreview(); });
 	if (walletLogoUrlInput) walletLogoUrlInput.addEventListener('input', function () {
 		var url = walletLogoUrlInput.value.trim();

@@ -18,6 +18,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 	private const BACKGROUND_COLOR = '_loyalty_wallet_google_wallet_background_color';
 	private const PUBLIC_TOKEN  = '_loyalty_wallet_google_wallet_public_token';
 	private const NAME_META     = '_loyalty_wallet_name';
+	private const PROGRAM_NAME_META = '_loyalty_wallet_program_name';
 	private const LOGO_META     = '_loyalty_wallet_logo_id';
 	private const WEBSITE_META  = '_loyalty_wallet_website';
 	private const WHATSAPP_META = '_loyalty_wallet_business_whatsapp';
@@ -590,9 +591,11 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 
 	private static function loyalty_class_fields( int $user_id, array $wallet ): array {
 		$wallet_name = (string) get_user_meta( $user_id, self::NAME_META, true ) ?: 'Loyalty Wallet';
+		$program_name = (string) get_user_meta( $user_id, self::PROGRAM_NAME_META, true );
+		$program_name = $program_name ?: $wallet_name . ' Loyalty';
 		$fields = array(
 			'issuerName'       => $wallet_name,
-			'programName'      => $wallet_name . ' Loyalty',
+			'programName'      => $program_name,
 			'reviewStatus'     => 'UNDER_REVIEW',
 			'accountNameLabel' => 'Nombre',
 			'accountIdLabel'   => 'Cliente',

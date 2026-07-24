@@ -42,6 +42,8 @@
 					<?php
 					$preview_wallet_name = (string) get_user_meta( get_current_user_id(), '_loyalty_wallet_name', true );
 					$preview_wallet_name = $preview_wallet_name ?: 'Loyalty Wallet';
+					$preview_program_name = (string) get_user_meta( get_current_user_id(), '_loyalty_wallet_program_name', true );
+					$preview_program_name = $preview_program_name ?: $preview_wallet_name . ' Loyalty';
 					$preview_customers   = Loyalty_Wallet_Customers_Module::all( get_current_user_id() );
 					$preview_customer    = $preview_customers ? end( $preview_customers ) : array();
 					$preview_name        = (string) ( $preview_customer['name'] ?? 'Nombre del cliente' );
@@ -101,7 +103,7 @@
 							<div id="lw-wallet-card-preview" class="lw-wallet-card-preview" style="--lw-card-color:<?php echo esc_attr( $wallet['background_color_input'] ); ?>">
 								<div class="lw-card-preview-body">
 									<div class="lw-card-preview-brand"><span id="lw-card-preview-logo"><?php if ( $wallet['logo_url'] ) : ?><img src="<?php echo esc_url( $wallet['logo_url'] ); ?>" alt=""><?php else : ?><span class="dashicons dashicons-store"></span><?php endif; ?></span><strong>[TEST ONLY] <?php echo esc_html( $preview_wallet_name ); ?></strong></div>
-									<h4><?php echo esc_html( $preview_wallet_name ); ?> Loyalty</h4>
+									<h4 id="lw-card-preview-program-name"><?php echo esc_html( $preview_program_name ); ?></h4>
 									<div class="lw-card-preview-fields"><span><small>Nombre</small><strong><?php echo esc_html( $preview_name ); ?></strong></span><span><small>Próxima visita</small><strong><?php echo esc_html( $preview_next_visit ); ?></strong></span></div>
 									<div class="lw-card-preview-contact"><small>Contacto</small><strong>Toca los tres puntos para llamar o escribir por WhatsApp.</strong></div>
 									<div class="lw-card-preview-qr"><img src="<?php echo esc_url( $preview_qr_url ); ?>" alt="Preview QR code"><strong><?php echo esc_html( $preview_points ); ?> puntos</strong></div>

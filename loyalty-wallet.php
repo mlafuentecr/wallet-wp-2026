@@ -26,6 +26,7 @@ final class Loyalty_Wallet_Plugin {
 	private const ROLE         = 'loyalty_wallet_client';
 	private const PREVIEW_META = '_loyalty_wallet_see_as_client';
 	private const NAME_META     = '_loyalty_wallet_name';
+	private const PROGRAM_NAME_META = '_loyalty_wallet_program_name';
 	private const LOGO_META     = '_loyalty_wallet_logo_id';
 	private const EMAIL_META    = '_loyalty_wallet_email';
 	private const WEBSITE_META  = '_loyalty_wallet_website';
@@ -200,7 +201,12 @@ final class Loyalty_Wallet_Plugin {
 			if ( '' === $name ) {
 				self::redirect_with_notice( 'invalid_name' );
 			}
+			$program_name = isset( $_POST['wallet_program_name'] ) ? sanitize_text_field( wp_unslash( $_POST['wallet_program_name'] ) ) : '';
+			if ( '' === $program_name ) {
+				self::redirect_with_notice( 'invalid_program_name' );
+			}
 			update_user_meta( get_current_user_id(), self::NAME_META, $name );
+			update_user_meta( get_current_user_id(), self::PROGRAM_NAME_META, $program_name );
 			$wallet_email = isset( $_POST['wallet_email'] ) ? sanitize_email( wp_unslash( $_POST['wallet_email'] ) ) : '';
 			if ( $wallet_email && ! is_email( $wallet_email ) ) {
 				self::redirect_with_notice( 'invalid_wallet_email' );
@@ -250,11 +256,14 @@ final class Loyalty_Wallet_Plugin {
 				update_user_meta( get_current_user_id(), self::LOGO_META, (int) $logo_id );
 			}
 			$wallet = Loyalty_Wallet_Google_Wallet_Module::data( get_current_user_id() );
-			if ( $wallet['is_configured'] ) {
-				Loyalty_Wallet_Google_Wallet_Module::sync_loyalty_points(
+			if (
+				$wallet['is_configured']
+				&& ! Loyalty_Wallet_Google_Wallet_Module::sync_loyalty_points(
 					get_current_user_id(),
 					Loyalty_Wallet_Google_Reviews_Module::review_points( get_current_user_id() )
-				);
+				)
+			) {
+				self::redirect_with_notice( 'wallet_points_sync_failed' );
 			}
 			self::redirect_with_notice( 'name_saved' );
 		}
@@ -395,6 +404,8 @@ final class Loyalty_Wallet_Plugin {
 		$customers = Loyalty_Wallet_Customers_Module::all( get_current_user_id() );
 		$wallet_name = (string) get_user_meta( get_current_user_id(), self::NAME_META, true );
 		$wallet_name = $wallet_name ?: ( $is_preview || ! $is_admin ? 'My Loyalty Wallet' : 'Loyalty Wallet' );
+		$wallet_program_name = (string) get_user_meta( get_current_user_id(), self::PROGRAM_NAME_META, true );
+		$wallet_program_name = $wallet_program_name ?: $wallet_name . ' Loyalty';
 		$logo_id     = absint( get_user_meta( get_current_user_id(), self::LOGO_META, true ) );
 		$logo_url    = $logo_id ? (string) wp_get_attachment_image_url( $logo_id, 'medium' ) : '';
 		$wallet_email = (string) get_user_meta( get_current_user_id(), self::EMAIL_META, true );
@@ -463,6 +474,7 @@ final class Loyalty_Wallet_Plugin {
 							<div class="lw-settings-heading"><h2>Negocio</h2><p>Edita el nombre, información de contacto y logo que se muestran en Loyalty Wallet.</p></div>
 							<div class="lw-wallet-identity-fields">
 								<label for="lw-wallet-name">Wallet / business name<input id="lw-wallet-name" name="wallet_name" type="text" value="<?php echo esc_attr( $wallet_name ); ?>" placeholder="Croc's Resort & Casino" maxlength="120" required></label>
+								<label for="lw-wallet-program-name">Loyalty program name<input id="lw-wallet-program-name" name="wallet_program_name" type="text" value="<?php echo esc_attr( $wallet_program_name ); ?>" placeholder="Croc's Rewards" maxlength="120" required><small>This is the main title shown on the Google Wallet card.</small></label>
 								<label for="lw-wallet-email">Wallet notification email<input id="lw-wallet-email" name="wallet_email" type="email" value="<?php echo esc_attr( $wallet_email ); ?>" placeholder="owner@example.com"></label>
 								<label for="lw-wallet-website">Business website<input id="lw-wallet-website" name="wallet_website" type="url" value="<?php echo esc_attr( $wallet_website ); ?>" placeholder="https://example.com"></label>
 								<label for="lw-wallet-business-whatsapp">Business WhatsApp<input id="lw-wallet-business-whatsapp" name="wallet_business_whatsapp" type="tel" value="<?php echo esc_attr( $wallet_business_whatsapp ); ?>" placeholder="+506 8888 8888"><small>Include the country code.</small></label>
@@ -523,6 +535,7 @@ final class Loyalty_Wallet_Plugin {
 			'invalid_url' => array( 'error', 'Enter a valid public URL.' ),
 			'invalid_place_id' => array( 'error', 'Enter a valid Google Place ID.' ),
 			'invalid_name'     => array( 'error', 'Enter a wallet or business name.' ),
+			'invalid_program_name' => array( 'error', 'Enter a loyalty program name.' ),
 			'invalid_logo'     => array( 'error', 'Choose a valid JPG, PNG or WebP logo under 5 MB.' ),
 			'invalid_wallet_email' => array( 'error', 'Enter a valid wallet notification email.' ),
 			'invalid_business_website' => array( 'error', 'Enter a valid business website URL.' ),
@@ -539,7 +552,7 @@ final class Loyalty_Wallet_Plugin {
 			'missing_birthday' => array( 'error', 'Add the customer birthday before enabling birthday reminders.' ),
 			'reminder_saved' => array( 'success', 'Reminder scheduled.' ),
 			'global_messages_saved' => array( 'success', 'Global message defaults updated for all customers.' ),
-			'name_saved'       => array( 'success', 'Wallet name updated successfully.' ),
+			'name_saved'       => array( 'success', 'Business and loyalty program names updated successfully.' ),
 			'url_saved'   => array( 'success', 'Client QR code updated successfully.' ),
 			'invalid_customer' => array( 'error', 'Enter a valid customer name, email and review.' ),
 			'customer_updated' => array( 'success', 'Customer updated successfully.' ),
