@@ -78,8 +78,16 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		$service_email  = isset( $_POST['wallet_service_email'] ) ? sanitize_email( wp_unslash( $_POST['wallet_service_email'] ) ) : '';
 		$public_url     = isset( $_POST['wallet_public_url'] ) ? esc_url_raw( trim( wp_unslash( $_POST['wallet_public_url'] ) ) ) : '';
 		$logo_url       = isset( $_POST['wallet_logo_url'] ) ? esc_url_raw( trim( wp_unslash( $_POST['wallet_logo_url'] ) ) ) : '';
-		$new_private_key = isset( $_POST['wallet_private_key'] ) ? trim( (string) wp_unslash( $_POST['wallet_private_key'] ) ) : '';
+		$new_private_key = '';
 		$existing        = self::data( $user_id );
+		if ( ! $existing['uses_constants'] && ! empty( $_FILES['wallet_service_account_json']['name'] ) ) {
+			$credentials = self::service_account_credentials_from_upload();
+			if ( is_wp_error( $credentials ) ) {
+				return 'invalid_wallet_service_account_json';
+			}
+			$service_email  = $credentials['client_email'];
+			$new_private_key = $credentials['private_key'];
+		}
 		if ( $existing['uses_constants'] ) {
 			$issuer_id     = $existing['issuer_id'];
 			$service_email = $existing['service_email'];
@@ -132,6 +140,50 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 			update_user_meta( $user_id, self::PRIVATE_KEY, $new_private_key );
 		}
 		return 'url_saved';
+	}
+
+	private static function service_account_credentials_from_upload() {
+		$file = $_FILES['wallet_service_account_json'] ?? array();
+		if (
+			! is_array( $file )
+			|| UPLOAD_ERR_OK !== (int) ( $file['error'] ?? UPLOAD_ERR_NO_FILE )
+			|| empty( $file['tmp_name'] )
+			|| empty( $file['name'] )
+			|| 'json' !== strtolower( (string) pathinfo( sanitize_file_name( (string) $file['name'] ), PATHINFO_EXTENSION ) )
+			|| (int) ( $file['size'] ?? 0 ) < 1
+			|| (int) ( $file['size'] ?? 0 ) > MB_IN_BYTES
+			|| ! is_uploaded_file( (string) $file['tmp_name'] )
+		) {
+			return new WP_Error( 'invalid_wallet_service_account_json' );
+		}
+
+		$contents = file_get_contents( (string) $file['tmp_name'] );
+		if ( false === $contents || strlen( $contents ) > MB_IN_BYTES ) {
+			return new WP_Error( 'invalid_wallet_service_account_json' );
+		}
+
+		$credentials = json_decode( $contents, true, 16 );
+		$type         = is_array( $credentials ) ? (string) ( $credentials['type'] ?? '' ) : '';
+		$project_id   = is_array( $credentials ) ? sanitize_text_field( (string) ( $credentials['project_id'] ?? '' ) ) : '';
+		$client_email = is_array( $credentials ) ? sanitize_email( (string) ( $credentials['client_email'] ?? '' ) ) : '';
+		$private_key  = is_array( $credentials ) ? trim( (string) ( $credentials['private_key'] ?? '' ) ) : '';
+		$token_uri    = is_array( $credentials ) ? esc_url_raw( (string) ( $credentials['token_uri'] ?? '' ) ) : '';
+		$email_suffix = $project_id ? '@' . $project_id . '.iam.gserviceaccount.com' : '';
+		if (
+			'service_account' !== $type
+			|| ! preg_match( '/^[a-z][a-z0-9-]{4,28}[a-z0-9]$/', $project_id )
+			|| ! is_email( $client_email )
+			|| $email_suffix !== substr( $client_email, -strlen( $email_suffix ) )
+			|| 'https://oauth2.googleapis.com/token' !== $token_uri
+			|| ! self::valid_private_key( $private_key )
+		) {
+			return new WP_Error( 'invalid_wallet_service_account_json' );
+		}
+
+		return array(
+			'client_email' => $client_email,
+			'private_key'  => $private_key,
+		);
 	}
 
 	public static function render_settings( int $user_id ): void {

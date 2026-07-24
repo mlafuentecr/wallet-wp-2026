@@ -32,7 +32,12 @@
 			</div>
 		</div>
 		<div class="lw-label-with-link"><label for="lw-wallet-service-email">Service account email</label><a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener noreferrer">Open Service Accounts <span aria-hidden="true">↗</span></a></div><input id="lw-wallet-service-email" name="wallet_service_email" type="email" value="<?php echo esc_attr( $wallet['service_email'] ); ?>" placeholder="wallet-issuer@project.iam.gserviceaccount.com" <?php echo $wallet['uses_constants'] ? 'data-lw-locked="1" disabled' : ''; ?>>
-		<div class="lw-label-with-link"><label for="lw-wallet-private-key">Service account private key</label><a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener noreferrer">Manage service account keys <span aria-hidden="true">↗</span></a></div><textarea id="lw-wallet-private-key" name="wallet_private_key" rows="5" placeholder="<?php echo $wallet['has_private_key'] ? 'Saved — paste a new private key only to replace it' : '-----BEGIN PRIVATE KEY-----'; ?>" autocomplete="new-password" <?php echo $wallet['uses_constants'] ? 'data-lw-locked="1" disabled' : ''; ?>></textarea>
-		<small class="lw-wallet-security-note">The private key is used only on the server to sign Google Wallet links and is never sent to customers.</small>
+		<div class="lw-label-with-link"><label for="lw-wallet-service-account-json">Service account private key JSON</label><a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener noreferrer">Manage service account keys <span aria-hidden="true">↗</span></a></div>
+		<div class="lw-service-account-json">
+			<input id="lw-wallet-service-account-json" name="wallet_service_account_json" type="file" accept="application/json,.json" hidden <?php echo $wallet['uses_constants'] ? 'data-lw-locked="1" disabled' : ''; ?>>
+			<label class="button lw-wallet-json-upload-button" for="lw-wallet-service-account-json"><span class="dashicons dashicons-upload"></span><?php echo $wallet['has_private_key'] ? 'Replace credentials JSON' : 'Upload credentials JSON'; ?></label>
+			<span id="lw-wallet-service-account-json-name" class="lw-service-account-json-name"><?php echo $wallet['has_private_key'] ? 'Credentials saved' : 'No JSON uploaded'; ?></span>
+		</div>
+		<small class="lw-wallet-security-note">Upload the JSON downloaded from Google Cloud. The plugin validates it, saves only the service account email and private key, and does not retain the uploaded JSON file. Maximum 1 MB.</small>
 	</section>
 </div>

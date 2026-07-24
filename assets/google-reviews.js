@@ -98,6 +98,18 @@
 		if (googleWalletLogoUrl) googleWalletLogoUrl.value = '';
 		var previewReader = new FileReader(); previewReader.onload = function (event) { walletLogoPreview.innerHTML = ''; var logoImage = document.createElement('img'); logoImage.src = event.target.result; logoImage.alt = 'New Google Wallet logo preview'; walletLogoPreview.appendChild(logoImage); }; previewReader.readAsDataURL(file);
 	});
+	var serviceAccountJsonInput = document.getElementById('lw-wallet-service-account-json');
+	var serviceAccountJsonName = document.getElementById('lw-wallet-service-account-json-name');
+	if (serviceAccountJsonInput && serviceAccountJsonName) serviceAccountJsonInput.addEventListener('change', function () {
+		var file = serviceAccountJsonInput.files && serviceAccountJsonInput.files[0];
+		if (!file) return;
+		if (!/\.json$/i.test(file.name) || file.size < 1 || file.size > 1024 * 1024) {
+			serviceAccountJsonInput.value = '';
+			window.alert('Choose a Google service account JSON file under 1 MB.');
+			return;
+		}
+		serviceAccountJsonName.textContent = file.name;
+	});
 	document.querySelectorAll('.lw-media-library-button').forEach(function (button) {
 		button.addEventListener('click', function () {
 			if (!window.wp || !window.wp.media) {
