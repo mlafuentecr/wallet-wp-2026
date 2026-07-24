@@ -105,17 +105,6 @@ final class Loyalty_Wallet_Google_Identity_Module {
 		}
 
 		$member_id = (string) $identity['member_id'];
-		$wallet_url = Loyalty_Wallet_Google_Wallet_Module::create_member_save_url(
-			$user_id,
-			(string) $identity['name'],
-			$member_id,
-			$google,
-			$wallet
-		);
-		if ( ! $wallet_url ) {
-			return new WP_Error( 'wallet_link_failed', 'The Google Wallet card could not be created.' );
-		}
-
 		$object_id = Loyalty_Wallet_Google_Wallet_Module::member_object_id( $user_id, $member_id );
 		$customer  = Loyalty_Wallet_Customers_Module::upsert_google_member(
 			$user_id,
@@ -129,6 +118,16 @@ final class Loyalty_Wallet_Google_Identity_Module {
 				'wallet_object_id' => $object_id,
 			)
 		);
+		$wallet_url = Loyalty_Wallet_Google_Wallet_Module::create_member_save_url(
+			$user_id,
+			(string) $identity['name'],
+			$member_id,
+			$google,
+			$wallet
+		);
+		if ( ! $wallet_url ) {
+			return new WP_Error( 'wallet_link_failed', 'The Google Wallet card could not be created.' );
+		}
 
 		setcookie(
 			'lw_wallet_member_' . $user_id,

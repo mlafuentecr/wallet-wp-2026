@@ -159,3 +159,98 @@ body:has(#lw-customers-panel:not([hidden])) .lw-code-editor{padding:0!important;
 	.lw-loyalty-settings-actions{padding:0 15px 15px}
 	.lw-loyalty-settings-actions .button{width:100%}
 }
+
+/* Rewards catalog and secure point redemption workflow. */
+#lw-rewards-panel{display:grid;gap:22px}
+#lw-rewards-panel[hidden]{display:none!important}
+.lw-rewards-header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px;border:1px solid #d7e1ef;border-radius:15px;background:linear-gradient(135deg,#f7f9ff,#eef3ff)}
+.lw-rewards-header>div{display:flex;align-items:center;gap:14px}
+.lw-rewards-header>div>.dashicons{display:grid;place-items:center;width:42px;height:42px;border-radius:11px;background:#dfe7ff;color:#3156e8;font-size:23px}
+.lw-rewards-header h2,.lw-reward-catalog h3{margin:0;color:#10234a}
+.lw-rewards-header p,.lw-reward-catalog p{margin:5px 0 0;color:#64748b}
+.lw-rewards-header .button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;margin:0;padding:0 18px}
+.lw-rewards-header .dashicons{width:18px;height:18px;font-size:18px}
+.lw-redemption-workflow{display:grid;gap:18px;padding:20px;border:1px solid #cdd9ee;border-radius:15px;background:#fff}
+.lw-redemption-workflow[hidden]{display:none!important}
+.lw-redemption-step{display:flex;align-items:center;gap:12px}
+.lw-redemption-step>span{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border-radius:50%;background:#e8eeff;color:#3156e8;font-size:17px;font-weight:800}
+.lw-redemption-step strong,.lw-redemption-step small{display:block}
+.lw-redemption-step strong{color:#10234a;font-size:16px}
+.lw-redemption-step small{margin-top:3px;color:#64748b;line-height:1.4}
+.lw-scanner-shell{display:grid;grid-template-columns:minmax(260px,.85fr) minmax(0,1.15fr);gap:18px}
+.lw-scanner-camera{position:relative;display:grid;place-items:center;min-height:260px;overflow:hidden;border:2px dashed #b7c6dc;border-radius:14px;background:#101827}
+.lw-scanner-camera video{display:block;width:100%;height:100%;min-height:260px;object-fit:cover}
+.lw-scanner-camera video[hidden]{display:none}
+.lw-scanner-placeholder{display:grid;place-items:center;gap:8px;padding:24px;text-align:center;color:#cbd5e1}
+.lw-scanner-placeholder[hidden]{display:none}
+.lw-scanner-placeholder .dashicons{width:42px;height:42px;font-size:42px;color:#7da1ff}
+.lw-scanner-placeholder small{max-width:260px;color:#94a3b8;line-height:1.45}
+.lw-scanner-controls{display:flex;flex-direction:column;justify-content:center;gap:10px}
+.lw-scanner-controls>.button{width:max-content;min-height:40px;margin:0}
+.lw-scanner-controls>.button[hidden]{display:none!important}
+.lw-scanner-controls>label{margin-top:8px;color:#10234a;font-weight:700}
+.lw-scanner-controls>div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.lw-scanner-controls input{box-sizing:border-box;width:100%;min-height:42px;margin:0;border-radius:8px}
+.lw-scanner-controls>div .button{min-height:42px;margin:0}
+.lw-redemption-status{min-height:20px;margin:2px 0 0;color:#087a38;font-weight:600}
+.lw-redemption-status.is-error{color:#b42318}
+.lw-redemption-customer{display:grid;gap:16px;padding-top:18px;border-top:1px solid #e2e8f0}
+.lw-redemption-customer[hidden]{display:none!important}
+.lw-scanned-customer{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:13px;padding:16px;border:1px solid #d6e0ef;border-radius:12px;background:#f8fafc}
+.lw-scanned-customer>.dashicons{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:#e8eeff;color:#3156e8;font-size:22px}
+.lw-scanned-customer strong,.lw-scanned-customer small{display:block}
+.lw-scanned-customer>div:nth-child(2)>strong{color:#10234a;font-size:17px}
+.lw-scanned-customer small{margin-top:3px;color:#64748b}
+.lw-scanned-customer>div:last-child{text-align:right}
+.lw-scanned-customer>div:last-child strong{margin-top:3px;color:#3156e8;font-size:18px}
+.lw-redeem-products{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.lw-redeem-product{display:grid;grid-template-columns:36px minmax(0,1fr);grid-template-rows:auto auto;align-items:center;gap:5px 10px;padding:14px;border:1px solid #b7c9ff;border-radius:11px;background:#fff;color:#10234a;text-align:left;cursor:pointer}
+.lw-redeem-product>.dashicons{grid-row:1/3;display:grid;place-items:center;width:36px;height:36px;border-radius:9px;background:#eef2ff;color:#3156e8}
+.lw-redeem-product strong,.lw-redeem-product small{display:block}
+.lw-redeem-product small{margin-top:3px;color:#64748b;font-size:11px}
+.lw-redeem-product b{grid-column:2;color:#3156e8}
+.lw-redeem-product:hover:not(:disabled){border-color:#3156e8;box-shadow:0 5px 14px #3156e81a}
+.lw-redeem-product:disabled{border-color:#e2e8f0;background:#f8fafc;cursor:not-allowed;opacity:.65}
+.lw-no-rewards{grid-column:1/-1;padding:15px;border:1px dashed #cbd5e1;border-radius:10px;text-align:center}
+.lw-scan-another{width:max-content;margin:0}
+.lw-reward-catalog{display:grid;gap:14px;padding:20px;border:1px solid #d7e1ef;border-radius:15px;background:#f8fafc}
+.lw-catalog-heading{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.lw-catalog-heading>span{padding:6px 10px;border-radius:999px;background:#e8eeff;color:#3156e8;font-size:11px;font-weight:700}
+.lw-reward-list{display:grid;gap:9px}
+.lw-reward-row,.lw-add-reward{display:grid!important;grid-template-columns:minmax(0,1.5fr) minmax(110px,.5fr) auto auto;align-items:end;gap:10px;padding:13px;border:1px solid #dbe3f0;border-radius:11px;background:#fff}
+.lw-reward-row label,.lw-add-reward label{display:grid;gap:6px;color:#10234a;font-weight:700}
+.lw-reward-row input,.lw-add-reward input{box-sizing:border-box;width:100%;min-height:40px;margin:0;border-radius:7px}
+.lw-reward-row .button,.lw-add-reward .button{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:40px;margin:0}
+.lw-delete-reward{width:40px;padding:0!important;color:#b42318!important;border-color:#f0b9b4!important}
+.lw-delete-reward .dashicons{width:17px;height:17px;font-size:17px}
+.lw-add-reward{grid-template-columns:minmax(170px,.8fr) minmax(0,1.2fr) 130px auto;border-style:dashed;background:#f3f6fc}
+.lw-add-reward>div strong,.lw-add-reward>div small{display:block}
+.lw-add-reward>div small{margin-top:4px;color:#64748b}
+#lw-customers-panel .lw-open-redemption{color:#3156e8!important;border-color:#9fb3ff!important;background:#f6f8ff!important}
+#lw-customers-panel .lw-last-redemption{display:flex;align-items:center;gap:10px;margin-top:14px;padding:11px 13px;border:1px solid #e1e7f0;border-radius:10px;background:#f8fafc;color:#475569}
+#lw-customers-panel .lw-last-redemption>.dashicons{color:#3156e8}
+#lw-customers-panel .lw-last-redemption small,#lw-customers-panel .lw-last-redemption strong{display:block}
+#lw-customers-panel .lw-last-redemption strong{margin-top:2px;color:#10234a}
+#lw-customers-panel .lw-last-redemption time{margin-left:auto;color:#64748b;font-size:11px}
+@media(max-width:900px){
+	.lw-scanner-shell{grid-template-columns:1fr}
+	.lw-redeem-products{grid-template-columns:repeat(2,minmax(0,1fr))}
+	.lw-reward-row,.lw-add-reward{grid-template-columns:1fr 130px auto auto}
+	.lw-add-reward>div{grid-column:1/-1}
+}
+@media(max-width:620px){
+	.lw-rewards-header{align-items:stretch;flex-direction:column;padding:18px}
+	.lw-rewards-header .button{width:100%}
+	.lw-redemption-workflow,.lw-reward-catalog{padding:15px}
+	.lw-scanner-camera,.lw-scanner-camera video{min-height:220px}
+	.lw-scanner-controls>div{grid-template-columns:1fr}
+	.lw-scanned-customer{grid-template-columns:40px minmax(0,1fr)}
+	.lw-scanned-customer>div:last-child{grid-column:1/-1;padding-top:12px;border-top:1px solid #e2e8f0;text-align:left}
+	.lw-redeem-products{grid-template-columns:1fr}
+	.lw-reward-row,.lw-add-reward{grid-template-columns:1fr 1fr}
+	.lw-reward-row .button,.lw-add-reward .button{width:100%}
+	.lw-delete-reward{width:100%}
+	.lw-catalog-heading{align-items:flex-start;flex-direction:column}
+	#lw-customers-panel .lw-last-redemption{align-items:flex-start;flex-wrap:wrap}
+	#lw-customers-panel .lw-last-redemption time{flex-basis:100%;margin-left:28px}
+}

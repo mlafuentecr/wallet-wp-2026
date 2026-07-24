@@ -3,6 +3,7 @@
 	var reviewTab = document.getElementById('lw-review-tab');
 	var nameTab = document.getElementById('lw-name-tab');
 	var customersTab = document.getElementById('lw-customers-tab');
+	var rewardsTab = document.getElementById('lw-rewards-tab');
 	var activityTab = document.getElementById('lw-activity-tab');
 	var configurationTab = document.getElementById('lw-configuration-tab');
 	var googleLoyaltyTab = document.getElementById('lw-google-loyalty-tab');
@@ -13,6 +14,7 @@
 	var messagesPanel = document.getElementById('lw-message-settings');
 	var namePanel = document.getElementById('lw-name-settings');
 	var customersPanel = document.getElementById('lw-customers-panel');
+	var rewardsPanel = document.getElementById('lw-rewards-panel');
 	var activityPanel = document.getElementById('lw-activity-panel');
 	var loyaltyPanel = document.getElementById('lw-loyalty-settings');
 	var section = document.getElementById('lw-settings-section');
@@ -49,6 +51,7 @@
 		var editingConfiguration = editingName || editingReviews || editingGoogleLoyalty || editingMessages || editingAccess;
 		if (nameTab) nameTab.classList.toggle('is-active', editingName);
 		customersTab.classList.toggle('is-active', selected === 'customers');
+		if (rewardsTab) rewardsTab.classList.toggle('is-active', selected === 'rewards');
 		activityTab.classList.toggle('is-active', selected === 'activity');
 		if (configurationTab) configurationTab.classList.toggle('is-active', editingConfiguration);
 		if (reviewTab) reviewTab.classList.toggle('is-active', editingReviews);
@@ -57,6 +60,7 @@
 		if (loyaltyTab) loyaltyTab.classList.toggle('is-active', editingAccess);
 		if (nameTab) nameTab.setAttribute('aria-selected', editingName ? 'true' : 'false');
 		customersTab.setAttribute('aria-selected', selected === 'customers' ? 'true' : 'false');
+		if (rewardsTab) rewardsTab.setAttribute('aria-selected', selected === 'rewards' ? 'true' : 'false');
 		activityTab.setAttribute('aria-selected', selected === 'activity' ? 'true' : 'false');
 		if (configurationTab) configurationTab.setAttribute('aria-selected', editingConfiguration ? 'true' : 'false');
 		if (reviewTab) reviewTab.setAttribute('aria-selected', editingReviews ? 'true' : 'false');
@@ -65,6 +69,7 @@
 		if (loyaltyTab) loyaltyTab.setAttribute('aria-selected', editingAccess ? 'true' : 'false');
 		namePanel.hidden = !editingName;
 		customersPanel.hidden = selected !== 'customers';
+		if (rewardsPanel) rewardsPanel.hidden = selected !== 'rewards';
 		activityPanel.hidden = selected !== 'activity';
 		if (qrPanel) qrPanel.hidden = !editingReviews;
 		if (googleLoyaltyPanel) googleLoyaltyPanel.hidden = !editingGoogleLoyalty;
@@ -75,7 +80,7 @@
 		setPanelFields(googleLoyaltyPanel, editingGoogleLoyalty);
 		setPanelFields(messagesPanel, editingMessages);
 		section.value = editingName ? 'name' : (editingReviews ? 'reviews' : (editingGoogleLoyalty ? 'google_loyalty' : (editingMessages ? 'messages' : '')));
-		if (settingsSubmit) settingsSubmit.style.display = selected === 'customers' || selected === 'activity' || editingAccess || editingGoogleLoyalty || editingMessages ? 'none' : '';
+		if (settingsSubmit) settingsSubmit.style.display = selected === 'customers' || selected === 'rewards' || selected === 'activity' || editingAccess || editingGoogleLoyalty || editingMessages ? 'none' : '';
 		if (editingName && nameInput) nameInput.focus();
 		else if (editingReviews && placeInput) placeInput.focus();
 		else if (editingGoogleLoyalty) {
@@ -86,6 +91,7 @@
 	}
 	if (nameTab) nameTab.addEventListener('click', function () { selectTab('name'); });
 	customersTab.addEventListener('click', function () { selectTab('customers'); });
+	if (rewardsTab && rewardsPanel) rewardsTab.addEventListener('click', function () { selectTab('rewards'); });
 	activityTab.addEventListener('click', function () { selectTab('activity'); });
 	if (configurationTab) configurationTab.addEventListener('click', function () { selectTab('name'); });
 	if (reviewTab) reviewTab.addEventListener('click', function () { selectTab('reviews'); });
@@ -258,8 +264,98 @@
 	document.querySelectorAll('.lw-whatsapp-send').forEach(function (link) { link.addEventListener('click', function () { var composer = link.closest('.lw-whatsapp-composer'), message = composer.querySelector('.lw-whatsapp-message').value.trim(); link.href = 'https://wa.me/' + encodeURIComponent(composer.dataset.phone) + (message ? '?text=' + encodeURIComponent(message) : ''); composer.hidden = true; }); });
 	document.querySelectorAll('.lw-reminder-toggle').forEach(function (button) { button.addEventListener('click', function () { var card = button.closest('.lw-customer'), form = card.querySelector('.lw-reminder-form'); form.hidden = false; var visit = card.querySelector('.lw-add-visit-form'), composer = card.querySelector('.lw-whatsapp-composer'); if (visit) visit.hidden = true; if (composer) composer.hidden = true; form.querySelector('input[type=date]').focus(); }); });
 	document.querySelectorAll('.lw-reminder-cancel').forEach(function (button) { button.addEventListener('click', function () { button.closest('.lw-reminder-form').hidden = true; }); });
+	document.querySelectorAll('.lw-open-redemption').forEach(function (button) { button.addEventListener('click', function () { selectTab('rewards'); var start = document.querySelector('.lw-start-scanner'); if (start) start.click(); }); });
+	if (rewardsPanel && window.loyaltyWalletRedemption) {
+		var redemptionWorkflow = rewardsPanel.querySelector('.lw-redemption-workflow');
+		var startScanner = rewardsPanel.querySelector('.lw-start-scanner');
+		var startCamera = rewardsPanel.querySelector('.lw-camera-start');
+		var stopCamera = rewardsPanel.querySelector('.lw-camera-stop');
+		var video = rewardsPanel.querySelector('#lw-redemption-video');
+		var placeholder = rewardsPanel.querySelector('.lw-scanner-placeholder');
+		var codeInput = rewardsPanel.querySelector('#lw-redemption-code');
+		var lookupButton = rewardsPanel.querySelector('.lw-lookup-code');
+		var status = rewardsPanel.querySelector('.lw-redemption-status');
+		var customerStage = rewardsPanel.querySelector('.lw-redemption-customer');
+		var products = rewardsPanel.querySelector('.lw-redeem-products');
+		var activeStream = null, scanTimer = null, activeCode = '';
+		function setRedemptionStatus(message, isError) { status.textContent = message || ''; status.classList.toggle('is-error', !!isError); }
+		function stopRedemptionCamera() {
+			if (scanTimer) window.clearInterval(scanTimer);
+			scanTimer = null;
+			if (activeStream) activeStream.getTracks().forEach(function (track) { track.stop(); });
+			activeStream = null;
+			video.srcObject = null; video.hidden = true; placeholder.hidden = false;
+			stopCamera.hidden = true; startCamera.hidden = false;
+		}
+		function requestRedemption(action, data) {
+			var form = new FormData();
+			form.append('action', action); form.append('nonce', window.loyaltyWalletRedemption.nonce);
+			Object.keys(data).forEach(function (key) { form.append(key, data[key]); });
+			return fetch(window.loyaltyWalletRedemption.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: form }).then(function (response) {
+				return response.json().then(function (payload) { if (!response.ok || !payload.success) throw new Error(payload.data && payload.data.message ? payload.data.message : 'The request could not be completed.'); return payload.data; });
+			});
+		}
+		function renderScannedCustomer(data) {
+			activeCode = codeInput.value.trim();
+			customerStage.hidden = false;
+			customerStage.querySelector('.lw-scanned-name').textContent = data.customer.name;
+			customerStage.querySelector('.lw-scanned-email').textContent = data.customer.email;
+			customerStage.querySelector('.lw-scanned-points').textContent = data.customer.points;
+			products.innerHTML = '';
+			data.rewards.forEach(function (reward) {
+				var canRedeem = data.customer.points >= reward.points;
+				var button = document.createElement('button');
+				button.type = 'button'; button.className = 'lw-redeem-product'; button.disabled = !canRedeem;
+				button.innerHTML = '<span class="dashicons dashicons-coffee"></span><span><strong></strong><small></small></span><b></b>';
+				button.querySelector('strong').textContent = reward.name;
+				button.querySelector('small').textContent = canRedeem ? 'Disponible para canjear' : 'Faltan ' + (reward.points - data.customer.points) + ' puntos';
+				button.querySelector('b').textContent = reward.points + ' pts';
+				button.addEventListener('click', function () {
+					if (!window.confirm('¿Canjear ' + reward.name + ' por ' + reward.points + ' puntos? Esta acción descontará los puntos del cliente.')) return;
+					button.disabled = true; setRedemptionStatus('Procesando canje…', false);
+					var requestId = 'redeem-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+					requestRedemption('loyalty_wallet_redeem_reward', { code: activeCode, reward_id: reward.id, request_id: requestId }).then(function (result) {
+						setRedemptionStatus(result.message + (result.walletSynced ? ' Google Wallet actualizado.' : ' El canje se guardó, pero Google Wallet no pudo actualizarse.'), !result.walletSynced);
+						lookupCode(activeCode);
+					}).catch(function (error) { setRedemptionStatus(error.message, true); button.disabled = false; });
+				});
+				products.appendChild(button);
+			});
+			if (!data.rewards.length) products.innerHTML = '<p class="lw-no-rewards">Agrega al menos un producto canjeable.</p>';
+			customerStage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+		}
+		function lookupCode(code) {
+			code = (code || '').trim();
+			if (!code) { setRedemptionStatus('Escanea o pega el código del cliente.', true); return; }
+			codeInput.value = code; setRedemptionStatus('Validando cliente y saldo…', false); lookupButton.disabled = true;
+			requestRedemption('loyalty_wallet_lookup_customer_qr', { code: code }).then(function (data) {
+				stopRedemptionCamera(); renderScannedCustomer(data); setRedemptionStatus('Cliente verificado.', false);
+			}).catch(function (error) { setRedemptionStatus(error.message, true); customerStage.hidden = true; }).finally(function () { lookupButton.disabled = false; });
+		}
+		startScanner.addEventListener('click', function () { redemptionWorkflow.hidden = false; customerStage.hidden = true; codeInput.focus(); redemptionWorkflow.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+		lookupButton.addEventListener('click', function () { lookupCode(codeInput.value); });
+		codeInput.addEventListener('keydown', function (event) { if (event.key === 'Enter') { event.preventDefault(); lookupCode(codeInput.value); } });
+		stopCamera.addEventListener('click', stopRedemptionCamera);
+		startCamera.addEventListener('click', function () {
+			if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !('BarcodeDetector' in window)) {
+				setRedemptionStatus('Este navegador no permite escanear QR directamente. Usa Chrome actualizado o pega el código manualmente.', true); return;
+			}
+			setRedemptionStatus('Solicitando acceso a la cámara…', false);
+			navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false }).then(function (stream) {
+				activeStream = stream; video.srcObject = stream; video.hidden = false; placeholder.hidden = true; startCamera.hidden = true; stopCamera.hidden = false; return video.play();
+			}).then(function () {
+				var detector = new window.BarcodeDetector({ formats: ['qr_code'] });
+				scanTimer = window.setInterval(function () { detector.detect(video).then(function (codes) { if (codes && codes[0] && codes[0].rawValue) lookupCode(codes[0].rawValue); }).catch(function () {}); }, 500);
+				setRedemptionStatus('Apunta la cámara al QR de Google Wallet.', false);
+			}).catch(function () { stopRedemptionCamera(); setRedemptionStatus('No fue posible abrir la cámara. Revisa el permiso del navegador o pega el código.', true); });
+		});
+		rewardsPanel.querySelector('.lw-scan-another').addEventListener('click', function () { customerStage.hidden = true; codeInput.value = ''; activeCode = ''; setRedemptionStatus('', false); codeInput.focus(); });
+		document.querySelectorAll('.lw-delete-reward').forEach(function (button) { button.addEventListener('click', function (event) { if (!window.confirm('¿Eliminar este producto canjeable?')) event.preventDefault(); }); });
+		window.addEventListener('beforeunload', stopRedemptionCamera);
+	}
 	var requestedTab = new URLSearchParams(window.location.search).get('lw_tab');
 	if (requestedTab === 'customers') selectTab('customers');
+	else if (requestedTab === 'rewards' && rewardsTab) selectTab('rewards');
 	else if (requestedTab === 'reviews' && reviewTab) selectTab('reviews');
 	else if (requestedTab === 'google-loyalty' && googleLoyaltyTab) selectTab('google-loyalty');
 	else if (requestedTab === 'messages' && messagesTab) selectTab('messages');

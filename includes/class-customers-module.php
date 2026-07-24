@@ -181,6 +181,8 @@ final class Loyalty_Wallet_Customers_Module {
 					'wallet_member_id'      => sanitize_text_field( (string) ( $customer['wallet_member_id'] ?? '' ) ),
 					'wallet_object_id'      => sanitize_text_field( (string) ( $customer['wallet_object_id'] ?? '' ) ),
 					'source'                => $is_google_member ? 'google_wallet' : sanitize_key( (string) ( $customer['source'] ?? '' ) ),
+					'redemptions'           => isset( $customer['redemptions'] ) && is_array( $customer['redemptions'] ) ? $customer['redemptions'] : array(),
+					'point_transactions'    => isset( $customer['point_transactions'] ) && is_array( $customer['point_transactions'] ) ? $customer['point_transactions'] : array(),
 				);
 				$updated = true;
 				$updated_customer = $customer;
@@ -265,6 +267,84 @@ final class Loyalty_Wallet_Customers_Module {
 		}
 		update_user_meta( $user_id, self::META_KEY, $remaining );
 		return 'customer_deleted';
+	}
+
+	public static function find( int $user_id, string $customer_id = '', string $member_id = '' ): ?array {
+		foreach ( self::all( $user_id ) as $customer ) {
+			$id_matches     = $customer_id && isset( $customer['id'] ) && hash_equals( (string) $customer['id'], $customer_id );
+			$member_matches = $member_id && isset( $customer['wallet_member_id'] ) && hash_equals( (string) $customer['wallet_member_id'], $member_id );
+			if ( $id_matches || $member_matches ) {
+				return $customer;
+			}
+		}
+		return null;
+	}
+
+	public static function redeem( int $user_id, string $customer_id, array $reward, string $request_id ) {
+		$customers = self::all( $user_id );
+		$updated   = null;
+		$cost      = absint( $reward['points'] ?? 0 );
+
+		if ( ! $customer_id || ! $request_id || ! $cost ) {
+			return new WP_Error( 'invalid_redemption', 'The redemption request is incomplete.' );
+		}
+
+		foreach ( $customers as &$customer ) {
+			if ( empty( $customer['id'] ) || ! hash_equals( (string) $customer['id'], $customer_id ) ) {
+				continue;
+			}
+
+			$customer['redemptions'] = isset( $customer['redemptions'] ) && is_array( $customer['redemptions'] ) ? $customer['redemptions'] : array();
+			foreach ( $customer['redemptions'] as $redemption ) {
+				if ( isset( $redemption['request_id'] ) && hash_equals( (string) $redemption['request_id'], $request_id ) ) {
+					return new WP_Error( 'duplicate_redemption', 'This redemption was already processed.' );
+				}
+			}
+
+			$balance = absint( $customer['points'] ?? 0 );
+			if ( $balance < $cost ) {
+				return new WP_Error( 'insufficient_points', 'The customer does not have enough points for this reward.' );
+			}
+
+			$redemption = array(
+				'id'          => wp_generate_uuid4(),
+				'request_id'  => $request_id,
+				'reward_id'   => sanitize_text_field( (string) ( $reward['id'] ?? '' ) ),
+				'reward_name' => sanitize_text_field( (string) ( $reward['name'] ?? 'Reward' ) ),
+				'points'      => $cost,
+				'created_at'  => current_time( 'mysql' ),
+				'created_by'  => get_current_user_id(),
+			);
+			$customer['points'] = $balance - $cost;
+			$customer['redemptions'][] = $redemption;
+			$customer['point_transactions'] = isset( $customer['point_transactions'] ) && is_array( $customer['point_transactions'] ) ? $customer['point_transactions'] : array();
+			$customer['point_transactions'][] = array(
+				'id'         => $redemption['id'],
+				'type'       => 'redemption',
+				'points'     => -$cost,
+				'label'      => $redemption['reward_name'],
+				'created_at' => $redemption['created_at'],
+			);
+			$updated = $customer;
+			break;
+		}
+		unset( $customer );
+
+		if ( ! $updated ) {
+			return new WP_Error( 'customer_not_found', 'The scanned customer could not be found.' );
+		}
+
+		update_user_meta( $user_id, self::META_KEY, $customers );
+		$wallet_synced = empty( $updated['wallet_object_id'] )
+			? true
+			: Loyalty_Wallet_Google_Wallet_Module::sync_customer_pass( $user_id, $updated );
+		$redemptions = $updated['redemptions'];
+
+		return array(
+			'customer'      => $updated,
+			'redemption'    => end( $redemptions ),
+			'wallet_synced' => $wallet_synced,
+		);
 	}
 
 	public static function render( array $customers ): void {

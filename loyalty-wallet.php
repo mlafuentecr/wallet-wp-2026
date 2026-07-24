@@ -16,6 +16,7 @@ define( 'LOYALTY_WALLET_URL', plugin_dir_url( __FILE__ ) );
 require_once LOYALTY_WALLET_DIR . 'includes/class-google-reviews-module.php';
 require_once LOYALTY_WALLET_DIR . 'includes/class-google-wallet-module.php';
 require_once LOYALTY_WALLET_DIR . 'includes/class-customers-module.php';
+require_once LOYALTY_WALLET_DIR . 'includes/class-rewards-module.php';
 require_once LOYALTY_WALLET_DIR . 'includes/class-google-identity-module.php';
 require_once LOYALTY_WALLET_DIR . 'includes/class-engagement-module.php';
 require_once LOYALTY_WALLET_DIR . 'includes/class-businesses-module.php';
@@ -44,6 +45,10 @@ final class Loyalty_Wallet_Plugin {
 		add_action( 'admin_post_loyalty_wallet_update_customer', array( __CLASS__, 'update_customer' ) );
 		add_action( 'admin_post_loyalty_wallet_delete_customer', array( __CLASS__, 'delete_customer' ) );
 		add_action( 'admin_post_loyalty_wallet_add_visit', array( __CLASS__, 'add_visit' ) );
+		add_action( 'admin_post_loyalty_wallet_save_reward', array( __CLASS__, 'save_reward' ) );
+		add_action( 'admin_post_loyalty_wallet_delete_reward', array( __CLASS__, 'delete_reward' ) );
+		add_action( 'wp_ajax_loyalty_wallet_lookup_customer_qr', array( 'Loyalty_Wallet_Rewards_Module', 'ajax_lookup' ) );
+		add_action( 'wp_ajax_loyalty_wallet_redeem_reward', array( 'Loyalty_Wallet_Rewards_Module', 'ajax_redeem' ) );
 		add_action( 'admin_post_loyalty_wallet_save_reminder', array( __CLASS__, 'save_reminder' ) );
 		add_action( 'admin_post_loyalty_wallet_mark_reminder_sent', array( __CLASS__, 'mark_reminder_sent' ) );
 		add_action( 'admin_post_loyalty_wallet_export_business_customers', array( 'Loyalty_Wallet_Businesses_Module', 'export_csv' ) );
@@ -62,6 +67,14 @@ final class Loyalty_Wallet_Plugin {
 			}
 			wp_enqueue_style( 'loyalty-wallet-google-reviews', LOYALTY_WALLET_URL . 'assets/google-reviews.css', array(), (string) filemtime( LOYALTY_WALLET_DIR . 'assets/google-reviews.css' ) );
 			wp_enqueue_script( 'loyalty-wallet-google-reviews', LOYALTY_WALLET_URL . 'assets/google-reviews.js', array(), (string) filemtime( LOYALTY_WALLET_DIR . 'assets/google-reviews.js' ), true );
+			wp_localize_script(
+				'loyalty-wallet-google-reviews',
+				'loyaltyWalletRedemption',
+				array(
+					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+					'nonce'   => wp_create_nonce( 'loyalty_wallet_redemption' ),
+				)
+			);
 		}
 		if ( 'loyalty-wallet-businesses' === $page && current_user_can( 'manage_options' ) ) {
 			wp_enqueue_style( 'loyalty-wallet-businesses', LOYALTY_WALLET_URL . 'assets/businesses.css', array(), (string) filemtime( LOYALTY_WALLET_DIR . 'assets/businesses.css' ) );
@@ -150,7 +163,7 @@ final class Loyalty_Wallet_Plugin {
 		global $pagenow;
 		$is_loyalty_page = 'admin.php' === $pagenow && isset( $_GET['page'] ) && self::MENU_SLUG === sanitize_key( wp_unslash( $_GET['page'] ) );
 		$action          = isset( $_REQUEST['action'] ) ? sanitize_key( wp_unslash( $_REQUEST['action'] ) ) : '';
-		$client_actions  = array( 'loyalty_wallet_save_url', 'loyalty_wallet_add_customer', 'loyalty_wallet_update_customer', 'loyalty_wallet_delete_customer', 'loyalty_wallet_add_visit', 'loyalty_wallet_save_reminder', 'loyalty_wallet_mark_reminder_sent' );
+		$client_actions  = array( 'loyalty_wallet_save_url', 'loyalty_wallet_add_customer', 'loyalty_wallet_update_customer', 'loyalty_wallet_delete_customer', 'loyalty_wallet_add_visit', 'loyalty_wallet_save_reward', 'loyalty_wallet_delete_reward', 'loyalty_wallet_save_reminder', 'loyalty_wallet_mark_reminder_sent' );
 		if ( self::is_previewing() ) {
 			$client_actions[] = 'loyalty_wallet_toggle_preview';
 		}
@@ -309,6 +322,18 @@ final class Loyalty_Wallet_Plugin {
 		self::redirect_with_notice( Loyalty_Wallet_Customers_Module::add_visit( get_current_user_id() ) );
 	}
 
+	public static function save_reward(): void {
+		if ( ! current_user_can( self::CAPABILITY ) ) wp_die( esc_html__( 'You do not have permission to manage rewards.', 'loyalty-wallet' ) );
+		check_admin_referer( 'loyalty_wallet_save_reward' );
+		self::redirect_with_notice( Loyalty_Wallet_Rewards_Module::save( get_current_user_id() ), 'rewards' );
+	}
+
+	public static function delete_reward(): void {
+		if ( ! current_user_can( self::CAPABILITY ) ) wp_die( esc_html__( 'You do not have permission to manage rewards.', 'loyalty-wallet' ) );
+		check_admin_referer( 'loyalty_wallet_save_reward' );
+		self::redirect_with_notice( Loyalty_Wallet_Rewards_Module::delete( get_current_user_id() ), 'rewards' );
+	}
+
 	public static function save_reminder(): void {
 		if ( ! current_user_can( self::CAPABILITY ) ) wp_die( esc_html__( 'You do not have permission to schedule reminders.', 'loyalty-wallet' ) );
 		check_admin_referer( 'loyalty_wallet_save_reminder' );
@@ -412,6 +437,7 @@ final class Loyalty_Wallet_Plugin {
 					<span class="lw-tabs-label">LOYALTY TOOLS</span>
 					<div class="lw-vertical-tabs" role="tablist" aria-label="Loyalty tools">
 						<button type="button" class="lw-nav-tab" id="lw-customers-tab" role="tab" aria-selected="false" aria-controls="lw-customers-panel"><span class="dashicons dashicons-groups"></span><span><strong>Customers</strong><small><?php echo esc_html( count( $customers ) ); ?> saved</small></span><b aria-hidden="true">→</b></button>
+						<button type="button" class="lw-nav-tab" id="lw-rewards-tab" role="tab" aria-selected="false" aria-controls="lw-rewards-panel"><span class="dashicons dashicons-cart"></span><span><strong>Canjear puntos</strong><small>Productos y recompensas</small></span><b aria-hidden="true">→</b></button>
 						<button type="button" class="lw-nav-tab" id="lw-activity-tab" role="tab" aria-selected="false" aria-controls="lw-activity-panel"><span class="dashicons dashicons-chart-bar"></span><span><strong>Activity</strong><small>Annual visits</small></span><b aria-hidden="true">→</b></button>
 						<?php if ( $is_admin && ! $is_preview ) : ?>
 							<button type="button" class="lw-nav-tab lw-configuration-tab is-active" id="lw-configuration-tab" role="tab" aria-selected="true" aria-controls="lw-code-editor"><span class="dashicons dashicons-admin-generic"></span><span><strong>Configuration</strong><small>Business, Google and access</small></span><b aria-hidden="true">⌄</b></button>
@@ -479,6 +505,7 @@ final class Loyalty_Wallet_Plugin {
 						</div>
 					<?php endif; ?>
 					<?php Loyalty_Wallet_Customers_Module::render( $customers ); ?>
+					<?php Loyalty_Wallet_Rewards_Module::render( get_current_user_id() ); ?>
 					<?php Loyalty_Wallet_Customers_Module::render_activity( $customers ); ?>
 				</div>
 			</div>
@@ -516,6 +543,9 @@ final class Loyalty_Wallet_Plugin {
 			'url_saved'   => array( 'success', 'Client QR code updated successfully.' ),
 			'invalid_customer' => array( 'error', 'Enter a valid customer name, email and review.' ),
 			'customer_updated' => array( 'success', 'Customer updated successfully.' ),
+			'invalid_reward'   => array( 'error', 'Enter a valid product name and point cost.' ),
+			'reward_saved'     => array( 'success', 'Reward saved successfully.' ),
+			'reward_deleted'   => array( 'success', 'Reward deleted successfully.' ),
 			'wallet_points_sync_failed' => array( 'error', 'Settings were saved, but existing Google Wallet cards could not be updated.' ),
 		);
 		if ( ! isset( $messages[ $notice ] ) ) {
