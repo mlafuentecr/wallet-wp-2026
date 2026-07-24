@@ -177,6 +177,27 @@
 		searchResult.className = found ? 'is-found' : 'is-missing'; searchResult.textContent = found ? 'Review found: Test Customer · 5 stars' : 'No sandbox review found for that name.';
 		if (addForm && customerName) { addForm.hidden = !found; customerName.value = found ? 'Test Customer' : ''; }
 	});
+	var customerSearch = document.getElementById('lw-customer-search');
+	var customerSearchStatus = document.getElementById('lw-customer-search-status');
+	var customerSearchEmpty = document.getElementById('lw-customer-search-empty');
+	var customerCards = Array.prototype.slice.call(document.querySelectorAll('#lw-customers-panel .lw-customer'));
+	function normalizeCustomerSearch(value) {
+		var normalized = String(value || '').toLowerCase();
+		if (normalized.normalize) normalized = normalized.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+		return normalized.replace(/\s+/g, ' ').trim();
+	}
+	if (customerSearch && customerSearchStatus && customerSearchEmpty && customerCards.length) customerSearch.addEventListener('input', function () {
+		var terms = normalizeCustomerSearch(customerSearch.value).split(' ').filter(Boolean);
+		var visible = 0;
+		customerCards.forEach(function (card) {
+			var haystack = normalizeCustomerSearch(card.dataset.customerSearch);
+			var matches = terms.every(function (term) { return haystack.indexOf(term) !== -1; });
+			card.hidden = !matches;
+			if (matches) visible += 1;
+		});
+		customerSearchEmpty.hidden = visible !== 0;
+		customerSearchStatus.textContent = terms.length ? 'Showing ' + visible + ' of ' + customerCards.length + (customerCards.length === 1 ? ' customer' : ' customers') : 'Showing ' + customerCards.length + (customerCards.length === 1 ? ' customer' : ' customers');
+	});
 	document.querySelectorAll('.lw-edit-customer').forEach(function (button) { button.addEventListener('click', function () { var card = button.closest('.lw-customer'); card.querySelector('.lw-customer-view').hidden = true; card.querySelector('.lw-customer-edit').hidden = false; }); });
 	document.querySelectorAll('.lw-cancel-customer').forEach(function (button) { button.addEventListener('click', function () { var card = button.closest('.lw-customer'); card.querySelector('.lw-customer-edit').hidden = true; card.querySelector('.lw-customer-view').hidden = false; }); });
 	document.querySelectorAll('.lw-delete-customer').forEach(function (button) { button.addEventListener('click', function (event) { if (!window.confirm('Delete this customer and all saved visits, points and history? This cannot be undone.')) event.preventDefault(); }); });

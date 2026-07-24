@@ -3,6 +3,10 @@
 	<?php if ( ! $customers ) : ?>
 		<div class="lw-empty-customers"><span class="dashicons dashicons-groups"></span><p>No customers added yet.</p></div>
 	<?php else : ?>
+		<div class="lw-customers-search" role="search">
+			<label for="lw-customer-search"><span class="dashicons dashicons-search" aria-hidden="true"></span><input id="lw-customer-search" type="search" placeholder="Search by name, email or phone" autocomplete="off" aria-label="Search customers" aria-describedby="lw-customer-search-status"></label>
+			<span id="lw-customer-search-status" class="lw-customer-search-status" aria-live="polite"><?php echo esc_html( sprintf( 'Showing %d %s', count( $customers ), 1 === count( $customers ) ? 'customer' : 'customers' ) ); ?></span>
+		</div>
 		<?php $google_business_url = Loyalty_Wallet_Google_Reviews_Module::data( get_current_user_id() )['maps_url']; ?>
 		<div class="lw-customers-list">
 			<?php foreach ( array_reverse( $customers ) as $customer ) : ?>
@@ -20,8 +24,9 @@
 				$appointment_message = sprintf( 'Hola %s, te recordamos tu próxima cita. Si necesitas cambiarla, por favor contáctanos.', $customer['name'] );
 				$preferred_reminder_channel = 'email' === ( $customer['contact_preference'] ?? 'whatsapp' ) ? 'email' : 'whatsapp';
 				$whatsapp_url = $phone_digits ? 'https://wa.me/' . $phone_digits . '?text=' . rawurlencode( $reminder_message ) : '';
+				$customer_search_text = strtolower( remove_accents( implode( ' ', array( (string) $customer['name'], (string) $customer['email'], (string) ( $customer['phone'] ?? '' ) ) ) ) );
 				?>
-				<article class="lw-customer" id="lw-customer-<?php echo esc_attr( $customer['id'] ); ?>">
+				<article class="lw-customer" id="lw-customer-<?php echo esc_attr( $customer['id'] ); ?>" data-customer-search="<?php echo esc_attr( $customer_search_text ); ?>">
 					<div class="lw-customer-view">
 						<div class="lw-customer-top">
 							<div class="lw-customer-summary"><strong class="lw-customer-name"><?php echo esc_html( $customer['name'] ); ?></strong><?php if ( ! empty( $customer['rating'] ) ) : ?><div class="lw-customer-rating"><span>Nos calificó con</span><span class="lw-customer-stars" aria-label="<?php echo esc_attr( $customer['rating'] ); ?> estrellas"><?php echo esc_html( str_repeat( '★', (int) $customer['rating'] ) ); ?></span><?php if ( $google_business_url ) : ?><i></i><a href="<?php echo esc_url( $google_business_url ); ?>" target="_blank" rel="noopener noreferrer">Ver en Google <span aria-hidden="true">↗</span></a><?php endif; ?></div><?php else : ?><div class="lw-customer-rating"><span>Google Wallet member</span><span class="lw-points-badge">Identity verified</span></div><?php endif; ?></div>
@@ -84,5 +89,6 @@
 				</article>
 			<?php endforeach; ?>
 		</div>
+		<div id="lw-customer-search-empty" class="lw-empty-customers lw-customer-search-empty" hidden><span class="dashicons dashicons-search"></span><p>No customers match your search.</p></div>
 	<?php endif; ?>
 </div>
