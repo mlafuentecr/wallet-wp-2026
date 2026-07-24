@@ -285,11 +285,16 @@ final class Loyalty_Wallet_Plugin {
 			if ( 'url_saved' !== $wallet_result ) {
 				self::redirect_with_notice( $wallet_result, 'google-loyalty', $wallet_subsection );
 			}
+			$wallet_success_notice = array(
+				'configuration' => 'wallet_configuration_saved',
+				'design'        => 'wallet_design_saved',
+				'promotions'    => 'wallet_promotions_saved',
+			)[ $wallet_subsection ] ?? 'wallet_configuration_saved';
 			$wallet = Loyalty_Wallet_Google_Wallet_Module::data( $user_id );
 			if ( $wallet['is_configured'] && ! Loyalty_Wallet_Google_Wallet_Module::sync_loyalty_points( $user_id, Loyalty_Wallet_Google_Reviews_Module::review_points( $user_id ) ) ) {
 				self::redirect_with_notice( 'wallet_points_sync_failed', 'google-loyalty', $wallet_subsection );
 			}
-			self::redirect_with_notice( 'url_saved', 'google-loyalty', $wallet_subsection );
+			self::redirect_with_notice( $wallet_success_notice, 'google-loyalty', $wallet_subsection );
 		}
 
 		self::redirect_with_notice( 'invalid' );
@@ -539,6 +544,9 @@ final class Loyalty_Wallet_Plugin {
 			'invalid_wallet_design' => array( 'error', 'Choose a valid card color and a public HTTPS banner URL.' ),
 			'invalid_wallet_promotion' => array( 'error', 'Complete the promotion title and public HTTPS URL. The optional image must be a valid PNG, JPG or WebP under 5 MB.' ),
 			'invalid_wallet_appointment' => array( 'error', 'Complete the appointment button label and public HTTPS booking URL.' ),
+			'wallet_configuration_saved' => array( 'success', 'Google Loyalty configuration saved successfully.' ),
+			'wallet_design_saved' => array( 'success', 'Google Wallet card design saved successfully.' ),
+			'wallet_promotions_saved' => array( 'success', 'Promotions and appointment settings saved successfully.' ),
 			'invalid_reminder' => array( 'error', 'Complete the reminder date, channel and message.' ),
 			'invalid_global_messages' => array( 'error', 'Complete all global message templates. Each message can contain up to 2,000 characters.' ),
 			'missing_wallet_email' => array( 'error', 'Add a Wallet notification email before scheduling WhatsApp reminders.' ),

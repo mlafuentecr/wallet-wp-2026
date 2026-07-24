@@ -157,6 +157,10 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 	}
 
 	public static function save( int $user_id ): string {
+		$subsection = isset( $_POST['wallet_subsection'] ) ? sanitize_key( wp_unslash( $_POST['wallet_subsection'] ) ) : 'configuration';
+		if ( ! in_array( $subsection, array( 'configuration', 'design', 'promotions' ), true ) ) {
+			$subsection = 'configuration';
+		}
 		$issuer_id      = isset( $_POST['wallet_issuer_id'] ) ? preg_replace( '/\D+/', '', (string) wp_unslash( $_POST['wallet_issuer_id'] ) ) : '';
 		$class_suffix   = isset( $_POST['wallet_class_suffix'] ) ? sanitize_key( wp_unslash( $_POST['wallet_class_suffix'] ) ) : '';
 		$service_email  = isset( $_POST['wallet_service_email'] ) ? sanitize_email( wp_unslash( $_POST['wallet_service_email'] ) ) : '';
@@ -188,7 +192,32 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		$promo_title     = $promo_title ?: $existing['promo_title'];
 		$promo_body      = $promo_body ?: $existing['promo_body'];
 		$appointment_label = $appointment_label ?: $existing['appointment_label'];
-		if ( ! $existing['uses_constants'] && ! empty( $_FILES['wallet_service_account_json']['name'] ) ) {
+		if ( 'configuration' !== $subsection ) {
+			$issuer_id     = $existing['issuer_id'];
+			$class_suffix  = $existing['class_suffix'];
+			$service_email = $existing['service_email'];
+			$public_url    = $existing['public_url'];
+		}
+		if ( 'design' !== $subsection ) {
+			$logo_url        = $existing['logo_url_input'];
+			$hero_url        = $existing['hero_url_input'];
+			$hero_mode       = $existing['hero_mode'];
+			$hero_random_seed = $existing['hero_random_seed'];
+			$background_color = $existing['background_color_input'];
+			$program_name     = $existing['program_name'];
+			$contact_help     = $existing['contact_help'];
+		}
+		if ( 'promotions' !== $subsection ) {
+			$promo_enabled       = $existing['promo_enabled'];
+			$promo_title         = $existing['promo_title'];
+			$promo_body          = $existing['promo_body'];
+			$promo_url           = $existing['promo_url'];
+			$promo_image_url     = $existing['promo_image_url_input'];
+			$appointment_enabled = $existing['appointment_enabled'];
+			$appointment_url     = $existing['appointment_url'];
+			$appointment_label   = $existing['appointment_label'];
+		}
+		if ( 'configuration' === $subsection && ! $existing['uses_constants'] && ! empty( $_FILES['wallet_service_account_json']['name'] ) ) {
 			$credentials = self::service_account_credentials_from_upload();
 			if ( is_wp_error( $credentials ) ) {
 				return 'invalid_wallet_service_account_json';
@@ -202,31 +231,31 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		}
 		$has_any         = $issuer_id || $service_email || $new_private_key || $existing['has_private_key'];
 
-		if ( $public_url && ! wp_http_validate_url( $public_url ) ) {
+		if ( 'configuration' === $subsection && $public_url && ! wp_http_validate_url( $public_url ) ) {
 			return 'invalid_wallet_settings';
 		}
-		if ( $logo_url && ! self::is_public_https_url( $logo_url ) ) {
+		if ( 'design' === $subsection && $logo_url && ! self::is_public_https_url( $logo_url ) ) {
 			return 'invalid_wallet_settings';
 		}
-		if ( $hero_url && ! self::is_public_https_url( $hero_url ) ) {
+		if ( 'design' === $subsection && $hero_url && ! self::is_public_https_url( $hero_url ) ) {
 			return 'invalid_wallet_design';
 		}
-		if ( ! $background_color ) {
+		if ( 'design' === $subsection && ! $background_color ) {
 			return 'invalid_wallet_design';
 		}
-		if ( '' === $program_name ) {
+		if ( 'design' === $subsection && '' === $program_name ) {
 			return 'invalid_program_name';
 		}
-		if ( $promo_image_url && ! self::is_public_https_url( $promo_image_url ) ) {
+		if ( 'promotions' === $subsection && $promo_image_url && ! self::is_public_https_url( $promo_image_url ) ) {
 			return 'invalid_wallet_promotion';
 		}
-		if ( $promo_enabled && ( ! $promo_title || ! self::is_public_https_url( $promo_url ) ) ) {
+		if ( 'promotions' === $subsection && $promo_enabled && ( ! $promo_title || ! self::is_public_https_url( $promo_url ) ) ) {
 			return 'invalid_wallet_promotion';
 		}
-		if ( $appointment_enabled && ( ! $appointment_label || ! self::is_public_https_url( $appointment_url ) ) ) {
+		if ( 'promotions' === $subsection && $appointment_enabled && ( ! $appointment_label || ! self::is_public_https_url( $appointment_url ) ) ) {
 			return 'invalid_wallet_appointment';
 		}
-		if ( $has_any && ( ! preg_match( '/^\d{5,30}$/', $issuer_id ) || ! preg_match( '/^[a-z0-9_-]{3,60}$/', $class_suffix ) || ! is_email( $service_email ) ) ) {
+		if ( 'configuration' === $subsection && $has_any && ( ! preg_match( '/^\d{5,30}$/', $issuer_id ) || ! preg_match( '/^[a-z0-9_-]{3,60}$/', $class_suffix ) || ! is_email( $service_email ) ) ) {
 			return 'invalid_wallet_settings';
 		}
 		if ( $new_private_key && ! self::valid_private_key( $new_private_key ) ) {
