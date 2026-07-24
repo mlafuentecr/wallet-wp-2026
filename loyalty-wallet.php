@@ -306,7 +306,7 @@ final class Loyalty_Wallet_Plugin {
 			wp_die( esc_html__( 'You do not have permission to add customers.', 'loyalty-wallet' ) );
 		}
 		check_admin_referer( 'loyalty_wallet_add_customer' );
-		self::redirect_with_notice( Loyalty_Wallet_Customers_Module::add( get_current_user_id() ) );
+		self::redirect_with_notice( Loyalty_Wallet_Customers_Module::add( get_current_user_id() ), 'customers' );
 	}
 
 	public static function restore_promotion_settings(): void {
@@ -575,6 +575,8 @@ final class Loyalty_Wallet_Plugin {
 			'name_saved'       => array( 'success', 'Business information updated successfully.' ),
 			'url_saved'   => array( 'success', 'Client QR code updated successfully.' ),
 			'invalid_customer' => array( 'error', 'Enter a valid customer name, email and review.' ),
+			'invalid_review_source' => array( 'error', 'Select a valid review source. Instagram reviews require a public instagram.com link.' ),
+			'customer_added'   => array( 'success', 'Customer and review saved successfully.' ),
 			'customer_updated' => array( 'success', 'Customer updated successfully.' ),
 			'invalid_reward'   => array( 'error', 'Enter a valid product name and point cost.' ),
 			'reward_saved'     => array( 'success', 'Reward saved successfully.' ),

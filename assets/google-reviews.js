@@ -361,6 +361,20 @@
 		searchResult.className = found ? 'is-found' : 'is-missing'; searchResult.textContent = found ? 'Review found: Test Customer · 5 stars' : 'No sandbox review found for that name.';
 		if (addForm && customerName) { addForm.hidden = !found; customerName.value = found ? 'Test Customer' : ''; }
 	});
+	var socialReviewToggle = document.querySelector('.lw-social-review-toggle');
+	var socialReviewForm = document.querySelector('.lw-social-review-form');
+	var socialReviewCancel = document.querySelector('.lw-social-review-cancel');
+	if (socialReviewToggle && socialReviewForm) socialReviewToggle.addEventListener('click', function () {
+		socialReviewForm.hidden = false;
+		socialReviewToggle.setAttribute('aria-expanded', 'true');
+		var firstField = socialReviewForm.querySelector('input[type=text]');
+		if (firstField) firstField.focus();
+	});
+	if (socialReviewCancel && socialReviewForm && socialReviewToggle) socialReviewCancel.addEventListener('click', function () {
+		socialReviewForm.hidden = true;
+		socialReviewToggle.setAttribute('aria-expanded', 'false');
+		socialReviewToggle.focus();
+	});
 	var customerSearch = document.getElementById('lw-customer-search');
 	var customerSearchStatus = document.getElementById('lw-customer-search-status');
 	var customerSearchEmpty = document.getElementById('lw-customer-search-empty');

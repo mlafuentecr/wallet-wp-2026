@@ -14,6 +14,14 @@ final class Loyalty_Wallet_Customers_Module {
 		}
 		$migrated = false;
 		foreach ( $customers as &$customer ) {
+			if ( ! array_key_exists( 'review_source', $customer ) ) {
+				$customer['review_source'] = ! empty( $customer['rating'] ) ? 'google' : 'wallet';
+				$migrated = true;
+			}
+			if ( ! array_key_exists( 'review_url', $customer ) ) {
+				$customer['review_url'] = '';
+				$migrated = true;
+			}
 			if ( ! array_key_exists( 'review_rewarded', $customer ) ) {
 				$customer['points'] = Loyalty_Wallet_Google_Reviews_Module::review_points( $user_id );
 				$customer['review_rewarded'] = true;
@@ -40,15 +48,29 @@ final class Loyalty_Wallet_Customers_Module {
 		$rating = isset( $_POST['customer_rating'] ) ? min( 5, max( 1, absint( $_POST['customer_rating'] ) ) ) : 0;
 		$date = isset( $_POST['customer_review_date'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_review_date'] ) ) : '';
 		$birthday = isset( $_POST['customer_birthday'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_birthday'] ) ) : '';
+		$review_source = isset( $_POST['customer_review_source'] ) ? sanitize_key( wp_unslash( $_POST['customer_review_source'] ) ) : 'google';
+		$review_source = in_array( $review_source, array( 'google', 'instagram', 'manual' ), true ) ? $review_source : '';
+		$review_url = isset( $_POST['customer_review_url'] ) ? esc_url_raw( wp_unslash( $_POST['customer_review_url'] ) ) : '';
 		if ( '' === $name || ! is_email( $email ) || '' === $phone || '' === $review || 0 === $rating ) {
 			return 'invalid_customer';
+		}
+		if ( ! $review_source || ( 'instagram' === $review_source && ! self::is_instagram_url( $review_url ) ) ) {
+			return 'invalid_review_source';
 		}
 		$customers = self::all( $user_id );
 		$visit_date = $date ?: current_time( 'Y-m-d' );
 		$review_points = Loyalty_Wallet_Google_Reviews_Module::review_points( $user_id );
-		$customers[] = array( 'id' => wp_generate_uuid4(), 'name' => $name, 'email' => $email, 'phone' => $phone, 'contact_preference' => 'whatsapp', 'review' => $review, 'rating' => $rating, 'date' => $visit_date, 'next_visit' => '', 'birthday' => preg_match( '/^\d{4}-\d{2}-\d{2}$/', $birthday ) ? $birthday : '', 'visits' => array( $visit_date ), 'points' => $review_points, 'review_rewarded' => true, 'review_points_awarded' => $review_points );
+		$customers[] = array( 'id' => wp_generate_uuid4(), 'name' => $name, 'email' => $email, 'phone' => $phone, 'contact_preference' => 'whatsapp', 'review' => $review, 'rating' => $rating, 'review_source' => $review_source, 'review_url' => $review_url, 'date' => $visit_date, 'next_visit' => '', 'birthday' => preg_match( '/^\d{4}-\d{2}-\d{2}$/', $birthday ) ? $birthday : '', 'visits' => array( $visit_date ), 'points' => $review_points, 'review_rewarded' => true, 'review_points_awarded' => $review_points );
 		update_user_meta( $user_id, self::META_KEY, $customers );
 		return 'customer_added';
+	}
+
+	private static function is_instagram_url( string $url ): bool {
+		if ( ! $url || ! wp_http_validate_url( $url ) ) {
+			return false;
+		}
+		$host = strtolower( (string) wp_parse_url( $url, PHP_URL_HOST ) );
+		return (bool) preg_match( '/(^|\.)instagram\.com$/', $host );
 	}
 
 	public static function sync_review_points( int $user_id, int $previous_points, int $new_points ): void {
@@ -117,6 +139,8 @@ final class Loyalty_Wallet_Customers_Module {
 				'contact_preference'    => 'whatsapp',
 				'review'                => '',
 				'rating'                => 0,
+				'review_source'         => 'wallet',
+				'review_url'            => '',
 				'date'                  => current_time( 'Y-m-d' ),
 				'next_visit'            => '',
 				'birthday'              => '',
@@ -144,16 +168,22 @@ final class Loyalty_Wallet_Customers_Module {
 		$email = isset( $_POST['customer_email'] ) ? sanitize_email( wp_unslash( $_POST['customer_email'] ) ) : '';
 		$phone = isset( $_POST['customer_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_phone'] ) ) : '';
 		$review = isset( $_POST['customer_review'] ) ? sanitize_textarea_field( wp_unslash( $_POST['customer_review'] ) ) : '';
-		$rating = isset( $_POST['customer_rating'] ) ? min( 5, max( 1, absint( $_POST['customer_rating'] ) ) ) : 0;
+		$rating = isset( $_POST['customer_rating'] ) ? min( 5, absint( $_POST['customer_rating'] ) ) : 0;
 		$date = isset( $_POST['customer_review_date'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_review_date'] ) ) : '';
 		$next_visit = isset( $_POST['customer_next_visit'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_next_visit'] ) ) : '';
 		$birthday = isset( $_POST['customer_birthday'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_birthday'] ) ) : '';
 		$contact_preference = isset( $_POST['customer_contact_preference'] ) ? sanitize_key( wp_unslash( $_POST['customer_contact_preference'] ) ) : 'whatsapp';
 		$contact_preference = in_array( $contact_preference, array( 'email', 'phone', 'whatsapp' ), true ) ? $contact_preference : 'whatsapp';
 		$source = isset( $_POST['customer_source'] ) ? sanitize_key( wp_unslash( $_POST['customer_source'] ) ) : '';
+		$review_source = isset( $_POST['customer_review_source'] ) ? sanitize_key( wp_unslash( $_POST['customer_review_source'] ) ) : '';
+		$review_source = in_array( $review_source, array( 'google', 'instagram', 'manual', 'wallet' ), true ) ? $review_source : '';
+		$review_url = isset( $_POST['customer_review_url'] ) ? esc_url_raw( wp_unslash( $_POST['customer_review_url'] ) ) : '';
 		$is_google_member = 'google_wallet' === $source;
 		if ( ! $id || ! $name || ! is_email( $email ) || ! $phone || ( ! $is_google_member && ( ! $review || ! $rating ) ) ) {
 			return 'invalid_customer';
+		}
+		if ( 'instagram' === $review_source && ! self::is_instagram_url( $review_url ) ) {
+			return 'invalid_review_source';
 		}
 		$customers = self::all( $user_id );
 		$updated = false;
@@ -169,6 +199,8 @@ final class Loyalty_Wallet_Customers_Module {
 					'contact_preference'    => $contact_preference,
 					'review'                => $review,
 					'rating'                => $rating,
+					'review_source'         => $review_source ?: sanitize_key( (string) ( $customer['review_source'] ?? ( $is_google_member ? 'wallet' : 'google' ) ) ),
+					'review_url'            => $review_url,
 					'date'                  => $date ?: current_time( 'Y-m-d' ),
 					'next_visit'            => preg_match( '/^\d{4}-\d{2}-\d{2}$/', $next_visit ) ? $next_visit : '',
 					'birthday'              => preg_match( '/^\d{4}-\d{2}-\d{2}$/', $birthday ) ? $birthday : (string) ( $customer['birthday'] ?? '' ),
