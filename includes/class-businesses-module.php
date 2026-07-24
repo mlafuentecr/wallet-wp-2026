@@ -8,6 +8,8 @@ final class Loyalty_Wallet_Businesses_Module {
 	private const NAME_META      = '_loyalty_wallet_name';
 	private const EMAIL_META     = '_loyalty_wallet_email';
 	private const LOGO_META      = '_loyalty_wallet_logo_id';
+	private const WEBSITE_META   = '_loyalty_wallet_website';
+	private const WHATSAPP_META  = '_loyalty_wallet_business_whatsapp';
 	private const CUSTOMERS_META = '_loyalty_wallet_review_customers';
 	private const CLIENT_ROLE    = 'loyalty_wallet_client';
 
@@ -73,6 +75,8 @@ final class Loyalty_Wallet_Businesses_Module {
 				'Business ID',
 				'Business name',
 				'Business email',
+				'Business website',
+				'Business WhatsApp',
 				'WordPress owner',
 				'Customer ID',
 				'Customer name',
@@ -84,6 +88,7 @@ final class Loyalty_Wallet_Businesses_Module {
 				'Points',
 				'Birthday',
 				'Last visit',
+				'Next visit',
 				'Total visits',
 				'Source',
 				'Google Wallet member ID',
@@ -103,6 +108,8 @@ final class Loyalty_Wallet_Businesses_Module {
 							$business['id'],
 							$business['name'],
 							$business['email'],
+							$business['website'],
+							$business['whatsapp'],
 							$business['owner_email'],
 							$customer['id'] ?? '',
 							$customer['name'] ?? '',
@@ -114,6 +121,7 @@ final class Loyalty_Wallet_Businesses_Module {
 							$customer['points'] ?? 0,
 							$customer['birthday'] ?? '',
 							$customer['date'] ?? '',
+							$customer['next_visit'] ?? '',
 							count( $visits ),
 							$customer['source'] ?? '',
 							$customer['wallet_member_id'] ?? '',
@@ -146,6 +154,8 @@ final class Loyalty_Wallet_Businesses_Module {
 				'id'            => (int) $user->ID,
 				'name'          => $name ?: $user->display_name,
 				'email'         => (string) get_user_meta( $user->ID, self::EMAIL_META, true ) ?: $user->user_email,
+				'website'       => (string) get_user_meta( $user->ID, self::WEBSITE_META, true ),
+				'whatsapp'      => (string) get_user_meta( $user->ID, self::WHATSAPP_META, true ),
 				'owner_name'    => $user->display_name,
 				'owner_email'   => $user->user_email,
 				'logo_url'      => $logo_id ? (string) wp_get_attachment_image_url( $logo_id, 'thumbnail' ) : '',

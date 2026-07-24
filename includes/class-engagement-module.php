@@ -65,6 +65,9 @@ final class Loyalty_Wallet_Engagement_Module {
 			$last_visit = new DateTimeImmutable( (string) ( $customer['date'] ?? current_time( 'Y-m-d' ) ), wp_timezone() );
 			$dates['inactive'] = $last_visit->modify( '+' . $inactive_days . ' days' )->format( 'Y-m-d' );
 		}
+		if ( $recurring || $one_day || $one_week ) {
+			Loyalty_Wallet_Customers_Module::set_next_visit( $user_id, $customer_id, $appointment );
+		}
 		$items = self::all( $user_id );
 		foreach ( $dates as $type => $date ) {
 			$message = 'birthday' === $type ? $birthday_message : ( 'inactive' === $type ? $inactive_message : $appointment_message );

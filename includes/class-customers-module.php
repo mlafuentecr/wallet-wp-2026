@@ -46,7 +46,7 @@ final class Loyalty_Wallet_Customers_Module {
 		$customers = self::all( $user_id );
 		$visit_date = $date ?: current_time( 'Y-m-d' );
 		$review_points = Loyalty_Wallet_Google_Reviews_Module::review_points( $user_id );
-		$customers[] = array( 'id' => wp_generate_uuid4(), 'name' => $name, 'email' => $email, 'phone' => $phone, 'contact_preference' => 'whatsapp', 'review' => $review, 'rating' => $rating, 'date' => $visit_date, 'birthday' => preg_match( '/^\d{4}-\d{2}-\d{2}$/', $birthday ) ? $birthday : '', 'visits' => array( $visit_date ), 'points' => $review_points, 'review_rewarded' => true, 'review_points_awarded' => $review_points );
+		$customers[] = array( 'id' => wp_generate_uuid4(), 'name' => $name, 'email' => $email, 'phone' => $phone, 'contact_preference' => 'whatsapp', 'review' => $review, 'rating' => $rating, 'date' => $visit_date, 'next_visit' => '', 'birthday' => preg_match( '/^\d{4}-\d{2}-\d{2}$/', $birthday ) ? $birthday : '', 'visits' => array( $visit_date ), 'points' => $review_points, 'review_rewarded' => true, 'review_points_awarded' => $review_points );
 		update_user_meta( $user_id, self::META_KEY, $customers );
 		return 'customer_added';
 	}
@@ -118,6 +118,7 @@ final class Loyalty_Wallet_Customers_Module {
 				'review'                => '',
 				'rating'                => 0,
 				'date'                  => current_time( 'Y-m-d' ),
+				'next_visit'            => '',
 				'birthday'              => '',
 				'visits'                => array(),
 				'points'                => $points,
@@ -145,6 +146,7 @@ final class Loyalty_Wallet_Customers_Module {
 		$review = isset( $_POST['customer_review'] ) ? sanitize_textarea_field( wp_unslash( $_POST['customer_review'] ) ) : '';
 		$rating = isset( $_POST['customer_rating'] ) ? min( 5, max( 1, absint( $_POST['customer_rating'] ) ) ) : 0;
 		$date = isset( $_POST['customer_review_date'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_review_date'] ) ) : '';
+		$next_visit = isset( $_POST['customer_next_visit'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_next_visit'] ) ) : '';
 		$birthday = isset( $_POST['customer_birthday'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_birthday'] ) ) : '';
 		$contact_preference = isset( $_POST['customer_contact_preference'] ) ? sanitize_key( wp_unslash( $_POST['customer_contact_preference'] ) ) : 'whatsapp';
 		$contact_preference = in_array( $contact_preference, array( 'email', 'phone', 'whatsapp' ), true ) ? $contact_preference : 'whatsapp';
@@ -155,6 +157,7 @@ final class Loyalty_Wallet_Customers_Module {
 		}
 		$customers = self::all( $user_id );
 		$updated = false;
+		$updated_customer = null;
 		foreach ( $customers as &$customer ) {
 			if ( isset( $customer['id'] ) && hash_equals( (string) $customer['id'], $id ) ) {
 				$visits = isset( $customer['visits'] ) && is_array( $customer['visits'] ) ? $customer['visits'] : array( $customer['date'] );
@@ -167,6 +170,7 @@ final class Loyalty_Wallet_Customers_Module {
 					'review'                => $review,
 					'rating'                => $rating,
 					'date'                  => $date ?: current_time( 'Y-m-d' ),
+					'next_visit'            => preg_match( '/^\d{4}-\d{2}-\d{2}$/', $next_visit ) ? $next_visit : '',
 					'birthday'              => preg_match( '/^\d{4}-\d{2}-\d{2}$/', $birthday ) ? $birthday : (string) ( $customer['birthday'] ?? '' ),
 					'visits'                => $visits,
 					'points'                => absint( $customer['points'] ?? 0 ),
@@ -179,6 +183,7 @@ final class Loyalty_Wallet_Customers_Module {
 					'source'                => $is_google_member ? 'google_wallet' : sanitize_key( (string) ( $customer['source'] ?? '' ) ),
 				);
 				$updated = true;
+				$updated_customer = $customer;
 				break;
 			}
 		}
@@ -187,7 +192,36 @@ final class Loyalty_Wallet_Customers_Module {
 			return 'invalid_customer';
 		}
 		update_user_meta( $user_id, self::META_KEY, $customers );
+		if ( $updated_customer && ! empty( $updated_customer['wallet_object_id'] ) ) {
+			Loyalty_Wallet_Google_Wallet_Module::sync_customer_pass( $user_id, $updated_customer );
+		}
 		return 'customer_updated';
+	}
+
+	public static function set_next_visit( int $user_id, string $customer_id, string $next_visit ): bool {
+		if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $next_visit ) ) {
+			return false;
+		}
+
+		$customers = self::all( $user_id );
+		$updated_customer = null;
+		foreach ( $customers as &$customer ) {
+			if ( isset( $customer['id'] ) && hash_equals( (string) $customer['id'], $customer_id ) ) {
+				$customer['next_visit'] = $next_visit;
+				$updated_customer = $customer;
+				break;
+			}
+		}
+		unset( $customer );
+		if ( ! $updated_customer ) {
+			return false;
+		}
+
+		update_user_meta( $user_id, self::META_KEY, $customers );
+		if ( ! empty( $updated_customer['wallet_object_id'] ) ) {
+			Loyalty_Wallet_Google_Wallet_Module::sync_customer_pass( $user_id, $updated_customer );
+		}
+		return true;
 	}
 
 	public static function add_visit( int $user_id ): string {
