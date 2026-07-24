@@ -259,6 +259,11 @@ final class Loyalty_Wallet_Plugin {
 			self::redirect_with_notice( 'url_saved', 'reviews' );
 		}
 
+		if ( 'messages' === $section ) {
+			$message_result = Loyalty_Wallet_Engagement_Module::save_templates( $user_id );
+			self::redirect_with_notice( $message_result, 'messages' );
+		}
+
 		if ( 'google_loyalty' === $section ) {
 			$wallet_result = Loyalty_Wallet_Google_Wallet_Module::save( $user_id );
 			if ( 'url_saved' !== $wallet_result ) {
@@ -414,6 +419,7 @@ final class Loyalty_Wallet_Plugin {
 								<button type="button" class="lw-subnav-tab is-active" id="lw-name-tab" role="tab" aria-selected="true" aria-controls="lw-name-settings"><span class="dashicons dashicons-store"></span><span><strong>Negocio</strong><small>Nombre, contacto y logo</small></span></button>
 								<button type="button" class="lw-subnav-tab" id="lw-review-tab" role="tab" aria-selected="false" aria-controls="lw-qr-settings"><span class="dashicons dashicons-star-filled"></span><span><strong>Google Reviews</strong><small>Reviews, QR and credentials</small></span></button>
 								<button type="button" class="lw-subnav-tab" id="lw-google-loyalty-tab" role="tab" aria-selected="false" aria-controls="lw-google-loyalty-settings"><span class="dashicons dashicons-tickets-alt"></span><span><strong>Google Loyalty</strong><small>Wallet cards and issuer</small></span></button>
+								<button type="button" class="lw-subnav-tab" id="lw-messages-tab" role="tab" aria-selected="false" aria-controls="lw-message-settings"><span class="dashicons dashicons-format-chat"></span><span><strong>Global Messages</strong><small>Defaults for all customers</small></span></button>
 								<button type="button" class="lw-subnav-tab" id="lw-loyalty-tab" role="tab" aria-selected="false" aria-controls="lw-loyalty-settings"><span class="dashicons dashicons-admin-users"></span><span><strong>Client Access</strong><small>Restricted WordPress user</small></span></button>
 							</div>
 						<?php endif; ?>
@@ -426,6 +432,7 @@ final class Loyalty_Wallet_Plugin {
 						<?php wp_nonce_field( 'loyalty_wallet_save_url' ); ?>
 						<?php Loyalty_Wallet_Google_Reviews_Module::render_settings( $google ); ?>
 						<?php Loyalty_Wallet_Google_Wallet_Module::render_settings( get_current_user_id() ); ?>
+						<?php Loyalty_Wallet_Engagement_Module::render_settings( get_current_user_id() ); ?>
 						<div id="lw-name-settings" class="lw-settings-panel" role="tabpanel" aria-labelledby="lw-name-tab">
 							<div class="lw-settings-heading"><h2>Negocio</h2><p>Edita el nombre, información de contacto y logo que se muestran en Loyalty Wallet.</p></div>
 							<div class="lw-wallet-identity-fields">
@@ -500,9 +507,11 @@ final class Loyalty_Wallet_Plugin {
 			'invalid_wallet_hero' => array( 'error', 'Upload a valid PNG, JPG or WebP banner no larger than 5 MB.' ),
 			'invalid_wallet_design' => array( 'error', 'Choose a valid card color and a public HTTPS banner URL.' ),
 			'invalid_reminder' => array( 'error', 'Complete the reminder date, channel and message.' ),
+			'invalid_global_messages' => array( 'error', 'Complete all global message templates. Each message can contain up to 2,000 characters.' ),
 			'missing_wallet_email' => array( 'error', 'Add a Wallet notification email before scheduling WhatsApp reminders.' ),
 			'missing_birthday' => array( 'error', 'Add the customer birthday before enabling birthday reminders.' ),
 			'reminder_saved' => array( 'success', 'Reminder scheduled.' ),
+			'global_messages_saved' => array( 'success', 'Global message defaults updated for all customers.' ),
 			'name_saved'       => array( 'success', 'Wallet name updated successfully.' ),
 			'url_saved'   => array( 'success', 'Client QR code updated successfully.' ),
 			'invalid_customer' => array( 'error', 'Enter a valid customer name, email and review.' ),

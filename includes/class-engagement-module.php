@@ -6,7 +6,58 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class Loyalty_Wallet_Engagement_Module {
 	private const META_KEY = '_loyalty_wallet_engagement_reminders';
+	private const TEMPLATES_META = '_loyalty_wallet_global_message_templates';
 	private const EMAIL_META = '_loyalty_wallet_email';
+	private const BUSINESS_NAME_META = '_loyalty_wallet_name';
+
+	public static function templates( int $user_id ): array {
+		$defaults = array(
+			'general'     => 'Hola {{name}}, tienes {{points}} puntos disponibles en {{business_name}}. ¿Cómo podemos ayudarte?',
+			'appointment' => 'Hola {{name}}, te recordamos tu próxima cita en {{business_name}}. Si necesitas cambiarla, por favor contáctanos.',
+			'birthday'    => '¡Hola {{name}}! 🎉 Te deseamos un feliz cumpleaños de parte de {{business_name}}. Gracias por ser parte de nuestra comunidad. ¡Esperamos verte pronto!',
+			'inactive'    => 'Hola {{name}}. Te extrañamos en {{business_name}}. Actualmente tienes {{points}} puntos disponibles. ¡Esperamos verte pronto!',
+		);
+		$saved = get_user_meta( $user_id, self::TEMPLATES_META, true );
+		return is_array( $saved ) ? array_merge( $defaults, array_intersect_key( $saved, $defaults ) ) : $defaults;
+	}
+
+	public static function render_template( int $user_id, string $type, array $customer, array $context = array() ): string {
+		$templates = self::templates( $user_id );
+		$template  = (string) ( $templates[ $type ] ?? $templates['general'] );
+		$replacements = array(
+			'{{name}}'             => sanitize_text_field( (string) ( $customer['name'] ?? 'cliente' ) ),
+			'{{points}}'           => (string) absint( $customer['points'] ?? 0 ),
+			'{{business_name}}'    => sanitize_text_field( (string) get_user_meta( $user_id, self::BUSINESS_NAME_META, true ) ) ?: 'nuestro negocio',
+			'{{appointment_date}}' => sanitize_text_field( (string) ( $context['appointment_date'] ?? $customer['next_visit'] ?? '' ) ),
+			'{{last_visit}}'       => sanitize_text_field( (string) ( $customer['date'] ?? '' ) ),
+			'{{next_visit}}'       => sanitize_text_field( (string) ( $customer['next_visit'] ?? '' ) ),
+		);
+		return strtr( $template, $replacements );
+	}
+
+	public static function save_templates( int $user_id ): string {
+		$fields = array(
+			'general'     => 'global_message_general',
+			'appointment' => 'global_message_appointment',
+			'birthday'    => 'global_message_birthday',
+			'inactive'    => 'global_message_inactive',
+		);
+		$templates = array();
+		foreach ( $fields as $type => $field ) {
+			$message = isset( $_POST[ $field ] ) ? sanitize_textarea_field( wp_unslash( $_POST[ $field ] ) ) : '';
+			if ( '' === $message || strlen( $message ) > 2000 ) {
+				return 'invalid_global_messages';
+			}
+			$templates[ $type ] = $message;
+		}
+		update_user_meta( $user_id, self::TEMPLATES_META, $templates );
+		return 'global_messages_saved';
+	}
+
+	public static function render_settings( int $user_id ): void {
+		$templates = self::templates( $user_id );
+		require LOYALTY_WALLET_DIR . 'views/message-settings.php';
+	}
 
 	public static function all( int $user_id ): array {
 		$items = get_user_meta( $user_id, self::META_KEY, true );

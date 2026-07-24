@@ -19,9 +19,10 @@
 				$total_visits = count( $visits );
 				$phone_digits = preg_replace( '/\D+/', '', (string) ( $customer['phone'] ?? '' ) );
 				if ( 8 === strlen( $phone_digits ) ) { $phone_digits = '506' . $phone_digits; }
-				$reminder_message = sprintf( 'Hi %s! We miss you. You currently have %d loyalty points available. We would love to see you again!', $customer['name'], absint( $customer['points'] ?? 0 ) );
-				$birthday_message = sprintf( '¡Hola %s! 🎉 Te deseamos un feliz cumpleaños. Gracias por ser parte de nuestra comunidad. ¡Esperamos verte pronto!', $customer['name'] );
-				$appointment_message = sprintf( 'Hola %s, te recordamos tu próxima cita. Si necesitas cambiarla, por favor contáctanos.', $customer['name'] );
+				$reminder_message = Loyalty_Wallet_Engagement_Module::render_template( get_current_user_id(), 'general', $customer );
+				$birthday_message = Loyalty_Wallet_Engagement_Module::render_template( get_current_user_id(), 'birthday', $customer );
+				$appointment_message = Loyalty_Wallet_Engagement_Module::render_template( get_current_user_id(), 'appointment', $customer, array( 'appointment_date' => current_time( 'Y-m-d' ) ) );
+				$inactive_message = Loyalty_Wallet_Engagement_Module::render_template( get_current_user_id(), 'inactive', $customer );
 				$preferred_reminder_channel = 'email' === ( $customer['contact_preference'] ?? 'whatsapp' ) ? 'email' : 'whatsapp';
 				$whatsapp_url = $phone_digits ? 'https://wa.me/' . $phone_digits . '?text=' . rawurlencode( $reminder_message ) : '';
 				$customer_search_text = strtolower( remove_accents( implode( ' ', array( (string) $customer['name'], (string) $customer['email'], (string) ( $customer['phone'] ?? '' ) ) ) ) );
@@ -69,7 +70,7 @@
 						<fieldset class="lw-reminder-section">
 							<legend>Inactive customer reminder</legend>
 							<label class="lw-reminder-rule"><input type="checkbox" name="reminder_inactive" value="1"><span><strong>Has not visited</strong><small>Remind after this many days without a visit</small></span><input class="lw-inactive-days" type="number" name="inactive_days" value="30" min="1" max="3650" aria-label="Inactive days"></label>
-							<label class="lw-reminder-message-field">Inactive customer message<textarea name="inactive_message" rows="3"><?php echo esc_textarea( $reminder_message ); ?></textarea></label>
+							<label class="lw-reminder-message-field">Inactive customer message<textarea name="inactive_message" rows="3"><?php echo esc_textarea( $inactive_message ); ?></textarea></label>
 						</fieldset>
 						<div class="lw-reminder-actions"><button type="submit" class="button button-primary">Schedule reminders</button><button type="button" class="button lw-reminder-cancel">Cancel</button></div>
 					</form>

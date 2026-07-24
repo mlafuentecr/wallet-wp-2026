@@ -6,9 +6,11 @@
 	var activityTab = document.getElementById('lw-activity-tab');
 	var configurationTab = document.getElementById('lw-configuration-tab');
 	var googleLoyaltyTab = document.getElementById('lw-google-loyalty-tab');
+	var messagesTab = document.getElementById('lw-messages-tab');
 	var loyaltyTab = document.getElementById('lw-loyalty-tab');
 	var qrPanel = document.getElementById('lw-qr-settings');
 	var googleLoyaltyPanel = document.getElementById('lw-google-loyalty-settings');
+	var messagesPanel = document.getElementById('lw-message-settings');
 	var namePanel = document.getElementById('lw-name-settings');
 	var customersPanel = document.getElementById('lw-customers-panel');
 	var activityPanel = document.getElementById('lw-activity-panel');
@@ -37,14 +39,16 @@
 		var editingName = selected === 'name';
 		var editingReviews = selected === 'reviews';
 		var editingGoogleLoyalty = selected === 'google-loyalty';
+		var editingMessages = selected === 'messages';
 		var editingAccess = selected === 'loyalty';
-		var editingConfiguration = editingName || editingReviews || editingGoogleLoyalty || editingAccess;
+		var editingConfiguration = editingName || editingReviews || editingGoogleLoyalty || editingMessages || editingAccess;
 		if (nameTab) nameTab.classList.toggle('is-active', editingName);
 		customersTab.classList.toggle('is-active', selected === 'customers');
 		activityTab.classList.toggle('is-active', selected === 'activity');
 		if (configurationTab) configurationTab.classList.toggle('is-active', editingConfiguration);
 		if (reviewTab) reviewTab.classList.toggle('is-active', editingReviews);
 		if (googleLoyaltyTab) googleLoyaltyTab.classList.toggle('is-active', editingGoogleLoyalty);
+		if (messagesTab) messagesTab.classList.toggle('is-active', editingMessages);
 		if (loyaltyTab) loyaltyTab.classList.toggle('is-active', editingAccess);
 		if (nameTab) nameTab.setAttribute('aria-selected', editingName ? 'true' : 'false');
 		customersTab.setAttribute('aria-selected', selected === 'customers' ? 'true' : 'false');
@@ -52,24 +56,28 @@
 		if (configurationTab) configurationTab.setAttribute('aria-selected', editingConfiguration ? 'true' : 'false');
 		if (reviewTab) reviewTab.setAttribute('aria-selected', editingReviews ? 'true' : 'false');
 		if (googleLoyaltyTab) googleLoyaltyTab.setAttribute('aria-selected', editingGoogleLoyalty ? 'true' : 'false');
+		if (messagesTab) messagesTab.setAttribute('aria-selected', editingMessages ? 'true' : 'false');
 		if (loyaltyTab) loyaltyTab.setAttribute('aria-selected', editingAccess ? 'true' : 'false');
 		namePanel.hidden = !editingName;
 		customersPanel.hidden = selected !== 'customers';
 		activityPanel.hidden = selected !== 'activity';
 		if (qrPanel) qrPanel.hidden = !editingReviews;
 		if (googleLoyaltyPanel) googleLoyaltyPanel.hidden = !editingGoogleLoyalty;
+		if (messagesPanel) messagesPanel.hidden = !editingMessages;
 		if (loyaltyPanel) loyaltyPanel.hidden = !editingAccess;
 		setPanelFields(namePanel, editingName);
 		setPanelFields(qrPanel, editingReviews);
 		setPanelFields(googleLoyaltyPanel, editingGoogleLoyalty);
-		section.value = editingName ? 'name' : (editingReviews ? 'reviews' : (editingGoogleLoyalty ? 'google_loyalty' : ''));
-		if (settingsSubmit) settingsSubmit.style.display = selected === 'customers' || selected === 'activity' || editingAccess || editingGoogleLoyalty ? 'none' : '';
+		setPanelFields(messagesPanel, editingMessages);
+		section.value = editingName ? 'name' : (editingReviews ? 'reviews' : (editingGoogleLoyalty ? 'google_loyalty' : (editingMessages ? 'messages' : '')));
+		if (settingsSubmit) settingsSubmit.style.display = selected === 'customers' || selected === 'activity' || editingAccess || editingGoogleLoyalty || editingMessages ? 'none' : '';
 		if (editingName && nameInput) nameInput.focus();
 		else if (editingReviews && placeInput) placeInput.focus();
 		else if (editingGoogleLoyalty) {
 			var loyaltySummary = googleLoyaltyPanel ? googleLoyaltyPanel.querySelector('summary') : null;
 			if (loyaltySummary) loyaltySummary.focus();
 		}
+		else if (editingMessages && messagesPanel) messagesPanel.querySelector('textarea').focus();
 	}
 	if (nameTab) nameTab.addEventListener('click', function () { selectTab('name'); });
 	customersTab.addEventListener('click', function () { selectTab('customers'); });
@@ -77,6 +85,7 @@
 	if (configurationTab) configurationTab.addEventListener('click', function () { selectTab('name'); });
 	if (reviewTab) reviewTab.addEventListener('click', function () { selectTab('reviews'); });
 	if (googleLoyaltyTab && googleLoyaltyPanel) googleLoyaltyTab.addEventListener('click', function () { selectTab('google-loyalty'); });
+	if (messagesTab && messagesPanel) messagesTab.addEventListener('click', function () { selectTab('messages'); });
 	if (loyaltyTab && loyaltyPanel) loyaltyTab.addEventListener('click', function () { selectTab('loyalty'); });
 	var logoInput = document.getElementById('lw-wallet-logo'), logoPreview = document.getElementById('lw-logo-preview');
 	if (logoInput && logoPreview) logoInput.addEventListener('change', function () {
@@ -248,6 +257,7 @@
 	if (requestedTab === 'customers') selectTab('customers');
 	else if (requestedTab === 'reviews' && reviewTab) selectTab('reviews');
 	else if (requestedTab === 'google-loyalty' && googleLoyaltyTab) selectTab('google-loyalty');
+	else if (requestedTab === 'messages' && messagesTab) selectTab('messages');
 	else if (requestedTab === 'loyalty' && loyaltyTab) selectTab('loyalty');
 	else selectTab(configurationTab ? 'name' : 'customers');
 }());
