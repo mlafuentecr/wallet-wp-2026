@@ -30,10 +30,10 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           port: 21
-          protocol: ftps
+          protocol: ftpss
           security: loose
           local-dir: ./
-          server-dir: /website_290ffa7f/x/
+          server-dir: ./x/
           state-name: .ftp-deploy-sync-state.json
           log-level: standard
           exclude: |
