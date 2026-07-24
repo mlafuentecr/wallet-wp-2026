@@ -318,3 +318,55 @@ body:has(#lw-customers-panel:not([hidden])) .lw-code-editor{padding:0!important;
 	.lw-wallet-card-preview h4{font-size:22px}
 	.lw-card-preview-qr img{width:118px;height:118px}
 }
+
+/* Google Wallet promotion and appointment actions. */
+.lw-wallet-promotions-toggle{margin-top:12px}
+.lw-wallet-promo-workspace{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);align-items:start;gap:20px;padding:20px;background:#f5f8ff}
+.lw-wallet-promo-controls{display:grid;gap:14px}
+.lw-promo-control-card{display:grid;gap:14px;padding:17px;border:1px solid #d6e0ee;border-radius:13px;background:#fff}
+.lw-feature-check{display:flex!important;align-items:flex-start;gap:11px;padding-bottom:13px;border-bottom:1px solid #e2e8f0;cursor:pointer}
+.lw-feature-check input{flex:0 0 auto;width:19px!important;height:19px!important;margin:1px 0 0!important}
+.lw-feature-check span,.lw-feature-check strong,.lw-feature-check small{display:block}
+.lw-feature-check strong{color:#10234a;font-size:14px}
+.lw-feature-check small{margin-top:3px;color:#64748b;font-weight:400;line-height:1.4}
+.lw-promo-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.lw-promo-fields label,.lw-appointment-fields label{display:grid;gap:7px}
+.lw-promo-fields label:last-child{grid-column:1/-1}
+.lw-promo-fields input,.lw-appointment-fields input,.lw-promo-control-card>input[type=url]{box-sizing:border-box;width:100%;min-height:42px;margin:0;border-radius:8px}
+.lw-promo-image-editor{display:grid;grid-template-columns:92px minmax(0,1fr);align-items:center;gap:14px;padding:13px;border:1px dashed #c8d5e7;border-radius:11px;background:#f8fafc}
+.lw-promo-image-preview{display:grid;place-items:center;width:92px;height:92px;overflow:hidden;border-radius:11px;background:#e8eef8;color:#64748b}
+.lw-promo-image-preview img{display:block;width:100%;height:100%;object-fit:cover}
+.lw-promo-image-preview .dashicons{width:28px;height:28px;font-size:28px}
+.lw-promo-image-editor p{margin:4px 0 9px;color:#64748b;font-size:12px;line-height:1.4}
+.lw-promo-image-editor .lw-logo-actions{margin:0}
+.lw-promo-image-editor .button{min-height:36px;margin:0}
+.lw-appointment-fields{display:grid;grid-template-columns:minmax(160px,.45fr) minmax(0,1fr);gap:12px}
+.lw-wallet-actions-preview{position:sticky;top:48px;display:grid;gap:13px;padding:16px;border:1px solid #d6e0ee;border-radius:14px;background:#202124;color:#fff;box-shadow:0 8px 24px #18315316}
+.lw-wallet-actions-preview .lw-live-preview-heading{color:#fff}
+.lw-wallet-actions-preview .lw-live-preview-heading small{color:#b8c0ce}
+.lw-card-promo-preview{display:grid;grid-template-columns:minmax(0,1fr) 58px;align-items:center;gap:14px;padding:16px;border-radius:13px;background:#303134;border:1px solid #ffffff0f}
+.lw-card-promo-preview[hidden],.lw-card-appointment-preview[hidden]{display:none!important}
+.lw-card-promo-preview strong,.lw-card-promo-preview span{display:block}
+.lw-card-promo-preview strong{font-size:16px}
+.lw-card-promo-preview>div>span{margin-top:5px;color:#e8eaed;font-size:14px;line-height:1.35}
+.lw-card-promo-preview>span{display:grid;place-items:center;width:58px;height:58px;overflow:hidden;border-radius:8px;background:#3c4043;color:#9aa0a6}
+.lw-card-promo-preview>span img{display:block;width:100%;height:100%;object-fit:cover}
+.lw-card-promo-preview>span .dashicons{width:25px;height:25px;font-size:25px}
+.lw-card-appointment-preview{display:flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 16px;border:1px solid #9aa0a6;border-radius:999px;color:#fff;text-decoration:none}
+.lw-card-appointment-preview:hover{border-color:#c5d5ff;color:#c5d5ff}
+.lw-card-appointment-preview .dashicons{width:20px;height:20px;font-size:20px}
+.lw-wallet-actions-preview>p{margin:0;color:#9aa0a6;font-size:10px;line-height:1.4;text-align:center}
+@media(max-width:900px){
+	.lw-wallet-promo-workspace{grid-template-columns:1fr}
+	.lw-wallet-actions-preview{position:static;width:min(100%,430px);box-sizing:border-box;margin:0 auto}
+}
+@media(max-width:600px){
+	.lw-wallet-promo-workspace{padding:13px}
+	.lw-promo-control-card{padding:13px}
+	.lw-promo-fields,.lw-appointment-fields{grid-template-columns:1fr}
+	.lw-promo-fields label:last-child{grid-column:auto}
+	.lw-promo-image-editor{grid-template-columns:1fr}
+	.lw-promo-image-preview{width:100%;height:170px}
+	.lw-promo-image-editor .lw-logo-actions{display:grid;grid-template-columns:1fr}
+	.lw-promo-image-editor .button{width:100%}
+}

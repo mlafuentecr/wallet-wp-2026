@@ -3,7 +3,7 @@
 		<h2>Google Loyalty settings</h2>
 		<p>Configure the Google Wallet loyalty card, public enrollment page and secure issuer credentials.</p>
 	</div>
-	<details class="lw-credentials-toggle lw-loyalty-settings-toggle" <?php echo isset( $_GET['lw_notice'], $_GET['lw_tab'] ) && 'google-loyalty' === sanitize_key( wp_unslash( $_GET['lw_tab'] ) ) && ( ! isset( $_GET['lw_section'] ) || 'design' !== sanitize_key( wp_unslash( $_GET['lw_section'] ) ) ) ? 'open' : ''; ?>>
+	<details class="lw-credentials-toggle lw-loyalty-settings-toggle" <?php echo isset( $_GET['lw_notice'], $_GET['lw_tab'] ) && 'google-loyalty' === sanitize_key( wp_unslash( $_GET['lw_tab'] ) ) && ( ! isset( $_GET['lw_section'] ) || 'configuration' === sanitize_key( wp_unslash( $_GET['lw_section'] ) ) ) ? 'open' : ''; ?>>
 		<summary>
 			<span><strong>Google Loyalty configuration</strong><small>Google Wallet card, public enrollment, issuer and service account</small></span>
 			<i aria-hidden="true"></i>
@@ -121,6 +121,68 @@
 			</section>
 			<div class="lw-loyalty-settings-actions">
 				<button type="submit" class="button button-primary" name="wallet_subsection" value="design">Save Design</button>
+			</div>
+		</div>
+	</details>
+	<details class="lw-credentials-toggle lw-loyalty-settings-toggle lw-wallet-promotions-toggle" <?php echo isset( $_GET['lw_notice'], $_GET['lw_tab'], $_GET['lw_section'] ) && 'google-loyalty' === sanitize_key( wp_unslash( $_GET['lw_tab'] ) ) && 'promotions' === sanitize_key( wp_unslash( $_GET['lw_section'] ) ) ? 'open' : ''; ?>>
+		<summary>
+			<span><strong>Promotions &amp; appointments</strong><small>Clickable promotion and booking action for the Google Wallet card</small></span>
+			<i aria-hidden="true"></i>
+		</summary>
+		<div class="lw-loyalty-settings-content">
+			<section class="lw-google-settings-section">
+				<div class="lw-wallet-promo-workspace">
+					<div class="lw-wallet-promo-controls">
+						<section class="lw-promo-control-card">
+							<label class="lw-feature-check" for="lw-wallet-promo-enabled">
+								<input id="lw-wallet-promo-enabled" name="wallet_promo_enabled" type="checkbox" value="1" <?php checked( $wallet['promo_enabled'] ); ?>>
+								<span><strong>Show promotion</strong><small>Add a clickable promotion to every loyalty card.</small></span>
+							</label>
+							<div class="lw-promo-fields">
+								<label for="lw-wallet-promo-title">Promotion title<input id="lw-wallet-promo-title" name="wallet_promo_title" type="text" value="<?php echo esc_attr( $wallet['promo_title'] ); ?>" maxlength="60" placeholder="Promociones"></label>
+								<label for="lw-wallet-promo-body">Short description<input id="lw-wallet-promo-body" name="wallet_promo_body" type="text" value="<?php echo esc_attr( $wallet['promo_body'] ); ?>" maxlength="50" placeholder="Revisa promociones disponibles"></label>
+								<label for="lw-wallet-promo-url">Promotion destination URL<input id="lw-wallet-promo-url" name="wallet_promo_url" type="url" value="<?php echo esc_attr( $wallet['promo_url'] ); ?>" placeholder="https://example.com/promociones"></label>
+							</div>
+							<div class="lw-promo-image-editor">
+								<div id="lw-wallet-promo-image-preview" class="lw-promo-image-preview"><?php if ( $wallet['promo_image_url'] ) : ?><img src="<?php echo esc_url( $wallet['promo_image_url'] ); ?>" alt="Promotion preview"><?php else : ?><span class="dashicons dashicons-format-image"></span><?php endif; ?></div>
+								<div>
+									<strong>Promotion image</strong>
+									<p>Recommended: square PNG, JPG or WebP, minimum 660 × 660 px. Maximum 5 MB.</p>
+									<input id="lw-wallet-promo-image-media-id" name="wallet_promo_image_media_id" type="hidden" value="">
+									<input id="lw-wallet-promo-image-upload" name="wallet_promo_image_upload" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+									<div class="lw-logo-actions">
+										<label class="button lw-wallet-upload-button" for="lw-wallet-promo-image-upload"><span class="dashicons dashicons-upload"></span> Upload image</label>
+										<button type="button" class="button lw-media-library-button" data-media-target="lw-wallet-promo-image-media-id" data-preview-target="lw-wallet-promo-image-preview" data-file-target="lw-wallet-promo-image-upload" data-clear-url="lw-wallet-promo-image-url" data-media-title="Choose a promotion image" data-media-button="Use this image"><span class="dashicons dashicons-admin-media"></span> Media Library</button>
+									</div>
+								</div>
+							</div>
+							<label for="lw-wallet-promo-image-url">Public HTTPS promotion image URL</label>
+							<input id="lw-wallet-promo-image-url" name="wallet_promo_image_url" type="url" value="<?php echo esc_attr( $wallet['promo_image_url_input'] ); ?>" placeholder="https://example.com/promo.png">
+						</section>
+						<section class="lw-promo-control-card">
+							<label class="lw-feature-check" for="lw-wallet-appointment-enabled">
+								<input id="lw-wallet-appointment-enabled" name="wallet_appointment_enabled" type="checkbox" value="1" <?php checked( $wallet['appointment_enabled'] ); ?>>
+								<span><strong>Show appointment button</strong><small>Display a call-to-action at the bottom of the pass.</small></span>
+							</label>
+							<div class="lw-appointment-fields">
+								<label for="lw-wallet-appointment-label">Button label<input id="lw-wallet-appointment-label" name="wallet_appointment_label" type="text" value="<?php echo esc_attr( $wallet['appointment_label'] ); ?>" maxlength="30" placeholder="Hacer cita"></label>
+								<label for="lw-wallet-appointment-url">Booking URL<input id="lw-wallet-appointment-url" name="wallet_appointment_url" type="url" value="<?php echo esc_attr( $wallet['appointment_url'] ); ?>" placeholder="https://example.com/citas"></label>
+							</div>
+						</section>
+					</div>
+					<aside class="lw-wallet-actions-preview" aria-label="Google Wallet promotion and appointment preview">
+						<div class="lw-live-preview-heading"><span><strong>Wallet actions preview</strong><small>Approximate Google Wallet appearance</small></span><span class="dashicons dashicons-megaphone"></span></div>
+						<div id="lw-card-promo-preview" class="lw-card-promo-preview" <?php echo $wallet['promo_enabled'] ? '' : 'hidden'; ?>>
+							<div><strong id="lw-card-promo-title"><?php echo esc_html( $wallet['promo_title'] ); ?></strong><span id="lw-card-promo-body"><?php echo esc_html( $wallet['promo_body'] ); ?></span></div>
+							<span id="lw-card-promo-image"><?php if ( $wallet['promo_image_url'] ) : ?><img src="<?php echo esc_url( $wallet['promo_image_url'] ); ?>" alt=""><?php else : ?><span class="dashicons dashicons-tag"></span><?php endif; ?></span>
+						</div>
+						<a id="lw-card-appointment-preview" class="lw-card-appointment-preview" href="<?php echo esc_url( $wallet['appointment_url'] ?: '#' ); ?>" <?php echo $wallet['appointment_enabled'] ? '' : 'hidden'; ?>><span class="dashicons dashicons-external"></span><strong id="lw-card-appointment-label"><?php echo esc_html( $wallet['appointment_label'] ); ?></strong></a>
+						<p>Google controls the final placement and typography on each device.</p>
+					</aside>
+				</div>
+			</section>
+			<div class="lw-loyalty-settings-actions">
+				<button type="submit" class="button button-primary" name="wallet_subsection" value="promotions">Save Promotions &amp; appointments</button>
 			</div>
 		</div>
 	</details>

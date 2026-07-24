@@ -537,6 +537,8 @@ final class Loyalty_Wallet_Plugin {
 			'invalid_wallet_logo' => array( 'error', 'Upload a valid PNG, JPG or WebP image no larger than 5 MB.' ),
 			'invalid_wallet_hero' => array( 'error', 'Upload a valid PNG, JPG or WebP banner no larger than 5 MB.' ),
 			'invalid_wallet_design' => array( 'error', 'Choose a valid card color and a public HTTPS banner URL.' ),
+			'invalid_wallet_promotion' => array( 'error', 'Complete the promotion title and public HTTPS URL. The optional image must be a valid PNG, JPG or WebP under 5 MB.' ),
+			'invalid_wallet_appointment' => array( 'error', 'Complete the appointment button label and public HTTPS booking URL.' ),
 			'invalid_reminder' => array( 'error', 'Complete the reminder date, channel and message.' ),
 			'invalid_global_messages' => array( 'error', 'Complete all global message templates. Each message can contain up to 2,000 characters.' ),
 			'missing_wallet_email' => array( 'error', 'Add a Wallet notification email before scheduling WhatsApp reminders.' ),

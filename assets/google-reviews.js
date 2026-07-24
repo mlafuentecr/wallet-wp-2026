@@ -20,8 +20,10 @@
 	var section = document.getElementById('lw-settings-section');
 	if (googleLoyaltyPanel) {
 		var designToggle = googleLoyaltyPanel.querySelector('.lw-wallet-design-toggle');
+		var promotionsToggle = googleLoyaltyPanel.querySelector('.lw-wallet-promotions-toggle');
 		var configurationToggle = googleLoyaltyPanel.querySelector('.lw-loyalty-settings-toggle:not(.lw-wallet-design-toggle)');
 		if (designToggle && configurationToggle) googleLoyaltyPanel.insertBefore(designToggle, configurationToggle);
+		if (promotionsToggle && configurationToggle) googleLoyaltyPanel.insertBefore(promotionsToggle, configurationToggle);
 	}
 	var settingsSubmit = document.querySelector('#lw-code-editor > form #submit');
 	var nameInput = document.getElementById('lw-wallet-name');
@@ -150,12 +152,36 @@
 		randomImage.alt = 'Random Google Wallet banner preview';
 		walletHeroPreview.appendChild(randomImage);
 	});
+	var walletPromoImageInput = document.getElementById('lw-wallet-promo-image-upload');
+	var walletPromoImagePreview = document.getElementById('lw-wallet-promo-image-preview');
+	var walletPromoImageUrl = document.getElementById('lw-wallet-promo-image-url');
+	if (walletPromoImageInput && walletPromoImagePreview) walletPromoImageInput.addEventListener('change', function () {
+		var file = walletPromoImageInput.files && walletPromoImageInput.files[0];
+		if (!file) return;
+		if (!/^image\/(png|jpeg|webp)$/.test(file.type) || file.size > 5 * 1024 * 1024) { walletPromoImageInput.value = ''; window.alert('Choose a square PNG, JPG or WebP promotion image under 5 MB.'); return; }
+		var promoMediaId = document.getElementById('lw-wallet-promo-image-media-id');
+		if (promoMediaId) promoMediaId.value = '';
+		if (walletPromoImageUrl) walletPromoImageUrl.value = '';
+		var promoReader = new FileReader(); promoReader.onload = function (event) { walletPromoImagePreview.innerHTML = ''; var promoImage = document.createElement('img'); promoImage.src = event.target.result; promoImage.alt = 'New promotion image preview'; walletPromoImagePreview.appendChild(promoImage); }; promoReader.readAsDataURL(file);
+	});
 	var walletColor = document.getElementById('lw-wallet-background-color'), walletColorValue = document.getElementById('lw-wallet-background-color-value');
 	var walletCardPreview = document.getElementById('lw-wallet-card-preview');
 	var walletCardLogo = document.getElementById('lw-card-preview-logo');
 	var walletCardBanner = document.getElementById('lw-card-preview-banner');
 	var walletCardProgramName = document.getElementById('lw-card-preview-program-name');
 	var walletLogoUrlInput = document.getElementById('lw-wallet-logo-url');
+	var walletPromoEnabled = document.getElementById('lw-wallet-promo-enabled');
+	var walletPromoTitle = document.getElementById('lw-wallet-promo-title');
+	var walletPromoBody = document.getElementById('lw-wallet-promo-body');
+	var walletPromoPreview = document.getElementById('lw-card-promo-preview');
+	var walletPromoPreviewTitle = document.getElementById('lw-card-promo-title');
+	var walletPromoPreviewBody = document.getElementById('lw-card-promo-body');
+	var walletPromoPreviewImage = document.getElementById('lw-card-promo-image');
+	var walletAppointmentEnabled = document.getElementById('lw-wallet-appointment-enabled');
+	var walletAppointmentLabel = document.getElementById('lw-wallet-appointment-label');
+	var walletAppointmentUrl = document.getElementById('lw-wallet-appointment-url');
+	var walletAppointmentPreview = document.getElementById('lw-card-appointment-preview');
+	var walletAppointmentPreviewLabel = document.getElementById('lw-card-appointment-label');
 	function syncWalletCardImage(source, target, fallbackIcon) {
 		if (!source || !target) return;
 		var sourceImage = source.querySelector('img');
@@ -177,7 +203,18 @@
 		syncWalletCardImage(walletLogoPreview, walletCardLogo, 'dashicons-store');
 		syncWalletCardImage(walletHeroPreview, walletCardBanner, '');
 	}
+	function syncWalletActionsPreview() {
+		if (walletPromoPreview && walletPromoEnabled) walletPromoPreview.hidden = !walletPromoEnabled.checked;
+		if (walletPromoPreviewTitle && walletPromoTitle) walletPromoPreviewTitle.textContent = walletPromoTitle.value.trim() || 'Promociones';
+		if (walletPromoPreviewBody && walletPromoBody) walletPromoPreviewBody.textContent = walletPromoBody.value.trim() || 'Revisa promociones disponibles';
+		syncWalletCardImage(walletPromoImagePreview, walletPromoPreviewImage, 'dashicons-tag');
+		if (walletAppointmentPreview && walletAppointmentEnabled) walletAppointmentPreview.hidden = !walletAppointmentEnabled.checked;
+		if (walletAppointmentPreviewLabel && walletAppointmentLabel) walletAppointmentPreviewLabel.textContent = walletAppointmentLabel.value.trim() || 'Hacer cita';
+		if (walletAppointmentPreview && walletAppointmentUrl) walletAppointmentPreview.href = walletAppointmentUrl.value.trim() || '#';
+	}
 	if (programNameInput) programNameInput.addEventListener('input', syncWalletCardPreview);
+	[walletPromoTitle, walletPromoBody, walletAppointmentLabel, walletAppointmentUrl].forEach(function (field) { if (field) field.addEventListener('input', syncWalletActionsPreview); });
+	[walletPromoEnabled, walletAppointmentEnabled].forEach(function (field) { if (field) field.addEventListener('change', syncWalletActionsPreview); });
 	if (walletColor && walletColorValue) walletColor.addEventListener('input', function () { walletColorValue.textContent = walletColor.value.toUpperCase(); syncWalletCardPreview(); });
 	if (walletLogoUrlInput) walletLogoUrlInput.addEventListener('input', function () {
 		var url = walletLogoUrlInput.value.trim();
@@ -195,11 +232,21 @@
 		bannerFromUrl.src = url; bannerFromUrl.alt = 'Google Wallet banner URL preview';
 		walletHeroPreview.appendChild(bannerFromUrl);
 	});
+	if (walletPromoImageUrl) walletPromoImageUrl.addEventListener('input', function () {
+		var url = walletPromoImageUrl.value.trim();
+		if (!url || !walletPromoImagePreview) return;
+		walletPromoImagePreview.innerHTML = '';
+		var promoFromUrl = document.createElement('img');
+		promoFromUrl.src = url; promoFromUrl.alt = 'Promotion image URL preview';
+		walletPromoImagePreview.appendChild(promoFromUrl);
+	});
 	if (window.MutationObserver) {
 		if (walletLogoPreview) new MutationObserver(syncWalletCardPreview).observe(walletLogoPreview, { childList: true, subtree: true, attributes: true, attributeFilter: ['src'] });
 		if (walletHeroPreview) new MutationObserver(syncWalletCardPreview).observe(walletHeroPreview, { childList: true, subtree: true, attributes: true, attributeFilter: ['src'] });
+		if (walletPromoImagePreview) new MutationObserver(syncWalletActionsPreview).observe(walletPromoImagePreview, { childList: true, subtree: true, attributes: true, attributeFilter: ['src'] });
 	}
 	syncWalletCardPreview();
+	syncWalletActionsPreview();
 	var serviceAccountJsonInput = document.getElementById('lw-wallet-service-account-json');
 	var serviceAccountJsonName = document.getElementById('lw-wallet-service-account-json-name');
 	if (serviceAccountJsonInput && serviceAccountJsonName) serviceAccountJsonInput.addEventListener('change', function () {
