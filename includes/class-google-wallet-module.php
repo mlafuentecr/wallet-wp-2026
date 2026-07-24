@@ -526,6 +526,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		return array(
 			'issuerName'       => $wallet_name,
 			'programName'      => $wallet_name . ' Loyalty',
+			'reviewStatus'     => 'UNDER_REVIEW',
 			'accountNameLabel' => 'Nombre',
 			'accountIdLabel'   => 'Cliente',
 			'programLogo'      => array(
