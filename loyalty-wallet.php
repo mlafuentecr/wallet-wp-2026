@@ -407,7 +407,7 @@ final class Loyalty_Wallet_Plugin {
 						<?php if ( $is_admin && ! $is_preview ) : ?>
 							<button type="button" class="lw-nav-tab lw-configuration-tab is-active" id="lw-configuration-tab" role="tab" aria-selected="true" aria-controls="lw-code-editor"><span class="dashicons dashicons-admin-generic"></span><span><strong>Configuration</strong><small>Business, Google and access</small></span><b aria-hidden="true">⌄</b></button>
 							<div class="lw-configuration-nav" aria-label="Configuration sections">
-								<button type="button" class="lw-subnav-tab is-active" id="lw-name-tab" role="tab" aria-selected="true" aria-controls="lw-name-settings"><span class="dashicons dashicons-store"></span><span><strong>Business Name</strong><small>Name, email and logo</small></span></button>
+								<button type="button" class="lw-subnav-tab is-active" id="lw-name-tab" role="tab" aria-selected="true" aria-controls="lw-name-settings"><span class="dashicons dashicons-store"></span><span><strong>Negocio</strong><small>Nombre, contacto y logo</small></span></button>
 								<button type="button" class="lw-subnav-tab" id="lw-review-tab" role="tab" aria-selected="false" aria-controls="lw-qr-settings"><span class="dashicons dashicons-star-filled"></span><span><strong>Google Reviews</strong><small>Reviews, QR and credentials</small></span></button>
 								<button type="button" class="lw-subnav-tab" id="lw-google-loyalty-tab" role="tab" aria-selected="false" aria-controls="lw-google-loyalty-settings"><span class="dashicons dashicons-tickets-alt"></span><span><strong>Google Loyalty</strong><small>Wallet cards and issuer</small></span></button>
 								<button type="button" class="lw-subnav-tab" id="lw-loyalty-tab" role="tab" aria-selected="false" aria-controls="lw-loyalty-settings"><span class="dashicons dashicons-admin-users"></span><span><strong>Client Access</strong><small>Restricted WordPress user</small></span></button>
@@ -423,7 +423,7 @@ final class Loyalty_Wallet_Plugin {
 						<?php Loyalty_Wallet_Google_Reviews_Module::render_settings( $google ); ?>
 						<?php Loyalty_Wallet_Google_Wallet_Module::render_settings( get_current_user_id() ); ?>
 						<div id="lw-name-settings" class="lw-settings-panel" role="tabpanel" aria-labelledby="lw-name-tab">
-							<div class="lw-settings-heading"><h2>Business identity</h2><p>Edit the business name, notification email and logo shown across Loyalty Wallet.</p></div>
+							<div class="lw-settings-heading"><h2>Negocio</h2><p>Edita el nombre, información de contacto y logo que se muestran en Loyalty Wallet.</p></div>
 							<div class="lw-wallet-identity-fields">
 								<label for="lw-wallet-name">Wallet / business name<input id="lw-wallet-name" name="wallet_name" type="text" value="<?php echo esc_attr( $wallet_name ); ?>" placeholder="Croc's Resort & Casino" maxlength="120" required></label>
 								<label for="lw-wallet-email">Wallet notification email<input id="lw-wallet-email" name="wallet_email" type="email" value="<?php echo esc_attr( $wallet_email ); ?>" placeholder="owner@example.com"></label>
