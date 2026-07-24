@@ -33,7 +33,7 @@ jobs:
           protocol: ftps
           security: loose
           local-dir: ./
-          server-dir: /home2/htzrvqmy/public_html/wp-content/plugins/loyalty-wallet/
+          server-dir: /website_290ffa7/wp-content/plugins/loyalty-wallet/
           state-name: .ftp-deploy-sync-state.json
           log-level: standard
           exclude: |
