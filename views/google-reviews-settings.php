@@ -1,5 +1,10 @@
 <div id="lw-qr-settings" class="lw-settings-panel" role="tabpanel" aria-labelledby="lw-review-tab" hidden>
 	<div class="lw-settings-heading"><h2>Google Reviews settings</h2><p>Connect the business listing used by the review QR code.</p></div>
+	<section class="lw-direct-review-link">
+		<div class="lw-direct-review-icon"><span class="dashicons dashicons-star-filled"></span></div>
+		<div><label for="lw-google-review-url">Google review link</label><p>Use the direct “Ask for reviews” link supplied by Google. It will be the destination of the QR review button.</p></div>
+		<div class="lw-direct-review-input"><input id="lw-google-review-url" name="google_review_url" type="url" value="<?php echo esc_attr( $google['review_url_input'] ); ?>" placeholder="https://g.page/r/.../review"><a id="lw-open-review-link" class="button" href="<?php echo esc_url( $google['review_url'] ?: '#' ); ?>" target="_blank" rel="noopener noreferrer">Open link <span aria-hidden="true">↗</span></a></div>
+	</section>
 	<section class="lw-review-reward" aria-labelledby="lw-review-reward-title">
 		<div class="lw-reward-icon"><span class="dashicons dashicons-awards"></span></div>
 		<div class="lw-reward-copy"><h3 id="lw-review-reward-title">Review reward points</h3><p>Points automatically assigned when a verified review is added as a customer.</p></div>

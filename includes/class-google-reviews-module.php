@@ -7,6 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Loyalty_Wallet_Google_Reviews_Module {
 	private const PLACE_ID = '_loyalty_wallet_place_id';
 	private const MAPS_URL = '_loyalty_wallet_maps_url';
+	private const REVIEW_URL = '_loyalty_wallet_google_review_url';
 	private const CLIENT_ID = '_loyalty_wallet_google_client_id';
 	private const CLIENT_SECRET = '_loyalty_wallet_google_client_secret';
 	private const ACCOUNT_ID = '_loyalty_wallet_google_account_id';
@@ -17,7 +18,8 @@ final class Loyalty_Wallet_Google_Reviews_Module {
 
 	public static function data( int $user_id ): array {
 		$place_id = (string) get_user_meta( $user_id, self::PLACE_ID, true );
-		$review_url = $place_id ? 'https://search.google.com/local/writereview?placeid=' . rawurlencode( $place_id ) : '';
+		$saved_review_url = (string) get_user_meta( $user_id, self::REVIEW_URL, true );
+		$review_url = $saved_review_url ?: ( $place_id ? 'https://search.google.com/local/writereview?placeid=' . rawurlencode( $place_id ) : '' );
 		$client_id = (string) get_user_meta( $user_id, self::CLIENT_ID, true );
 		$has_secret = '' !== (string) get_user_meta( $user_id, self::CLIENT_SECRET, true );
 		$account_id = (string) get_user_meta( $user_id, self::ACCOUNT_ID, true );
@@ -28,6 +30,7 @@ final class Loyalty_Wallet_Google_Reviews_Module {
 			'place_id' => $place_id,
 			'maps_url' => (string) get_user_meta( $user_id, self::MAPS_URL, true ) ?: self::DEFAULT_MAPS_URL,
 			'review_url' => $review_url,
+			'review_url_input' => $saved_review_url,
 			'qr_image_url' => $review_url ? 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=10&data=' . rawurlencode( $review_url ) : '',
 			'client_id' => $client_id,
 			'has_secret' => $has_secret,
@@ -47,6 +50,7 @@ final class Loyalty_Wallet_Google_Reviews_Module {
 	public static function save( int $user_id ): string {
 		$place_id = isset( $_POST['place_id'] ) ? sanitize_text_field( wp_unslash( $_POST['place_id'] ) ) : '';
 		$maps_url = isset( $_POST['maps_url'] ) ? esc_url_raw( trim( wp_unslash( $_POST['maps_url'] ) ) ) : '';
+		$review_url = isset( $_POST['google_review_url'] ) ? esc_url_raw( trim( wp_unslash( $_POST['google_review_url'] ) ) ) : '';
 		$previous_review_points = self::review_points( $user_id );
 		if ( ! preg_match( '/^[A-Za-z0-9_-]{10,512}$/', $place_id ) ) {
 			return 'invalid_place_id';
@@ -54,8 +58,12 @@ final class Loyalty_Wallet_Google_Reviews_Module {
 		if ( $maps_url && ( ! wp_http_validate_url( $maps_url ) || false === strpos( wp_parse_url( $maps_url, PHP_URL_HOST ) ?: '', 'google.' ) ) ) {
 			return 'invalid_url';
 		}
+		if ( $review_url && ! self::is_google_review_url( $review_url ) ) {
+			return 'invalid_google_review_url';
+		}
 		update_user_meta( $user_id, self::PLACE_ID, $place_id );
 		update_user_meta( $user_id, self::MAPS_URL, $maps_url );
+		update_user_meta( $user_id, self::REVIEW_URL, $review_url );
 		update_user_meta( $user_id, self::CLIENT_ID, isset( $_POST['google_client_id'] ) ? sanitize_text_field( wp_unslash( $_POST['google_client_id'] ) ) : '' );
 		update_user_meta( $user_id, self::ACCOUNT_ID, isset( $_POST['google_account_id'] ) ? sanitize_text_field( wp_unslash( $_POST['google_account_id'] ) ) : '' );
 		update_user_meta( $user_id, self::LOCATION_ID, isset( $_POST['google_location_id'] ) ? sanitize_text_field( wp_unslash( $_POST['google_location_id'] ) ) : '' );
@@ -68,6 +76,14 @@ final class Loyalty_Wallet_Google_Reviews_Module {
 			update_user_meta( $user_id, self::CLIENT_SECRET, $secret );
 		}
 		return 'url_saved';
+	}
+
+	private static function is_google_review_url( string $url ): bool {
+		if ( ! wp_http_validate_url( $url ) || 'https' !== strtolower( (string) wp_parse_url( $url, PHP_URL_SCHEME ) ) ) {
+			return false;
+		}
+		$host = strtolower( (string) wp_parse_url( $url, PHP_URL_HOST ) );
+		return 'g.page' === $host || (bool) preg_match( '/(^|\.)google\.[a-z.]{2,}$/', $host );
 	}
 
 	public static function render_settings( array $google ): void {

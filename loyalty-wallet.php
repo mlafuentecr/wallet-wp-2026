@@ -547,6 +547,7 @@ final class Loyalty_Wallet_Plugin {
 			'created' => array( 'success', 'Client created successfully.' ),
 			'invalid_url' => array( 'error', 'Enter a valid public URL.' ),
 			'invalid_place_id' => array( 'error', 'Enter a valid Google Place ID.' ),
+			'invalid_google_review_url' => array( 'error', 'Enter a valid public HTTPS Google review link, such as https://g.page/r/.../review.' ),
 			'invalid_name'     => array( 'error', 'Enter a wallet or business name.' ),
 			'invalid_program_name' => array( 'error', 'Enter a loyalty program name.' ),
 			'invalid_logo'     => array( 'error', 'Choose a valid JPG, PNG or WebP logo under 5 MB.' ),

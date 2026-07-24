@@ -30,6 +30,8 @@
 	var programNameInput = document.getElementById('lw-wallet-program-name');
 	var contactHelpInput = document.getElementById('lw-wallet-contact-help');
 	var placeInput = document.getElementById('lw-place-id');
+	var googleReviewInput = document.getElementById('lw-google-review-url');
+	var googleReviewOpen = document.getElementById('lw-open-review-link');
 	var mapsInput = document.getElementById('lw-maps-url');
 	var pointsInput = document.getElementById('lw-review-points');
 	var mapLink = document.getElementById('lw-open-map');
@@ -86,6 +88,7 @@
 		section.value = editingName ? 'name' : (editingReviews ? 'reviews' : (editingGoogleLoyalty ? 'google_loyalty' : (editingMessages ? 'messages' : '')));
 		if (settingsSubmit) settingsSubmit.style.display = selected === 'customers' || selected === 'rewards' || selected === 'activity' || editingAccess || editingGoogleLoyalty || editingMessages ? 'none' : '';
 		if (editingName && nameInput) nameInput.focus();
+		else if (editingReviews && googleReviewInput) googleReviewInput.focus();
 		else if (editingReviews && placeInput) placeInput.focus();
 		else if (editingGoogleLoyalty) {
 			var loyaltySummary = googleLoyaltyPanel ? googleLoyaltyPanel.querySelector('summary') : null;
@@ -332,7 +335,18 @@
 			frame.open();
 		});
 	});
-	if (placeInput) placeInput.addEventListener('input', function () { var id = placeInput.value.trim(), valid = /^[A-Za-z0-9_-]{10,512}$/.test(id), flow = image.dataset.flowUrl || ''; image.hidden = !valid; empty.hidden = valid; qrActions.hidden = !valid; qrOpen.href = valid ? flow : '#'; qrCopy.dataset.url = valid ? flow : ''; if (valid) image.src = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=10&data=' + encodeURIComponent(flow); });
+	function syncReviewQrAvailability() {
+		var id = placeInput ? placeInput.value.trim() : '';
+		var directLink = googleReviewInput ? googleReviewInput.value.trim() : '';
+		var available = /^[A-Za-z0-9_-]{10,512}$/.test(id) || /^https:\/\/(?:g\.page|(?:[^/]+\.)?google\.[a-z.]{2,})\//i.test(directLink);
+		var flow = image.dataset.flowUrl || '';
+		image.hidden = !available; empty.hidden = available; qrActions.hidden = !available;
+		qrOpen.href = available ? flow : '#'; qrCopy.dataset.url = available ? flow : '';
+		if (available) image.src = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=10&data=' + encodeURIComponent(flow);
+		if (googleReviewOpen) googleReviewOpen.href = directLink || '#';
+	}
+	if (placeInput) placeInput.addEventListener('input', syncReviewQrAvailability);
+	if (googleReviewInput) googleReviewInput.addEventListener('input', syncReviewQrAvailability);
 	if (mapsInput && mapLink) mapsInput.addEventListener('input', function () { mapLink.href = mapsInput.value.trim() || '#'; });
 	qrCopy.addEventListener('click', function () {
 		var url = qrCopy.dataset.url || '';

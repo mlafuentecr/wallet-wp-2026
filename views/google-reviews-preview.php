@@ -2,7 +2,7 @@
 	<h2>Your review + loyalty QR code</h2>
 	<div class="lw-qr-frame <?php echo $google['review_url'] ? '' : 'is-empty'; ?>">
 		<img id="lw-qr-image" src="<?php echo esc_url( $google['qr_image_url'] ); ?>" data-flow-url="<?php echo esc_attr( $google['flow_url'] ?? '' ); ?>" alt="Google review and loyalty card QR code preview" <?php echo $google['review_url'] ? '' : 'hidden'; ?>>
-		<p id="lw-qr-empty" <?php echo $google['review_url'] ? 'hidden' : ''; ?>>Enter a Place ID to generate your review QR code.</p>
+		<p id="lw-qr-empty" <?php echo $google['review_url'] ? 'hidden' : ''; ?>>Enter a Google review link or Place ID to generate your review QR code.</p>
 	</div>
 	<div id="lw-qr-actions" class="lw-qr-actions" <?php echo $google['review_url'] ? '' : 'hidden'; ?>>
 		<a id="lw-qr-open" class="button lw-qr-action-button" href="<?php echo esc_url( $google['flow_url'] ?? $google['review_url'] ); ?>" target="_blank" rel="noopener noreferrer"><span class="dashicons dashicons-external"></span>Open link</a>

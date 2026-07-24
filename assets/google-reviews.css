@@ -154,6 +154,17 @@ body:has(#lw-customers-panel:not([hidden])) .lw-code-editor{padding:0!important;
 .lw-loyalty-settings-actions{padding:0 20px 20px}
 .lw-loyalty-settings-actions .button{box-sizing:border-box;min-height:42px;margin:0;padding:0 20px}
 
+.lw-direct-review-link{display:grid;grid-template-columns:46px minmax(220px,.7fr) minmax(320px,1.3fr);align-items:center;gap:14px;margin:0 0 18px;padding:18px;border:1px solid #d8e1ff;border-radius:14px;background:linear-gradient(135deg,#f8faff,#f3f6ff)}
+.lw-direct-review-icon{display:grid;place-items:center;width:46px;height:46px;border-radius:12px;background:#fff4d6;color:#e29500}
+.lw-direct-review-icon .dashicons{width:24px;height:24px;font-size:24px}
+.lw-direct-review-link label{display:block;color:#10234a;font-size:15px;font-weight:700}
+.lw-direct-review-link p{margin:4px 0 0;color:#64748b;font-size:12px;line-height:1.4}
+.lw-direct-review-input{display:flex;align-items:center;gap:8px;min-width:0}
+.lw-direct-review-input input{box-sizing:border-box;width:100%;min-width:0;min-height:42px;margin:0;border-radius:8px}
+.lw-direct-review-input .button{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;min-height:42px;margin:0}
+@media(max-width:900px){.lw-direct-review-link{grid-template-columns:46px 1fr}.lw-direct-review-input{grid-column:1/-1}}
+@media(max-width:520px){.lw-direct-review-link{grid-template-columns:1fr;padding:14px}.lw-direct-review-input{grid-column:auto;align-items:stretch;flex-direction:column}.lw-direct-review-input .button{width:100%}}
+
 /* Customer information, actions, review source and activity hierarchy. */
 #lw-customers-panel .lw-customers-header-actions{display:flex;align-items:center;gap:12px}
 #lw-customers-panel .lw-social-review-toggle{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;margin:0;padding:0 16px}
