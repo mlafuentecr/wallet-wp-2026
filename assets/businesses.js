@@ -1,31 +1,62 @@
 (function () {
 	'use strict';
 
+	var search = document.getElementById('lw-business-search');
+	var statusFilter = document.getElementById('lw-business-status-filter');
+	var planFilter = document.getElementById('lw-business-plan-filter');
+	var sortControl = document.getElementById('lw-business-sort');
+	var body = document.getElementById('lw-business-table-body');
+	var empty = document.getElementById('lw-business-search-empty');
+	var resultCount = document.getElementById('lw-business-result-count');
+
 	function normalize(value) {
-		return (value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
+		return (value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 	}
 
-	function bindSearch(inputId, rowSelector, dataKey, emptyId) {
-		var input = document.getElementById(inputId);
-		var rows = Array.prototype.slice.call(document.querySelectorAll(rowSelector));
-		var empty = document.getElementById(emptyId);
-		if (!input || !rows.length || !empty) return;
-
-		input.addEventListener('input', function () {
-			var terms = normalize(input.value).split(' ').filter(Boolean);
-			var visible = 0;
-			rows.forEach(function (row) {
-				var haystack = normalize(row.dataset[dataKey]);
-				var matches = terms.every(function (term) { return haystack.indexOf(term) !== -1; });
-				row.hidden = !matches;
-				if (matches) visible++;
-			});
-			empty.hidden = visible !== 0;
+	function getPairs() {
+		if (!body) return [];
+		return Array.prototype.slice.call(body.querySelectorAll('.lw-business-row')).map(function (row) {
+			var editRow = row.nextElementSibling;
+			return { row: row, edit: editRow && editRow.classList.contains('lw-business-edit-row') ? editRow : null };
 		});
 	}
 
-	bindSearch('lw-business-search', '.lw-business-row', 'businessSearch', 'lw-business-search-empty');
-	bindSearch('lw-business-customer-search', '.lw-business-customer-row', 'customerSearch', 'lw-business-customer-search-empty');
+	function comparePairs(a, b) {
+		var mode = sortControl ? sortControl.value : 'next';
+		if (mode === 'name') return a.row.dataset.businessName.localeCompare(b.row.dataset.businessName);
+		if (mode === 'recent') return b.row.dataset.businessStarted.localeCompare(a.row.dataset.businessStarted);
+		if (mode === 'price') return Number(b.row.dataset.businessPrice) - Number(a.row.dataset.businessPrice);
+		return a.row.dataset.businessNext.localeCompare(b.row.dataset.businessNext);
+	}
+
+	function applyFilters() {
+		var query = normalize(search ? search.value : '');
+		var status = statusFilter ? statusFilter.value : '';
+		var plan = planFilter ? planFilter.value : '';
+		var visible = 0;
+		var pairs = getPairs().sort(comparePairs);
+		pairs.forEach(function (pair) {
+			var matches = normalize(pair.row.dataset.businessSearch).indexOf(query) !== -1 &&
+				(!status || pair.row.dataset.businessStatus === status) &&
+				(!plan || pair.row.dataset.businessPlan === plan);
+			pair.row.hidden = !matches;
+			if (pair.edit) {
+				pair.edit.hidden = true;
+				body.appendChild(pair.row);
+				body.appendChild(pair.edit);
+			} else {
+				body.appendChild(pair.row);
+			}
+			if (matches) visible++;
+		});
+		if (empty) empty.hidden = visible !== 0 || pairs.length === 0;
+		if (resultCount) resultCount.textContent = 'Mostrando ' + visible + ' de ' + pairs.length + ' cuentas';
+	}
+
+	[search, statusFilter, planFilter, sortControl].forEach(function (control) {
+		if (!control) return;
+		control.addEventListener(control === search ? 'input' : 'change', applyFilters);
+	});
 
 	var newBusinessButton = document.querySelector('.lw-new-business-button');
 	var newBusinessPanel = document.getElementById('nuevo-negocio');
@@ -39,10 +70,38 @@
 		});
 	}
 
+	function closeMenus(except) {
+		document.querySelectorAll('.lw-action-menu-toggle[aria-expanded="true"]').forEach(function (toggle) {
+			if (toggle === except) return;
+			toggle.setAttribute('aria-expanded', 'false');
+			var panel = toggle.nextElementSibling;
+			if (panel) panel.hidden = true;
+		});
+	}
+
+	document.querySelectorAll('.lw-action-menu-toggle').forEach(function (toggle) {
+		toggle.addEventListener('click', function (event) {
+			event.stopPropagation();
+			var willOpen = toggle.getAttribute('aria-expanded') !== 'true';
+			closeMenus(toggle);
+			toggle.setAttribute('aria-expanded', String(willOpen));
+			var panel = toggle.nextElementSibling;
+			if (panel) panel.hidden = !willOpen;
+		});
+	});
+	document.addEventListener('click', function () { closeMenus(); });
+	document.addEventListener('keydown', function (event) {
+		if (event.key === 'Escape') closeMenus();
+	});
+	document.querySelectorAll('.lw-action-menu-panel').forEach(function (panel) {
+		panel.addEventListener('click', function (event) { event.stopPropagation(); });
+	});
+
 	document.querySelectorAll('.lw-edit-business-toggle').forEach(function (button) {
 		button.addEventListener('click', function () {
 			var row = document.getElementById(button.getAttribute('aria-controls'));
 			if (!row) return;
+			closeMenus();
 			row.hidden = false;
 			button.setAttribute('aria-expanded', 'true');
 			var firstField = row.querySelector('input:not([type="hidden"])');
@@ -58,4 +117,6 @@
 			if (toggle) toggle.setAttribute('aria-expanded', 'false');
 		});
 	});
+
+	applyFilters();
 }());

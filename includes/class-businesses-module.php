@@ -14,6 +14,9 @@ final class Loyalty_Wallet_Businesses_Module {
 	private const STARTED_AT_META    = '_loyalty_wallet_business_started_at';
 	private const NEXT_PAYMENT_META  = '_loyalty_wallet_business_next_payment';
 	private const STATUS_META        = '_loyalty_wallet_business_status';
+	private const PLAN_META          = '_loyalty_wallet_business_plan';
+	private const MONTHLY_PRICE_META = '_loyalty_wallet_business_monthly_price';
+	private const LAST_PAYMENT_META  = '_loyalty_wallet_business_last_payment';
 	private const CUSTOMERS_META = '_loyalty_wallet_review_customers';
 	private const CLIENT_ROLE    = 'loyalty_wallet_client';
 	private const PASSWORD_TRANSIENT_PREFIX = 'loyalty_wallet_business_password_';
@@ -50,6 +53,9 @@ final class Loyalty_Wallet_Businesses_Module {
 		$whatsapp      = isset( $_POST['business_whatsapp'] ) ? preg_replace( '/\D+/', '', (string) wp_unslash( $_POST['business_whatsapp'] ) ) : '';
 		$started_at    = isset( $_POST['business_started_at'] ) ? sanitize_text_field( wp_unslash( $_POST['business_started_at'] ) ) : '';
 		$next_payment  = isset( $_POST['business_next_payment'] ) ? sanitize_text_field( wp_unslash( $_POST['business_next_payment'] ) ) : '';
+		$plan          = isset( $_POST['business_plan'] ) ? sanitize_key( wp_unslash( $_POST['business_plan'] ) ) : '';
+		$monthly_price = isset( $_POST['business_monthly_price'] ) ? (float) wp_unslash( $_POST['business_monthly_price'] ) : 0.0;
+		$last_payment  = isset( $_POST['business_last_payment'] ) ? sanitize_text_field( wp_unslash( $_POST['business_last_payment'] ) ) : '';
 
 		if ( ! $business_name || ! $owner_name || ! $username || ! is_email( $owner_email ) || ! self::valid_phone( $manager_phone ) ) {
 			self::redirect_with_notice( 'datos_invalidos' );
@@ -63,7 +69,7 @@ final class Loyalty_Wallet_Businesses_Module {
 		if ( $whatsapp && ( strlen( $whatsapp ) < 8 || strlen( $whatsapp ) > 15 ) ) {
 			self::redirect_with_notice( 'datos_invalidos' );
 		}
-		if ( ! self::valid_date( $started_at ) || ! self::valid_date( $next_payment ) ) {
+		if ( ! self::valid_date( $started_at ) || ! self::valid_date( $next_payment ) || ( $last_payment && ! self::valid_date( $last_payment ) ) || ! self::valid_plan( $plan ) || $monthly_price < 0 || $monthly_price > 1000000 ) {
 			self::redirect_with_notice( 'datos_invalidos' );
 		}
 		if ( username_exists( $username ) || email_exists( $owner_email ) ) {
@@ -93,6 +99,9 @@ final class Loyalty_Wallet_Businesses_Module {
 		update_user_meta( $user_id, self::STARTED_AT_META, $started_at );
 		update_user_meta( $user_id, self::NEXT_PAYMENT_META, $next_payment );
 		update_user_meta( $user_id, self::STATUS_META, 'active' );
+		update_user_meta( $user_id, self::PLAN_META, $plan );
+		update_user_meta( $user_id, self::MONTHLY_PRICE_META, number_format( $monthly_price, 2, '.', '' ) );
+		update_user_meta( $user_id, self::LAST_PAYMENT_META, $last_payment );
 		set_transient(
 			self::PASSWORD_TRANSIENT_PREFIX . get_current_user_id(),
 			array(
@@ -121,12 +130,17 @@ final class Loyalty_Wallet_Businesses_Module {
 			in_array( self::CLIENT_ROLE, (array) $user->roles, true )
 			|| '' !== trim( (string) get_user_meta( $business_id, self::NAME_META, true ) )
 		);
-		if ( ! $is_business || ! in_array( $status, array( 'active', 'archived' ), true ) ) {
+		if ( ! $is_business || ! in_array( $status, array( 'active', 'suspended', 'archived' ), true ) ) {
 			self::redirect_with_notice( 'estado_invalido' );
 		}
 
 		update_user_meta( $business_id, self::STATUS_META, $status );
-		self::redirect_with_notice( 'active' === $status ? 'negocio_activado' : 'negocio_archivado' );
+		$notices = array(
+			'active'    => 'negocio_activado',
+			'suspended' => 'negocio_suspendido',
+			'archived'  => 'negocio_archivado',
+		);
+		self::redirect_with_notice( $notices[ $status ] );
 	}
 
 	public static function update_business(): void {
@@ -141,13 +155,16 @@ final class Loyalty_Wallet_Businesses_Module {
 		$manager_phone = isset( $_POST['manager_phone'] ) ? preg_replace( '/\D+/', '', (string) wp_unslash( $_POST['manager_phone'] ) ) : '';
 		$started_at   = isset( $_POST['business_started_at'] ) ? sanitize_text_field( wp_unslash( $_POST['business_started_at'] ) ) : '';
 		$next_payment = isset( $_POST['business_next_payment'] ) ? sanitize_text_field( wp_unslash( $_POST['business_next_payment'] ) ) : '';
+		$plan         = isset( $_POST['business_plan'] ) ? sanitize_key( wp_unslash( $_POST['business_plan'] ) ) : '';
+		$monthly_price = isset( $_POST['business_monthly_price'] ) ? (float) wp_unslash( $_POST['business_monthly_price'] ) : 0.0;
+		$last_payment = isset( $_POST['business_last_payment'] ) ? sanitize_text_field( wp_unslash( $_POST['business_last_payment'] ) ) : '';
 		$user         = $business_id ? get_userdata( $business_id ) : false;
 		$is_business  = $user && (
 			in_array( self::CLIENT_ROLE, (array) $user->roles, true )
 			|| '' !== trim( (string) get_user_meta( $business_id, self::NAME_META, true ) )
 		);
 
-		if ( ! $is_business || ! $business_name || ! $owner_name || ! self::valid_phone( $manager_phone ) || ! self::valid_date( $started_at ) || ! self::valid_date( $next_payment ) ) {
+		if ( ! $is_business || ! $business_name || ! $owner_name || ! self::valid_phone( $manager_phone ) || ! self::valid_date( $started_at ) || ! self::valid_date( $next_payment ) || ( $last_payment && ! self::valid_date( $last_payment ) ) || ! self::valid_plan( $plan ) || $monthly_price < 0 || $monthly_price > 1000000 ) {
 			self::redirect_with_notice( 'datos_invalidos' );
 		}
 
@@ -156,7 +173,65 @@ final class Loyalty_Wallet_Businesses_Module {
 		update_user_meta( $business_id, self::MANAGER_PHONE_META, $manager_phone );
 		update_user_meta( $business_id, self::STARTED_AT_META, $started_at );
 		update_user_meta( $business_id, self::NEXT_PAYMENT_META, $next_payment );
+		update_user_meta( $business_id, self::PLAN_META, $plan );
+		update_user_meta( $business_id, self::MONTHLY_PRICE_META, number_format( $monthly_price, 2, '.', '' ) );
+		update_user_meta( $business_id, self::LAST_PAYMENT_META, $last_payment );
 		self::redirect_with_notice( 'negocio_actualizado' );
+	}
+
+	public static function export_accounts_csv(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'No tienes permiso para exportar negocios.', 'loyalty-wallet' ) );
+		}
+		check_admin_referer( 'loyalty_wallet_export_business_accounts' );
+		nocache_headers();
+		header( 'Content-Type: text/csv; charset=utf-8' );
+		header( 'Content-Disposition: attachment; filename="negocios-loyalty-wallet-' . current_time( 'Y-m-d' ) . '.csv"' );
+		header( 'X-Content-Type-Options: nosniff' );
+		$output = fopen( 'php://output', 'w' );
+		if ( false === $output ) {
+			wp_die( esc_html__( 'No se pudo crear la exportación.', 'loyalty-wallet' ) );
+		}
+		fwrite( $output, "\xEF\xBB\xBF" );
+		fputcsv( $output, array( 'Negocio', 'Encargado', 'Correo', 'Teléfono', 'Plan', 'Precio mensual', 'Inicio', 'Siguiente pago', 'Último pago', 'Estado', 'Wallet' ) );
+		foreach ( self::all() as $business ) {
+			fputcsv(
+				$output,
+				array_map(
+					array( __CLASS__, 'csv_value' ),
+					array(
+						$business['name'],
+						$business['owner_name'],
+						$business['owner_email'],
+						$business['manager_phone'],
+						$business['plan_label'],
+						number_format( $business['monthly_price'], 2, '.', '' ),
+						$business['started_at'],
+						$business['next_payment'],
+						$business['last_payment'],
+						$business['billing_status'],
+						$business['wallet_active'] ? 'Activo' : 'Inactivo',
+					)
+				)
+			);
+		}
+		fclose( $output );
+		exit;
+	}
+
+	public static function status_form( int $business_id, string $status, string $icon, string $label, string $class_name = '' ): void {
+		if ( ! current_user_can( 'manage_options' ) || ! in_array( $status, array( 'active', 'suspended', 'archived' ), true ) ) {
+			return;
+		}
+		?>
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+			<input type="hidden" name="action" value="loyalty_wallet_update_business_status">
+			<input type="hidden" name="business_id" value="<?php echo esc_attr( $business_id ); ?>">
+			<input type="hidden" name="business_status" value="<?php echo esc_attr( $status ); ?>">
+			<?php wp_nonce_field( 'loyalty_wallet_update_business_status' ); ?>
+			<button type="submit" class="<?php echo esc_attr( $class_name ); ?>"><span class="dashicons dashicons-<?php echo esc_attr( $icon ); ?>"></span><?php echo esc_html( $label ); ?></button>
+		</form>
+		<?php
 	}
 
 	public static function export_csv(): void {
@@ -279,6 +354,21 @@ final class Loyalty_Wallet_Businesses_Module {
 			$logo_id = absint( get_user_meta( $user->ID, self::LOGO_META, true ) );
 			$started_at = (string) get_user_meta( $user->ID, self::STARTED_AT_META, true );
 			$status = (string) get_user_meta( $user->ID, self::STATUS_META, true );
+			$next_payment = (string) get_user_meta( $user->ID, self::NEXT_PAYMENT_META, true );
+			$plan = (string) get_user_meta( $user->ID, self::PLAN_META, true );
+			$plan = self::valid_plan( $plan ) ? $plan : 'starter';
+			$monthly_price = (float) get_user_meta( $user->ID, self::MONTHLY_PRICE_META, true );
+			$days_until_payment = $next_payment ? (int) floor( ( strtotime( $next_payment . ' 00:00:00' ) - current_time( 'timestamp' ) ) / DAY_IN_SECONDS ) : null;
+			$billing_status = 'active';
+			if ( 'archived' === $status ) {
+				$billing_status = 'archived';
+			} elseif ( 'suspended' === $status ) {
+				$billing_status = 'suspended';
+			} elseif ( null !== $days_until_payment && $days_until_payment < 0 ) {
+				$billing_status = 'overdue';
+			} elseif ( null !== $days_until_payment && $days_until_payment <= 7 ) {
+				$billing_status = 'due';
+			}
 			$businesses[] = array(
 				'id'            => (int) $user->ID,
 				'name'          => $name ?: $user->display_name,
@@ -289,8 +379,15 @@ final class Loyalty_Wallet_Businesses_Module {
 				'owner_email'   => $user->user_email,
 				'manager_phone' => (string) get_user_meta( $user->ID, self::MANAGER_PHONE_META, true ),
 				'started_at'    => $started_at ?: mysql2date( 'Y-m-d', $user->user_registered ),
-				'next_payment'  => (string) get_user_meta( $user->ID, self::NEXT_PAYMENT_META, true ),
-				'status'        => 'archived' === $status ? 'archived' : 'active',
+				'next_payment'  => $next_payment,
+				'days_until_payment' => $days_until_payment,
+				'last_payment'  => (string) get_user_meta( $user->ID, self::LAST_PAYMENT_META, true ),
+				'plan'          => $plan,
+				'plan_label'    => 'pro' === $plan ? 'Pro' : ( 'enterprise' === $plan ? 'Empresa' : 'Starter' ),
+				'monthly_price' => max( 0, $monthly_price ),
+				'status'        => in_array( $status, array( 'active', 'suspended', 'archived' ), true ) ? $status : 'active',
+				'billing_status'=> $billing_status,
+				'wallet_active' => ! in_array( $billing_status, array( 'suspended', 'archived' ), true ),
 				'logo_url'      => $logo_id ? (string) wp_get_attachment_image_url( $logo_id, 'thumbnail' ) : '',
 				'customers'     => $customers,
 				'customer_count'=> count( $customers ),
@@ -326,6 +423,10 @@ final class Loyalty_Wallet_Businesses_Module {
 		}
 		$parsed = DateTimeImmutable::createFromFormat( '!Y-m-d', $date );
 		return $parsed && $parsed->format( 'Y-m-d' ) === $date;
+	}
+
+	private static function valid_plan( string $plan ): bool {
+		return in_array( $plan, array( 'starter', 'pro', 'enterprise' ), true );
 	}
 
 	private static function redirect_with_notice( string $notice, int $business_id = 0 ): void {
