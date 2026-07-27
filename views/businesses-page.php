@@ -5,6 +5,7 @@ $notice_messages     = array(
 	'negocio_creado'    => array( 'success', 'El negocio fue creado correctamente.' ),
 	'negocio_activado'  => array( 'success', 'El negocio fue activado.' ),
 	'negocio_archivado' => array( 'success', 'El negocio fue archivado.' ),
+	'negocio_actualizado' => array( 'success', 'La información del negocio fue actualizada.' ),
 	'datos_invalidos'   => array( 'error', 'Completa los datos obligatorios y revisa el correo, teléfono, fechas, sitio web y WhatsApp.' ),
 	'usuario_existente' => array( 'error', 'Ese usuario o correo ya está registrado en WordPress.' ),
 	'error_creacion'    => array( 'error', 'No se pudo crear el negocio.' ),
@@ -100,12 +101,28 @@ $notice_messages     = array(
 							<td data-label="Siguiente pago"><?php if ( $business['next_payment'] ) : ?><time datetime="<?php echo esc_attr( $business['next_payment'] ); ?>"><?php echo esc_html( wp_date( 'd/m/Y', strtotime( $business['next_payment'] ) ) ); ?></time><?php else : ?><span class="lw-empty-value">Sin definir</span><?php endif; ?></td>
 							<td data-label="Estado"><span class="lw-business-status is-<?php echo $is_archived ? 'archived' : 'active'; ?>"><span></span><?php echo $is_archived ? 'Archivado' : 'Activo'; ?></span></td>
 							<td data-label="Acciones" class="lw-table-actions">
+								<button type="button" class="button lw-edit-business-toggle" aria-expanded="false" aria-controls="editar-negocio-<?php echo esc_attr( $business['id'] ); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span><span>Editar</span></button>
 								<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 									<input type="hidden" name="action" value="loyalty_wallet_update_business_status">
 									<input type="hidden" name="business_id" value="<?php echo esc_attr( $business['id'] ); ?>">
 									<input type="hidden" name="business_status" value="<?php echo $is_archived ? 'active' : 'archived'; ?>">
 									<?php wp_nonce_field( 'loyalty_wallet_update_business_status' ); ?>
 									<button type="submit" class="button lw-status-action <?php echo $is_archived ? 'is-activate' : 'is-archive'; ?>"><span class="dashicons dashicons-<?php echo $is_archived ? 'yes-alt' : 'archive'; ?>" aria-hidden="true"></span><span><?php echo $is_archived ? 'Activar' : 'Archivar'; ?></span></button>
+								</form>
+							</td>
+						</tr>
+						<tr id="editar-negocio-<?php echo esc_attr( $business['id'] ); ?>" class="lw-business-edit-row" hidden>
+							<td colspan="6">
+								<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="lw-inline-business-form">
+									<input type="hidden" name="action" value="loyalty_wallet_update_business">
+									<input type="hidden" name="business_id" value="<?php echo esc_attr( $business['id'] ); ?>">
+									<?php wp_nonce_field( 'loyalty_wallet_update_business' ); ?>
+									<label><span>Negocio</span><input name="business_name" type="text" value="<?php echo esc_attr( $business['name'] ); ?>" required></label>
+									<label><span>Encargado</span><input name="owner_name" type="text" value="<?php echo esc_attr( $business['owner_name'] ); ?>" required></label>
+									<label><span>Teléfono</span><input name="manager_phone" type="tel" value="<?php echo esc_attr( $business['manager_phone'] ); ?>" placeholder="+506 8888 8888" required></label>
+									<label><span>Inicio</span><input name="business_started_at" type="date" value="<?php echo esc_attr( $business['started_at'] ); ?>" required></label>
+									<label><span>Siguiente pago</span><input name="business_next_payment" type="date" value="<?php echo esc_attr( $business['next_payment'] ); ?>" required></label>
+									<div class="lw-inline-business-actions"><button type="submit" class="button button-primary">Guardar</button><button type="button" class="button lw-cancel-business-edit">Cancelar</button></div>
 								</form>
 							</td>
 						</tr>

@@ -129,6 +129,36 @@ final class Loyalty_Wallet_Businesses_Module {
 		self::redirect_with_notice( 'active' === $status ? 'negocio_activado' : 'negocio_archivado' );
 	}
 
+	public static function update_business(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'No tienes permiso para editar negocios.', 'loyalty-wallet' ) );
+		}
+
+		check_admin_referer( 'loyalty_wallet_update_business' );
+		$business_id  = isset( $_POST['business_id'] ) ? absint( $_POST['business_id'] ) : 0;
+		$business_name = isset( $_POST['business_name'] ) ? sanitize_text_field( wp_unslash( $_POST['business_name'] ) ) : '';
+		$owner_name   = isset( $_POST['owner_name'] ) ? sanitize_text_field( wp_unslash( $_POST['owner_name'] ) ) : '';
+		$manager_phone = isset( $_POST['manager_phone'] ) ? preg_replace( '/\D+/', '', (string) wp_unslash( $_POST['manager_phone'] ) ) : '';
+		$started_at   = isset( $_POST['business_started_at'] ) ? sanitize_text_field( wp_unslash( $_POST['business_started_at'] ) ) : '';
+		$next_payment = isset( $_POST['business_next_payment'] ) ? sanitize_text_field( wp_unslash( $_POST['business_next_payment'] ) ) : '';
+		$user         = $business_id ? get_userdata( $business_id ) : false;
+		$is_business  = $user && (
+			in_array( self::CLIENT_ROLE, (array) $user->roles, true )
+			|| '' !== trim( (string) get_user_meta( $business_id, self::NAME_META, true ) )
+		);
+
+		if ( ! $is_business || ! $business_name || ! $owner_name || ! self::valid_phone( $manager_phone ) || ! self::valid_date( $started_at ) || ! self::valid_date( $next_payment ) ) {
+			self::redirect_with_notice( 'datos_invalidos' );
+		}
+
+		wp_update_user( array( 'ID' => $business_id, 'display_name' => $owner_name ) );
+		update_user_meta( $business_id, self::NAME_META, $business_name );
+		update_user_meta( $business_id, self::MANAGER_PHONE_META, $manager_phone );
+		update_user_meta( $business_id, self::STARTED_AT_META, $started_at );
+		update_user_meta( $business_id, self::NEXT_PAYMENT_META, $next_payment );
+		self::redirect_with_notice( 'negocio_actualizado' );
+	}
+
 	public static function export_csv(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'No tienes permiso para exportar clientes.', 'loyalty-wallet' ) );
