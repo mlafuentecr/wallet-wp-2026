@@ -26,4 +26,16 @@
 
 	bindSearch('lw-business-search', '.lw-business-row', 'businessSearch', 'lw-business-search-empty');
 	bindSearch('lw-business-customer-search', '.lw-business-customer-row', 'customerSearch', 'lw-business-customer-search-empty');
+
+	var newBusinessButton = document.querySelector('.lw-new-business-button');
+	var newBusinessPanel = document.getElementById('nuevo-negocio');
+	if (newBusinessButton && newBusinessPanel) {
+		newBusinessButton.addEventListener('click', function () {
+			newBusinessPanel.open = true;
+			window.setTimeout(function () {
+				var firstField = newBusinessPanel.querySelector('input:not([type="hidden"])');
+				if (firstField) firstField.focus({ preventScroll: true });
+			}, 150);
+		});
+	}
 }());

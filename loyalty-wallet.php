@@ -52,6 +52,7 @@ final class Loyalty_Wallet_Plugin {
 		add_action( 'wp_ajax_loyalty_wallet_redeem_reward', array( 'Loyalty_Wallet_Rewards_Module', 'ajax_redeem' ) );
 		add_action( 'admin_post_loyalty_wallet_save_reminder', array( __CLASS__, 'save_reminder' ) );
 		add_action( 'admin_post_loyalty_wallet_mark_reminder_sent', array( __CLASS__, 'mark_reminder_sent' ) );
+		add_action( 'admin_post_loyalty_wallet_create_business', array( 'Loyalty_Wallet_Businesses_Module', 'create_business' ) );
 		add_action( 'admin_post_loyalty_wallet_export_business_customers', array( 'Loyalty_Wallet_Businesses_Module', 'export_csv' ) );
 		add_action( 'loyalty_wallet_run_engagement_reminder', array( 'Loyalty_Wallet_Engagement_Module', 'run' ), 10, 2 );
 		add_action( 'admin_head', array( __CLASS__, 'admin_styles' ) );
@@ -102,7 +103,7 @@ final class Loyalty_Wallet_Plugin {
 	public static function register_menu(): void {
 		add_menu_page(
 			'Loyalty Wallet',
-			'Loyalty',
+			'Lealtad',
 			self::CAPABILITY,
 			self::MENU_SLUG,
 			array( __CLASS__, 'render_page' ),
@@ -111,8 +112,8 @@ final class Loyalty_Wallet_Plugin {
 		);
 		add_submenu_page(
 			self::MENU_SLUG,
-			'Businesses',
-			'Businesses',
+			'Negocios',
+			'Negocios',
 			'manage_options',
 			'loyalty-wallet-businesses',
 			array( 'Loyalty_Wallet_Businesses_Module', 'render_page' )
