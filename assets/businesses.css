@@ -5,14 +5,16 @@
 .lw-businesses-hero p,.lw-businesses-card-head p{margin:0;color:#64748b}
 .lw-businesses-eyebrow{color:#3156e8;font-size:11px;font-weight:800;letter-spacing:1.5px}
 .lw-businesses-hero-actions{display:flex;align-items:center;gap:10px}
-.lw-new-business-button{display:inline-flex!important;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:0 17px!important;border-color:#3156e8!important;color:#3156e8!important;white-space:nowrap}
+.lw-new-business-button{display:inline-flex!important;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 18px!important;white-space:nowrap}
 .lw-export-button{display:inline-flex!important;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:0 17px!important;white-space:nowrap}
-.lw-export-button .dashicons,.lw-new-business-button .dashicons,.lw-table-actions .dashicons{width:18px;height:18px;font-size:18px}
+.lw-export-button .dashicons,.lw-new-business-button .dashicons,.lw-table-actions .dashicons,.lw-create-business-actions .dashicons{display:inline-grid;place-items:center;flex:0 0 18px;width:18px;height:18px;margin:0;font-size:18px;line-height:1}
 .lw-business-notice,.lw-business-access-notice{margin:18px 0 0!important;border-radius:9px}
 .lw-business-access-notice code{display:inline-block;margin:2px 4px;padding:3px 7px;border-radius:5px}
 .lw-businesses-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:20px 0}
 .lw-businesses-summary>div{display:flex;align-items:center;gap:14px;padding:20px 22px;border:1px solid #dbe3f0;border-radius:14px;background:#fff}
 .lw-businesses-summary .dashicons{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:#eef2ff;color:#3156e8;font-size:24px}
+.lw-businesses-summary>div:nth-child(2)>.dashicons{background:#eaf9ef;color:#169447}
+.lw-businesses-summary>div:nth-child(3)>.dashicons{background:#f1f5f9;color:#64748b}
 .lw-businesses-summary small,.lw-businesses-summary strong{display:block}.lw-businesses-summary small{color:#64748b}.lw-businesses-summary strong{margin-top:4px;color:#10234a;font-size:24px}
 .lw-businesses-card{margin-top:20px;padding:26px}
 .lw-create-business{padding:0;overflow:hidden}
@@ -43,9 +45,17 @@
 .lw-businesses-table,.lw-customer-export-table{width:100%;border:0!important;box-shadow:none!important;table-layout:auto}
 .lw-businesses-table th,.lw-customer-export-table th{padding:13px 14px;color:#52627a;font-size:12px;font-weight:700}
 .lw-businesses-table td,.lw-customer-export-table td{padding:14px;vertical-align:middle}
-.lw-businesses-table td small,.lw-customer-export-table td small{display:block;margin-top:4px;color:#64748b}
+.lw-businesses-table td small,.lw-customer-export-table td small{display:flex;align-items:center;gap:5px;min-width:0;margin-top:5px;color:#64748b;overflow-wrap:anywhere}
+.lw-businesses-table td small .dashicons{flex:0 0 15px;width:15px;height:15px;font-size:15px;line-height:1}
 .lw-business-identity{display:flex;align-items:center;gap:11px}.lw-business-identity>img,.lw-business-identity>.dashicons{width:42px;height:42px;border-radius:10px}.lw-business-identity>img{object-fit:cover}.lw-business-identity>.dashicons{display:grid;place-items:center;background:#eef2ff;color:#3156e8;font-size:22px}
-.lw-table-actions{width:220px;text-align:right;white-space:nowrap}.lw-table-actions .button{display:inline-flex;align-items:center;gap:4px;margin-left:5px}
+.lw-business-row.is-archived{opacity:.72}
+.lw-business-status{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.lw-business-status>span{width:7px;height:7px;border-radius:50%}
+.lw-business-status.is-active{background:#eaf9ef;color:#137b3b}.lw-business-status.is-active>span{background:#22c55e}
+.lw-business-status.is-archived{background:#f1f5f9;color:#64748b}.lw-business-status.is-archived>span{background:#94a3b8}
+.lw-empty-value{color:#94a3b8}
+.lw-table-actions{width:145px;text-align:right;white-space:nowrap}.lw-table-actions form{display:inline-block;margin:0}.lw-table-actions .button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:36px;margin:0}
+.lw-status-action.is-archive{border-color:#cbd5e1;color:#475569}.lw-status-action.is-activate{border-color:#86efac;color:#15803d}
 .lw-business-row[hidden],.lw-business-customer-row[hidden],.lw-business-search-empty[hidden]{display:none!important}
 .lw-business-search-empty{margin:16px 0 0;padding:16px;border:1px dashed #cbd6e5;border-radius:10px;color:#64748b;text-align:center}
 .lw-business-customers{scroll-margin-top:40px}.lw-customer-table-search{max-width:540px;margin:0 0 18px}
@@ -59,7 +69,8 @@
 	.lw-businesses-table td:before,.lw-customer-export-table td:before{display:block;margin-bottom:6px;color:#64748b;font-size:10px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;content:attr(data-label)}
 	.lw-businesses-table td:first-child,.lw-customer-export-table td:first-child{grid-column:1/-1;padding-bottom:14px!important;border-bottom:1px solid #e2e8f0!important}
 	.lw-businesses-table .lw-table-actions{grid-column:1/-1;width:auto;text-align:left}
-	.lw-businesses-table .lw-table-actions .button{margin:0 7px 0 0}
+	.lw-businesses-table .lw-table-actions form{display:block}
+	.lw-businesses-table .lw-table-actions .button{margin:0}
 	.lw-table-scroll{overflow:visible;border:0}
 }
 @media(max-width:900px){.lw-businesses-hero,.lw-businesses-card-head{align-items:stretch;flex-direction:column}.lw-businesses-hero-actions{align-items:stretch;flex-direction:column}.lw-business-search{width:100%;max-width:none;flex-basis:auto}.lw-businesses-summary{grid-template-columns:1fr}.lw-export-button,.lw-new-business-button{width:100%;box-sizing:border-box}.lw-business-form-grid{grid-template-columns:1fr}.lw-business-form-wide{grid-column:auto}}
