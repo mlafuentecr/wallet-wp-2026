@@ -115,7 +115,10 @@ final class Loyalty_Wallet_Google_Reviews_Module {
 			wp_die( esc_html__( 'No tienes permiso para conectar Google.', 'loyalty-wallet' ) );
 		}
 		check_admin_referer( 'loyalty_wallet_google_connect' );
+		self::begin_oauth();
+	}
 
+	public static function begin_oauth(): void {
 		$user_id = get_current_user_id();
 		$client_id = (string) get_user_meta( $user_id, self::CLIENT_ID, true );
 		$client_secret = (string) get_user_meta( $user_id, self::CLIENT_SECRET, true );

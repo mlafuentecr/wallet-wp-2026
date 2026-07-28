@@ -45,6 +45,9 @@
 	var googleOauthJsonStatus = document.getElementById('lw-google-oauth-json-status');
 	var googleClientId = document.getElementById('lw-google-client-id');
 	var googleClientSecret = document.getElementById('lw-google-client-secret');
+	var googleCallbackUrl = document.getElementById('lw-google-callback-url');
+	var googleCallbackCopy = document.getElementById('lw-copy-google-callback');
+	var googleCallbackStatus = document.getElementById('lw-google-callback-status');
 	if (!customersTab || !activityTab || !namePanel || !customersPanel || !activityPanel || !section || !image || !empty || !qrActions || !qrOpen || !qrCopy || !qrCopyStatus) return;
 	if (googleOauthJson && googleOauthJsonStatus && googleClientId && googleClientSecret) {
 		googleOauthJson.addEventListener('change', function () {
@@ -77,6 +80,18 @@
 				}
 			};
 			oauthReader.readAsText(file);
+		});
+	}
+	if (googleCallbackUrl && googleCallbackCopy && googleCallbackStatus) {
+		googleCallbackCopy.addEventListener('click', function () {
+			var value = googleCallbackUrl.textContent.trim();
+			navigator.clipboard.writeText(value).then(function () {
+				googleCallbackStatus.textContent = 'URI copiada.';
+				googleCallbackStatus.classList.add('is-success');
+			}).catch(function () {
+				googleCallbackStatus.textContent = 'No se pudo copiar. Selecciona la URI y cópiala manualmente.';
+				googleCallbackStatus.classList.add('is-error');
+			});
 		});
 	}
 	function setPanelFields(panel, enabled) {

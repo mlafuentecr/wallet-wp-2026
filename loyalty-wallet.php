@@ -276,6 +276,9 @@ final class Loyalty_Wallet_Plugin {
 			if ( 'url_saved' !== $review_result ) {
 				self::redirect_with_notice( $review_result, 'reviews' );
 			}
+			if ( isset( $_POST['google_connect_after_save'] ) ) {
+				Loyalty_Wallet_Google_Reviews_Module::begin_oauth();
+			}
 			$wallet = Loyalty_Wallet_Google_Wallet_Module::data( $user_id );
 			if ( $wallet['is_configured'] && ! Loyalty_Wallet_Google_Wallet_Module::sync_loyalty_points( $user_id, Loyalty_Wallet_Google_Reviews_Module::review_points( $user_id ) ) ) {
 				self::redirect_with_notice( 'wallet_points_sync_failed', 'reviews' );
