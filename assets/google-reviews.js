@@ -45,9 +45,12 @@
 	var googleOauthJsonStatus = document.getElementById('lw-google-oauth-json-status');
 	var googleClientId = document.getElementById('lw-google-client-id');
 	var googleClientSecret = document.getElementById('lw-google-client-secret');
+	var googleCredentialsStep = document.getElementById('lw-google-step-credentials');
+	var googleCallbackStep = document.getElementById('lw-google-step-callback');
 	var googleCallbackUrl = document.getElementById('lw-google-callback-url');
 	var googleCallbackCopy = document.getElementById('lw-copy-google-callback');
 	var googleCallbackStatus = document.getElementById('lw-google-callback-status');
+	var googleCallbackConfirmed = document.getElementById('lw-google-callback-confirmed');
 	if (!customersTab || !activityTab || !namePanel || !customersPanel || !activityPanel || !section || !image || !empty || !qrActions || !qrOpen || !qrCopy || !qrCopyStatus) return;
 	if (googleOauthJson && googleOauthJsonStatus && googleClientId && googleClientSecret) {
 		googleOauthJson.addEventListener('change', function () {
@@ -71,7 +74,8 @@
 					if (!credentials || !credentials.client_id || !credentials.client_secret) throw new Error('invalid_oauth_json');
 					googleClientId.value = String(credentials.client_id);
 					googleClientSecret.value = String(credentials.client_secret);
-					googleOauthJsonStatus.textContent = 'client_id y client_secret copiados. Presiona Guardar cambios.';
+					if (googleCredentialsStep) googleCredentialsStep.classList.add('is-complete');
+					googleOauthJsonStatus.textContent = 'Credenciales listas. Continúa con el paso 2.';
 					googleOauthJsonStatus.classList.add('is-success');
 				} catch (error) {
 					googleOauthJson.value = '';
@@ -86,8 +90,16 @@
 		googleCallbackCopy.addEventListener('click', function () {
 			var value = googleCallbackUrl.textContent.trim();
 			navigator.clipboard.writeText(value).then(function () {
+				if (googleCallbackStep) googleCallbackStep.classList.add('is-complete');
+				if (googleCallbackConfirmed) googleCallbackConfirmed.value = '1';
 				googleCallbackStatus.textContent = 'URI copiada.';
 				googleCallbackStatus.classList.add('is-success');
+				if (window.loyaltyWalletRedemption && window.loyaltyWalletRedemption.googleSetupNonce) {
+					var callbackForm = new FormData();
+					callbackForm.append('action', 'loyalty_wallet_google_callback_confirmed');
+					callbackForm.append('nonce', window.loyaltyWalletRedemption.googleSetupNonce);
+					fetch(window.loyaltyWalletRedemption.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: callbackForm }).catch(function () {});
+				}
 			}).catch(function () {
 				googleCallbackStatus.textContent = 'No se pudo copiar. Selecciona la URI y cópiala manualmente.';
 				googleCallbackStatus.classList.add('is-error');

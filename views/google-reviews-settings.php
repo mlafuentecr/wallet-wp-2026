@@ -20,22 +20,23 @@
 			<label class="lw-sandbox-option"><input name="google_sandbox_mode" type="checkbox" value="1" <?php checked( $google['sandbox_mode'] ); ?>><span><strong>Modo de pruebas</strong><small>Usa reseñas de prueba sin conectar Google</small></span></label>
 			<div class="lw-google-status <?php echo $google['is_connected'] ? 'is-ready' : ''; ?>"><span class="lw-status-dot"></span><span><strong>Perfil de Negocio de Google</strong><small><?php echo $google['is_connected'] ? 'Cuenta conectada con Google' : 'Todavía no conectado'; ?></small></span></div>
 			<div class="lw-google-simple-setup">
-				<div class="lw-google-setup-step">
-					<b>1</b>
+				<div id="lw-google-step-credentials" class="lw-google-setup-step <?php echo $google['client_id'] && $google['has_secret'] ? 'is-complete' : ''; ?>">
+					<b><span class="lw-step-number">1</span><span class="dashicons dashicons-yes-alt lw-step-check"></span></b>
 					<div><strong>Carga las credenciales de Google</strong><small>Selecciona el archivo <code>client_secret_….json</code> descargado de Google Cloud.</small></div>
 					<input id="lw-google-oauth-json" type="file" accept="application/json,.json" hidden>
 					<label class="button" for="lw-google-oauth-json"><span class="dashicons dashicons-upload"></span>Cargar JSON</label>
 					<span id="lw-google-oauth-json-status" class="lw-oauth-json-status" role="status"></span>
 				</div>
-				<div class="lw-google-setup-step">
-					<b>2</b>
-					<div><strong>Registra esta URI en Google Cloud</strong><small>Cliente OAuth → URI de redirección autorizada.</small></div>
+				<div id="lw-google-step-callback" class="lw-google-setup-step <?php echo $google['callback_confirmed'] || $google['is_connected'] ? 'is-complete' : ''; ?>">
+					<b><span class="lw-step-number">2</span><span class="dashicons dashicons-yes-alt lw-step-check"></span></b>
+					<div><strong>Registra esta URI en Google Cloud</strong><small>Pégala en <b>Authorized redirect URIs</b>. No la pongas en <b>Authorized JavaScript origins</b>.</small></div>
 					<div class="lw-google-callback-copy"><code id="lw-google-callback-url"><?php echo esc_html( $google['callback_url'] ); ?></code><button id="lw-copy-google-callback" class="button" type="button"><span class="dashicons dashicons-admin-page"></span>Copiar</button></div>
 					<span id="lw-google-callback-status" class="lw-oauth-json-status" role="status"></span>
 				</div>
-				<div class="lw-google-setup-step">
-					<b>3</b>
-					<div><strong><?php echo $google['is_connected'] ? 'Vuelve a conectar si cambiaste las credenciales' : 'Autoriza el acceso al negocio'; ?></strong><small>Guardaremos las credenciales y Google te pedirá seleccionar la cuenta.</small></div>
+				<input id="lw-google-callback-confirmed" name="google_callback_confirmed" type="hidden" value="<?php echo $google['callback_confirmed'] || $google['is_connected'] ? '1' : '0'; ?>">
+				<div id="lw-google-step-connect" class="lw-google-setup-step <?php echo $google['is_connected'] ? 'is-complete' : ''; ?>">
+					<b><span class="lw-step-number">3</span><span class="dashicons dashicons-yes-alt lw-step-check"></span></b>
+					<div><strong><?php echo $google['is_connected'] ? 'Google Business Profile conectado' : 'Autoriza el acceso al negocio'; ?></strong><small><?php echo $google['is_connected'] ? 'La autorización se guardó correctamente.' : 'Guardaremos las credenciales y Google te pedirá seleccionar la cuenta.'; ?></small></div>
 					<button class="button button-primary" type="submit" name="google_connect_after_save" value="1"><span class="dashicons dashicons-google"></span><?php echo $google['is_connected'] ? 'Guardar y volver a conectar' : 'Guardar y conectar con Google'; ?></button>
 				</div>
 			</div>

@@ -17,6 +17,7 @@ final class Loyalty_Wallet_Google_Reviews_Module {
 	private const REFRESH_TOKEN = '_loyalty_wallet_google_refresh_token';
 	private const ACCESS_TOKEN = '_loyalty_wallet_google_access_token';
 	private const ACCESS_TOKEN_EXPIRES = '_loyalty_wallet_google_access_token_expires';
+	private const CALLBACK_CONFIRMED = '_loyalty_wallet_google_callback_confirmed';
 	private const SANDBOX_MODE = '_loyalty_wallet_google_sandbox_mode';
 	private const REVIEW_POINTS = '_loyalty_wallet_google_review_points';
 	private const DEFAULT_MAPS_URL = 'https://www.google.com/maps/place/Croc%E2%80%99s+Resort+%26+Casino/@9.6228739,-84.6434061,17z/data=!4m12!3m11!1s0x8fa1c71bb9ab4bc5:0xb27e5396a7ab8d54!5m3!1s2026-08-02!4m1!1i2!8m2!3d9.6228739!4d-84.6408258!9m1!1b1!16s%2Fg%2F1hm603k12';
@@ -51,6 +52,7 @@ final class Loyalty_Wallet_Google_Reviews_Module {
 			'account_options' => is_array( $account_options ) ? $account_options : array(),
 			'location_options' => is_array( $location_options ) ? $location_options : array(),
 			'is_connected' => $is_connected,
+			'callback_confirmed' => '1' === (string) get_user_meta( $user_id, self::CALLBACK_CONFIRMED, true ),
 			'is_configured' => (bool) ( $client_id && $has_secret && $is_connected && $account_id && $location_id ),
 			'callback_url' => self::callback_url(),
 			'sandbox_mode' => $sandbox_mode,
@@ -102,6 +104,9 @@ final class Loyalty_Wallet_Google_Reviews_Module {
 		$secret = isset( $_POST['google_client_secret'] ) ? sanitize_text_field( wp_unslash( $_POST['google_client_secret'] ) ) : '';
 		if ( '' !== $secret ) {
 			update_user_meta( $user_id, self::CLIENT_SECRET, $secret );
+		}
+		if ( isset( $_POST['google_callback_confirmed'] ) && '1' === sanitize_text_field( wp_unslash( $_POST['google_callback_confirmed'] ) ) ) {
+			update_user_meta( $user_id, self::CALLBACK_CONFIRMED, '1' );
 		}
 		return 'url_saved';
 	}
@@ -208,6 +213,15 @@ final class Loyalty_Wallet_Google_Reviews_Module {
 		}
 		$result = self::refresh_business_resources( $user_id, $token );
 		self::redirect( is_wp_error( $result ) ? $result->get_error_code() : 'google_resources_refreshed' );
+	}
+
+	public static function ajax_confirm_callback(): void {
+		if ( ! current_user_can( 'access_loyalty_wallet' ) ) {
+			wp_send_json_error( array( 'message' => 'Sin permiso.' ), 403 );
+		}
+		check_ajax_referer( 'loyalty_wallet_google_setup', 'nonce' );
+		update_user_meta( get_current_user_id(), self::CALLBACK_CONFIRMED, '1' );
+		wp_send_json_success();
 	}
 
 	private static function access_token( int $user_id ) {

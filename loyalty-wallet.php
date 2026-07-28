@@ -44,6 +44,7 @@ final class Loyalty_Wallet_Plugin {
 		add_action( 'admin_post_loyalty_wallet_google_connect', array( 'Loyalty_Wallet_Google_Reviews_Module', 'start_oauth' ) );
 		add_action( 'admin_post_loyalty_wallet_google_callback', array( 'Loyalty_Wallet_Google_Reviews_Module', 'oauth_callback' ) );
 		add_action( 'admin_post_loyalty_wallet_google_refresh', array( 'Loyalty_Wallet_Google_Reviews_Module', 'refresh_resources' ) );
+		add_action( 'wp_ajax_loyalty_wallet_google_callback_confirmed', array( 'Loyalty_Wallet_Google_Reviews_Module', 'ajax_confirm_callback' ) );
 		add_action( 'admin_post_loyalty_wallet_restore_promotion_settings', array( __CLASS__, 'restore_promotion_settings' ) );
 		add_action( 'admin_post_loyalty_wallet_add_customer', array( __CLASS__, 'add_customer' ) );
 		add_action( 'admin_post_loyalty_wallet_update_customer', array( __CLASS__, 'update_customer' ) );
@@ -81,6 +82,7 @@ final class Loyalty_Wallet_Plugin {
 				array(
 					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 					'nonce'   => wp_create_nonce( 'loyalty_wallet_redemption' ),
+					'googleSetupNonce' => wp_create_nonce( 'loyalty_wallet_google_setup' ),
 				)
 			);
 		}
