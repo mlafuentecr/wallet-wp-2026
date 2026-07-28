@@ -24,7 +24,7 @@ final class Loyalty_Wallet_Google_Identity_Module {
 			$phone            = isset( $_POST['phone'] ) ? sanitize_text_field( wp_unslash( $_POST['phone'] ) ) : '';
 			$result           = self::complete_enrollment( $user_id, $enrollment_token, $phone, $google, $wallet );
 		} else {
-			$result = new WP_Error( 'invalid_identity_action', 'Invalid identity request.' );
+			$result = new WP_Error( 'invalid_identity_action', 'Solicitud de identidad no válida.' );
 		}
 
 		if ( is_wp_error( $result ) ) {
@@ -41,7 +41,7 @@ final class Loyalty_Wallet_Google_Identity_Module {
 	private static function verify_google_credential( int $user_id, string $credential, array $google ) {
 		$client_id = trim( (string) ( $google['client_id'] ?? '' ) );
 		if ( ! $client_id || ! $credential || strlen( $credential ) > 10000 ) {
-			return new WP_Error( 'google_signin_not_configured', 'Google Sign-In is not configured for this business.' );
+			return new WP_Error( 'google_signin_not_configured', 'El inicio de sesión con Google no está configurado para este negocio.' );
 		}
 
 		$response = wp_remote_get(
@@ -49,7 +49,7 @@ final class Loyalty_Wallet_Google_Identity_Module {
 			array( 'timeout' => 15 )
 		);
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return new WP_Error( 'invalid_google_identity', 'Google could not verify this sign-in. Please try again.' );
+			return new WP_Error( 'invalid_google_identity', 'Google no pudo verificar este inicio de sesión. Inténtalo de nuevo.' );
 		}
 
 		$claims = json_decode( wp_remote_retrieve_body( $response ), true );
@@ -61,7 +61,7 @@ final class Loyalty_Wallet_Google_Identity_Module {
 			|| time() >= absint( $claims['exp'] ?? 0 )
 			|| ! in_array( $claims['email_verified'] ?? false, array( true, 'true', '1', 1 ), true )
 		) {
-			return new WP_Error( 'invalid_google_identity', 'Google returned an invalid identity token.' );
+			return new WP_Error( 'invalid_google_identity', 'Google devolvió un token de identidad no válido.' );
 		}
 
 		$sub     = sanitize_text_field( (string) ( $claims['sub'] ?? '' ) );
@@ -70,7 +70,7 @@ final class Loyalty_Wallet_Google_Identity_Module {
 		$email   = sanitize_email( (string) ( $claims['email'] ?? '' ) );
 		$picture = esc_url_raw( (string) ( $claims['picture'] ?? '' ) );
 		if ( ! $sub || ! $name || ! is_email( $email ) ) {
-			return new WP_Error( 'incomplete_google_identity', 'Google did not provide the required name and email.' );
+			return new WP_Error( 'incomplete_google_identity', 'Google no proporcionó el nombre y el correo requeridos.' );
 		}
 
 		$member_id = Loyalty_Wallet_Google_Wallet_Module::member_id_for_google_user( $user_id, $sub );
@@ -99,10 +99,10 @@ final class Loyalty_Wallet_Google_Identity_Module {
 			return $identity;
 		}
 		if ( strlen( $digits ) < 8 || strlen( $digits ) > 15 ) {
-			return new WP_Error( 'invalid_phone', 'Enter a valid phone number including the country code.' );
+			return new WP_Error( 'invalid_phone', 'Escribe un teléfono válido, incluido el código del país.' );
 		}
 		if ( empty( $wallet['is_configured'] ) ) {
-			return new WP_Error( 'wallet_not_configured', 'Google Wallet is not configured for this business.' );
+			return new WP_Error( 'wallet_not_configured', 'Google Wallet no está configurado para este negocio.' );
 		}
 
 		$member_id = (string) $identity['member_id'];
@@ -127,7 +127,7 @@ final class Loyalty_Wallet_Google_Identity_Module {
 			$wallet
 		);
 		if ( ! $wallet_url ) {
-			return new WP_Error( 'wallet_link_failed', 'The Google Wallet card could not be created.' );
+			return new WP_Error( 'wallet_link_failed', 'No se pudo crear la tarjeta de Google Wallet.' );
 		}
 
 		setcookie(
@@ -159,7 +159,7 @@ final class Loyalty_Wallet_Google_Identity_Module {
 	private static function verify_enrollment_token( string $token, int $user_id ) {
 		$parts = explode( '.', $token, 2 );
 		if ( 2 !== count( $parts ) || ! hash_equals( hash_hmac( 'sha256', $parts[0], wp_salt( 'auth' ) ), $parts[1] ) ) {
-			return new WP_Error( 'invalid_enrollment', 'Your Google sign-in expired. Please sign in again.' );
+			return new WP_Error( 'invalid_enrollment', 'Tu inicio de sesión con Google venció. Inicia sesión nuevamente.' );
 		}
 
 		$json    = self::base64_url_decode( $parts[0] );
@@ -173,7 +173,7 @@ final class Loyalty_Wallet_Google_Identity_Module {
 			|| ! is_email( $payload['email'] ?? '' )
 			|| ! preg_match( '/^LW[A-Z0-9]{12}$/', (string) ( $payload['member_id'] ?? '' ) )
 		) {
-			return new WP_Error( 'invalid_enrollment', 'Your Google sign-in expired. Please sign in again.' );
+			return new WP_Error( 'invalid_enrollment', 'Tu inicio de sesión con Google venció. Inicia sesión nuevamente.' );
 		}
 		return $payload;
 	}

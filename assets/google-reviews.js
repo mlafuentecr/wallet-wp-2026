@@ -109,34 +109,34 @@
 	if (logoInput && logoPreview) logoInput.addEventListener('change', function () {
 		var file = logoInput.files && logoInput.files[0];
 		if (!file) return;
-		if (!/^image\/(jpeg|png|webp)$/.test(file.type) || file.size > 5 * 1024 * 1024) { logoInput.value = ''; window.alert('Choose a JPG, PNG or WebP image under 5 MB.'); return; }
+		if (!/^image\/(jpeg|png|webp)$/.test(file.type) || file.size > 5 * 1024 * 1024) { logoInput.value = ''; window.alert('Elige una imagen JPG, PNG o WebP de menos de 5 MB.'); return; }
 		var businessMediaId = document.getElementById('lw-business-logo-media-id');
 		if (businessMediaId) businessMediaId.value = '';
-		var reader = new FileReader(); reader.onload = function (event) { logoPreview.innerHTML = ''; var previewImage = document.createElement('img'); previewImage.src = event.target.result; previewImage.alt = 'New business logo preview'; logoPreview.appendChild(previewImage); }; reader.readAsDataURL(file);
+		var reader = new FileReader(); reader.onload = function (event) { logoPreview.innerHTML = ''; var previewImage = document.createElement('img'); previewImage.src = event.target.result; previewImage.alt = 'Vista previa del nuevo logo del negocio'; logoPreview.appendChild(previewImage); }; reader.readAsDataURL(file);
 	});
 	var walletLogoInput = document.getElementById('lw-wallet-logo-upload'), walletLogoPreview = document.getElementById('lw-wallet-logo-preview');
 	if (walletLogoInput && walletLogoPreview) walletLogoInput.addEventListener('change', function () {
 		var file = walletLogoInput.files && walletLogoInput.files[0];
 		if (!file) return;
-		if (!/^image\/(png|jpeg|webp)$/.test(file.type) || file.size > 5 * 1024 * 1024) { walletLogoInput.value = ''; window.alert('Choose a PNG, JPG or WebP image under 5 MB.'); return; }
+		if (!/^image\/(png|jpeg|webp)$/.test(file.type) || file.size > 5 * 1024 * 1024) { walletLogoInput.value = ''; window.alert('Elige una imagen PNG, JPG o WebP de menos de 5 MB.'); return; }
 		var googleWalletMediaId = document.getElementById('lw-google-wallet-logo-media-id');
 		var googleWalletLogoUrl = document.getElementById('lw-wallet-logo-url');
 		if (googleWalletMediaId) googleWalletMediaId.value = '';
 		if (googleWalletLogoUrl) googleWalletLogoUrl.value = '';
-		var previewReader = new FileReader(); previewReader.onload = function (event) { walletLogoPreview.innerHTML = ''; var logoImage = document.createElement('img'); logoImage.src = event.target.result; logoImage.alt = 'New Google Wallet logo preview'; walletLogoPreview.appendChild(logoImage); }; previewReader.readAsDataURL(file);
+		var previewReader = new FileReader(); previewReader.onload = function (event) { walletLogoPreview.innerHTML = ''; var logoImage = document.createElement('img'); logoImage.src = event.target.result; logoImage.alt = 'Vista previa del nuevo logo de Google Wallet'; walletLogoPreview.appendChild(logoImage); }; previewReader.readAsDataURL(file);
 	});
 	var walletHeroInput = document.getElementById('lw-wallet-hero-upload'), walletHeroPreview = document.getElementById('lw-wallet-hero-preview'), walletHeroMode = document.getElementById('lw-wallet-hero-mode'), walletHeroBadge = document.getElementById('lw-wallet-random-badge');
 	if (walletHeroInput && walletHeroPreview) walletHeroInput.addEventListener('change', function () {
 		var file = walletHeroInput.files && walletHeroInput.files[0];
 		if (!file) return;
-		if (!/^image\/(png|jpeg|webp)$/.test(file.type) || file.size > 5 * 1024 * 1024) { walletHeroInput.value = ''; window.alert('Choose a PNG, JPG or WebP banner under 5 MB.'); return; }
+		if (!/^image\/(png|jpeg|webp)$/.test(file.type) || file.size > 5 * 1024 * 1024) { walletHeroInput.value = ''; window.alert('Elige un banner PNG, JPG o WebP de menos de 5 MB.'); return; }
 		var heroMediaId = document.getElementById('lw-google-wallet-hero-media-id');
 		var heroUrl = document.getElementById('lw-wallet-hero-url');
 		if (heroMediaId) heroMediaId.value = '';
 		if (heroUrl) heroUrl.value = '';
 		if (walletHeroMode) walletHeroMode.value = 'custom';
 		if (walletHeroBadge) walletHeroBadge.hidden = true;
-		var heroReader = new FileReader(); heroReader.onload = function (event) { walletHeroPreview.innerHTML = ''; var heroImage = document.createElement('img'); heroImage.src = event.target.result; heroImage.alt = 'New Google Wallet banner preview'; walletHeroPreview.appendChild(heroImage); }; heroReader.readAsDataURL(file);
+		var heroReader = new FileReader(); heroReader.onload = function (event) { walletHeroPreview.innerHTML = ''; var heroImage = document.createElement('img'); heroImage.src = event.target.result; heroImage.alt = 'Vista previa del nuevo banner de Google Wallet'; walletHeroPreview.appendChild(heroImage); }; heroReader.readAsDataURL(file);
 	});
 	var walletHeroUrl = document.getElementById('lw-wallet-hero-url'), walletHeroRandom = document.getElementById('lw-wallet-random-hero'), walletHeroSeed = document.getElementById('lw-wallet-hero-random-seed');
 	if (walletHeroUrl) walletHeroUrl.addEventListener('input', function () { if (walletHeroUrl.value.trim() && walletHeroMode) walletHeroMode.value = 'custom'; if (walletHeroUrl.value.trim() && walletHeroBadge) walletHeroBadge.hidden = true; });
@@ -153,7 +153,7 @@
 		walletHeroPreview.innerHTML = '';
 		var randomImage = document.createElement('img');
 		randomImage.src = randomUrl;
-		randomImage.alt = 'Random Google Wallet banner preview';
+		randomImage.alt = 'Vista previa del banner aleatorio de Google Wallet';
 		walletHeroPreview.appendChild(randomImage);
 	});
 	var walletPromoImageInput = document.getElementById('lw-wallet-promo-image-upload');
@@ -162,11 +162,11 @@
 	if (walletPromoImageInput && walletPromoImagePreview) walletPromoImageInput.addEventListener('change', function () {
 		var file = walletPromoImageInput.files && walletPromoImageInput.files[0];
 		if (!file) return;
-		if (!/^image\/(png|jpeg|webp)$/.test(file.type) || file.size > 5 * 1024 * 1024) { walletPromoImageInput.value = ''; window.alert('Choose a square PNG, JPG or WebP promotion image under 5 MB.'); return; }
+		if (!/^image\/(png|jpeg|webp)$/.test(file.type) || file.size > 5 * 1024 * 1024) { walletPromoImageInput.value = ''; window.alert('Elige una imagen promocional cuadrada PNG, JPG o WebP de menos de 5 MB.'); return; }
 		var promoMediaId = document.getElementById('lw-wallet-promo-image-media-id');
 		if (promoMediaId) promoMediaId.value = '';
 		if (walletPromoImageUrl) walletPromoImageUrl.value = '';
-		var promoReader = new FileReader(); promoReader.onload = function (event) { walletPromoImagePreview.innerHTML = ''; var promoImage = document.createElement('img'); promoImage.src = event.target.result; promoImage.alt = 'New promotion image preview'; walletPromoImagePreview.appendChild(promoImage); }; promoReader.readAsDataURL(file);
+		var promoReader = new FileReader(); promoReader.onload = function (event) { walletPromoImagePreview.innerHTML = ''; var promoImage = document.createElement('img'); promoImage.src = event.target.result; promoImage.alt = 'Vista previa de la nueva imagen promocional'; walletPromoImagePreview.appendChild(promoImage); }; promoReader.readAsDataURL(file);
 	});
 	var walletColor = document.getElementById('lw-wallet-background-color'), walletColorValue = document.getElementById('lw-wallet-background-color-value');
 	var walletCardPreview = document.getElementById('lw-wallet-card-preview');
@@ -204,7 +204,7 @@
 	}
 	function syncWalletCardPreview() {
 		if (walletCardPreview && walletColor) walletCardPreview.style.setProperty('--lw-card-color', walletColor.value);
-		if (walletCardProgramName && programNameInput) walletCardProgramName.textContent = programNameInput.value.trim() || ((nameInput ? nameInput.value.trim() : '') + ' Loyalty').trim();
+		if (walletCardProgramName && programNameInput) walletCardProgramName.textContent = programNameInput.value.trim() || ('Lealtad ' + (nameInput ? nameInput.value.trim() : '')).trim();
 		var walletCardContactHelp = document.getElementById('lw-card-preview-contact-help');
 		var walletCardContact = document.getElementById('lw-card-preview-contact');
 		if (walletCardContactHelp && contactHelpInput) walletCardContactHelp.textContent = contactHelpInput.value.trim();
@@ -256,7 +256,7 @@
 		if (!url || !walletLogoPreview) return;
 		walletLogoPreview.innerHTML = '';
 		var logoFromUrl = document.createElement('img');
-		logoFromUrl.src = url; logoFromUrl.alt = 'Google Wallet logo URL preview';
+		logoFromUrl.src = url; logoFromUrl.alt = 'Vista previa del logo de Google Wallet';
 		walletLogoPreview.appendChild(logoFromUrl);
 	});
 	if (walletHeroUrl) walletHeroUrl.addEventListener('input', function () {
@@ -264,7 +264,7 @@
 		if (!url || !walletHeroPreview) return;
 		walletHeroPreview.innerHTML = '';
 		var bannerFromUrl = document.createElement('img');
-		bannerFromUrl.src = url; bannerFromUrl.alt = 'Google Wallet banner URL preview';
+		bannerFromUrl.src = url; bannerFromUrl.alt = 'Vista previa del banner de Google Wallet';
 		walletHeroPreview.appendChild(bannerFromUrl);
 	});
 	if (walletPromoImageUrl) walletPromoImageUrl.addEventListener('input', function () {
@@ -272,7 +272,7 @@
 		if (!url || !walletPromoImagePreview) return;
 		walletPromoImagePreview.innerHTML = '';
 		var promoFromUrl = document.createElement('img');
-		promoFromUrl.src = url; promoFromUrl.alt = 'Promotion image URL preview';
+		promoFromUrl.src = url; promoFromUrl.alt = 'Vista previa de la imagen promocional';
 		walletPromoImagePreview.appendChild(promoFromUrl);
 	});
 	if (window.MutationObserver) {
@@ -289,7 +289,7 @@
 		if (!file) return;
 		if (!/\.json$/i.test(file.name) || file.size < 1 || file.size > 1024 * 1024) {
 			serviceAccountJsonInput.value = '';
-			window.alert('Choose a Google service account JSON file under 1 MB.');
+			window.alert('Elige un archivo JSON de cuenta de servicio de Google de menos de 1 MB.');
 			return;
 		}
 		serviceAccountJsonName.textContent = file.name;
@@ -297,12 +297,12 @@
 	document.querySelectorAll('.lw-media-library-button').forEach(function (button) {
 		button.addEventListener('click', function () {
 			if (!window.wp || !window.wp.media) {
-				window.alert('The WordPress Media Library is not available for this account.');
+				window.alert('La biblioteca de medios de WordPress no está disponible para esta cuenta.');
 				return;
 			}
 			var frame = window.wp.media({
-				title: button.dataset.mediaTitle || 'Choose an image',
-				button: { text: button.dataset.mediaButton || 'Use this image' },
+				title: button.dataset.mediaTitle || 'Elegir una imagen',
+				button: { text: button.dataset.mediaButton || 'Usar esta imagen' },
 				library: { type: 'image' },
 				multiple: false
 			});
@@ -310,7 +310,7 @@
 				var selected = frame.state().get('selection').first().toJSON();
 				var allowed = ['image/jpeg', 'image/png', 'image/webp'];
 				if (allowed.indexOf(selected.mime) === -1) {
-					window.alert('Choose a JPG, PNG or WebP image.');
+					window.alert('Elige una imagen JPG, PNG o WebP.');
 					return;
 				}
 				var mediaInput = document.getElementById(button.dataset.mediaTarget);
@@ -328,7 +328,7 @@
 					preview.innerHTML = '';
 					var imageElement = document.createElement('img');
 					imageElement.src = previewUrl;
-					imageElement.alt = 'Selected image preview';
+					imageElement.alt = 'Vista previa de la imagen seleccionada';
 					preview.appendChild(imageElement);
 				}
 			});
@@ -352,9 +352,9 @@
 		var url = qrCopy.dataset.url || '';
 		if (!url) return;
 		var copied = function () {
-			qrCopy.querySelector('.lw-copy-label').textContent = 'Copied!';
-			qrCopyStatus.textContent = 'QR link copied to clipboard.';
-			window.setTimeout(function () { qrCopy.querySelector('.lw-copy-label').textContent = 'Copy link'; qrCopyStatus.textContent = ''; }, 1800);
+			qrCopy.querySelector('.lw-copy-label').textContent = '¡Copiado!';
+			qrCopyStatus.textContent = 'Enlace del QR copiado al portapapeles.';
+			window.setTimeout(function () { qrCopy.querySelector('.lw-copy-label').textContent = 'Copiar enlace'; qrCopyStatus.textContent = ''; }, 1800);
 		};
 		if (navigator.clipboard && window.isSecureContext) {
 			navigator.clipboard.writeText(url).then(copied);
@@ -369,11 +369,11 @@
 	var search = document.getElementById('lw-review-search'), searchButton = document.getElementById('lw-review-search-button'), searchResult = document.getElementById('lw-review-search-result'), addForm = document.getElementById('lw-add-customer-form'), customerName = document.getElementById('lw-customer-name');
 	if (search && searchButton && searchResult) searchButton.addEventListener('click', function () {
 		var query = search.value.trim().toLowerCase(), sandbox = !!document.querySelector('.lw-sandbox-badge');
-		if (!query) { searchResult.className = ''; searchResult.textContent = 'Enter a customer name.'; return; }
-		if (!sandbox) { searchResult.className = 'is-pending'; searchResult.textContent = 'Connect Google Business Profile or enable Sandbox mode first.'; return; }
+		if (!query) { searchResult.className = ''; searchResult.textContent = 'Escribe el nombre del cliente.'; return; }
+		if (!sandbox) { searchResult.className = 'is-pending'; searchResult.textContent = 'Conecta el Perfil de Negocio de Google o activa el modo de pruebas.'; return; }
 		var found = 'test customer'.indexOf(query) !== -1 || query.indexOf('test customer') !== -1;
-		searchResult.className = found ? 'is-found' : 'is-missing'; searchResult.textContent = found ? 'Review found: Test Customer · 5 stars' : 'No sandbox review found for that name.';
-		if (addForm && customerName) { addForm.hidden = !found; customerName.value = found ? 'Test Customer' : ''; }
+		searchResult.className = found ? 'is-found' : 'is-missing'; searchResult.textContent = found ? 'Reseña encontrada: Cliente de prueba · 5 estrellas' : 'No se encontró una reseña de prueba con ese nombre.';
+		if (addForm && customerName) { addForm.hidden = !found; customerName.value = found ? 'Cliente de prueba' : ''; }
 	});
 	var socialReviewToggle = document.querySelector('.lw-social-review-toggle');
 	var socialReviewForm = document.querySelector('.lw-social-review-form');
@@ -408,11 +408,11 @@
 			if (matches) visible += 1;
 		});
 		customerSearchEmpty.hidden = visible !== 0;
-		customerSearchStatus.textContent = terms.length ? 'Showing ' + visible + ' of ' + customerCards.length + (customerCards.length === 1 ? ' customer' : ' customers') : 'Showing ' + customerCards.length + (customerCards.length === 1 ? ' customer' : ' customers');
+		customerSearchStatus.textContent = terms.length ? 'Mostrando ' + visible + ' de ' + customerCards.length + (customerCards.length === 1 ? ' cliente' : ' clientes') : 'Mostrando ' + customerCards.length + (customerCards.length === 1 ? ' cliente' : ' clientes');
 	});
 	document.querySelectorAll('.lw-edit-customer').forEach(function (button) { button.addEventListener('click', function () { var card = button.closest('.lw-customer'); card.querySelector('.lw-customer-view').hidden = true; card.querySelector('.lw-customer-edit').hidden = false; }); });
 	document.querySelectorAll('.lw-cancel-customer').forEach(function (button) { button.addEventListener('click', function () { var card = button.closest('.lw-customer'); card.querySelector('.lw-customer-edit').hidden = true; card.querySelector('.lw-customer-view').hidden = false; }); });
-	document.querySelectorAll('.lw-delete-customer').forEach(function (button) { button.addEventListener('click', function (event) { if (!window.confirm('Delete this customer and all saved visits, points and history? This cannot be undone.')) event.preventDefault(); }); });
+	document.querySelectorAll('.lw-delete-customer').forEach(function (button) { button.addEventListener('click', function (event) { if (!window.confirm('¿Eliminar este cliente y todas sus visitas, puntos e historial? Esta acción no se puede deshacer.')) event.preventDefault(); }); });
 	document.querySelectorAll('.lw-add-visit-toggle').forEach(function (button) { button.addEventListener('click', function () { var card = button.closest('.lw-customer'); card.querySelector('.lw-add-visit-form').hidden = false; }); });
 	document.querySelectorAll('.lw-cancel-visit').forEach(function (button) { button.addEventListener('click', function () { button.closest('.lw-add-visit-form').hidden = true; }); });
 	document.querySelectorAll('.lw-message-toggle').forEach(function (button) { button.addEventListener('click', function () { var card = button.closest('.lw-customer'), composer = card.querySelector('.lw-whatsapp-composer'), message = composer.querySelector('.lw-whatsapp-message'); composer.hidden = false; composer.dataset.phone = button.dataset.phone; message.value = button.dataset.message; var visitForm = card.querySelector('.lw-add-visit-form'); if (visitForm) visitForm.hidden = true; message.focus(); }); });
@@ -448,7 +448,7 @@
 			form.append('action', action); form.append('nonce', window.loyaltyWalletRedemption.nonce);
 			Object.keys(data).forEach(function (key) { form.append(key, data[key]); });
 			return fetch(window.loyaltyWalletRedemption.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: form }).then(function (response) {
-				return response.json().then(function (payload) { if (!response.ok || !payload.success) throw new Error(payload.data && payload.data.message ? payload.data.message : 'The request could not be completed.'); return payload.data; });
+				return response.json().then(function (payload) { if (!response.ok || !payload.success) throw new Error(payload.data && payload.data.message ? payload.data.message : 'No se pudo completar la solicitud.'); return payload.data; });
 			});
 		}
 		function renderScannedCustomer(data) {

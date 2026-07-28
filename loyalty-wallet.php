@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Loyalty Wallet
- * Description: Adds a Loyalty area and a restricted client role, including a safe "See as client" preview.
+ * Description: Agrega un área de lealtad y un rol restringido para clientes, con una vista previa segura.
  * Version: 1.0.0
  * Author: Wallet Project
  * Text Domain: loyalty-wallet
@@ -90,7 +90,7 @@ final class Loyalty_Wallet_Plugin {
 	public static function activate(): void {
 		add_role(
 			self::ROLE,
-			'Loyalty Wallet Client',
+			'Cliente de Loyalty Wallet',
 			array(
 				'read'                   => true,
 				self::CAPABILITY         => true,
@@ -182,7 +182,7 @@ final class Loyalty_Wallet_Plugin {
 
 	public static function toggle_preview(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to use client preview.', 'loyalty-wallet' ) );
+			wp_die( esc_html__( 'No tienes permiso para usar la vista previa de cliente.', 'loyalty-wallet' ) );
 		}
 
 		check_admin_referer( 'loyalty_wallet_toggle_preview' );
@@ -194,7 +194,7 @@ final class Loyalty_Wallet_Plugin {
 
 	public static function save_client_url(): void {
 		if ( ! current_user_can( self::CAPABILITY ) ) {
-			wp_die( esc_html__( 'You do not have permission to edit this code.', 'loyalty-wallet' ) );
+			wp_die( esc_html__( 'No tienes permiso para editar este código.', 'loyalty-wallet' ) );
 		}
 
 		check_admin_referer( 'loyalty_wallet_save_url' );
@@ -307,7 +307,7 @@ final class Loyalty_Wallet_Plugin {
 
 	public static function add_customer(): void {
 		if ( ! current_user_can( self::CAPABILITY ) ) {
-			wp_die( esc_html__( 'You do not have permission to add customers.', 'loyalty-wallet' ) );
+			wp_die( esc_html__( 'No tienes permiso para agregar clientes.', 'loyalty-wallet' ) );
 		}
 		check_admin_referer( 'loyalty_wallet_add_customer' );
 		self::redirect_with_notice( Loyalty_Wallet_Customers_Module::add( get_current_user_id() ), 'customers' );
@@ -315,7 +315,7 @@ final class Loyalty_Wallet_Plugin {
 
 	public static function restore_promotion_settings(): void {
 		if ( ! current_user_can( self::CAPABILITY ) ) {
-			wp_die( esc_html__( 'You do not have permission to restore promotion settings.', 'loyalty-wallet' ) );
+			wp_die( esc_html__( 'No tienes permiso para restaurar la configuración de promociones.', 'loyalty-wallet' ) );
 		}
 		check_admin_referer( 'loyalty_wallet_restore_promotion_settings', 'loyalty_wallet_restore_promotion_nonce' );
 		$user_id = get_current_user_id();
@@ -331,7 +331,7 @@ final class Loyalty_Wallet_Plugin {
 
 	public static function update_customer(): void {
 		if ( ! current_user_can( self::CAPABILITY ) ) {
-			wp_die( esc_html__( 'You do not have permission to edit customers.', 'loyalty-wallet' ) );
+			wp_die( esc_html__( 'No tienes permiso para editar clientes.', 'loyalty-wallet' ) );
 		}
 		check_admin_referer( 'loyalty_wallet_update_customer' );
 		self::redirect_with_notice( Loyalty_Wallet_Customers_Module::update( get_current_user_id() ) );
@@ -339,45 +339,45 @@ final class Loyalty_Wallet_Plugin {
 
 	public static function delete_customer(): void {
 		if ( ! current_user_can( self::CAPABILITY ) ) {
-			wp_die( esc_html__( 'You do not have permission to delete customers.', 'loyalty-wallet' ) );
+			wp_die( esc_html__( 'No tienes permiso para eliminar clientes.', 'loyalty-wallet' ) );
 		}
 		check_admin_referer( 'loyalty_wallet_delete_customer', '_wpnonce_delete' );
 		self::redirect_with_notice( Loyalty_Wallet_Customers_Module::delete( get_current_user_id() ) );
 	}
 
 	public static function add_visit(): void {
-		if ( ! current_user_can( self::CAPABILITY ) ) wp_die( esc_html__( 'You do not have permission to add visits.', 'loyalty-wallet' ) );
+		if ( ! current_user_can( self::CAPABILITY ) ) wp_die( esc_html__( 'No tienes permiso para agregar visitas.', 'loyalty-wallet' ) );
 		check_admin_referer( 'loyalty_wallet_add_visit' );
 		self::redirect_with_notice( Loyalty_Wallet_Customers_Module::add_visit( get_current_user_id() ) );
 	}
 
 	public static function save_reward(): void {
-		if ( ! current_user_can( self::CAPABILITY ) ) wp_die( esc_html__( 'You do not have permission to manage rewards.', 'loyalty-wallet' ) );
+		if ( ! current_user_can( self::CAPABILITY ) ) wp_die( esc_html__( 'No tienes permiso para administrar recompensas.', 'loyalty-wallet' ) );
 		check_admin_referer( 'loyalty_wallet_save_reward' );
 		self::redirect_with_notice( Loyalty_Wallet_Rewards_Module::save( get_current_user_id() ), 'rewards' );
 	}
 
 	public static function delete_reward(): void {
-		if ( ! current_user_can( self::CAPABILITY ) ) wp_die( esc_html__( 'You do not have permission to manage rewards.', 'loyalty-wallet' ) );
+		if ( ! current_user_can( self::CAPABILITY ) ) wp_die( esc_html__( 'No tienes permiso para administrar recompensas.', 'loyalty-wallet' ) );
 		check_admin_referer( 'loyalty_wallet_save_reward' );
 		self::redirect_with_notice( Loyalty_Wallet_Rewards_Module::delete( get_current_user_id() ), 'rewards' );
 	}
 
 	public static function save_reminder(): void {
-		if ( ! current_user_can( self::CAPABILITY ) ) wp_die( esc_html__( 'You do not have permission to schedule reminders.', 'loyalty-wallet' ) );
+		if ( ! current_user_can( self::CAPABILITY ) ) wp_die( esc_html__( 'No tienes permiso para programar recordatorios.', 'loyalty-wallet' ) );
 		check_admin_referer( 'loyalty_wallet_save_reminder' );
 		self::redirect_with_notice( Loyalty_Wallet_Engagement_Module::schedule( get_current_user_id() ) );
 	}
 
 	public static function mark_reminder_sent(): void {
-		if ( ! current_user_can( self::CAPABILITY ) ) wp_die( esc_html__( 'You do not have permission to update reminders.', 'loyalty-wallet' ) );
+		if ( ! current_user_can( self::CAPABILITY ) ) wp_die( esc_html__( 'No tienes permiso para actualizar recordatorios.', 'loyalty-wallet' ) );
 		check_admin_referer( 'loyalty_wallet_mark_reminder_sent' );
 		self::redirect_with_notice( Loyalty_Wallet_Engagement_Module::mark_sent( get_current_user_id() ) );
 	}
 
 	public static function create_client(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to create clients.', 'loyalty-wallet' ) );
+			wp_die( esc_html__( 'No tienes permiso para crear clientes.', 'loyalty-wallet' ) );
 		}
 
 		check_admin_referer( 'loyalty_wallet_create_client' );
@@ -423,7 +423,7 @@ final class Loyalty_Wallet_Plugin {
 		$google = Loyalty_Wallet_Google_Wallet_Module::augment_review_data( get_current_user_id(), $google );
 		$customers = Loyalty_Wallet_Customers_Module::all( get_current_user_id() );
 		$wallet_name = (string) get_user_meta( get_current_user_id(), self::NAME_META, true );
-		$wallet_name = $wallet_name ?: ( $is_preview || ! $is_admin ? 'My Loyalty Wallet' : 'Loyalty Wallet' );
+		$wallet_name = $wallet_name ?: ( $is_preview || ! $is_admin ? 'Mi cartera de lealtad' : 'Cartera de lealtad' );
 		$logo_id     = absint( get_user_meta( get_current_user_id(), self::LOGO_META, true ) );
 		$logo_url    = $logo_id ? (string) wp_get_attachment_image_url( $logo_id, 'medium' ) : '';
 		$wallet_email = (string) get_user_meta( get_current_user_id(), self::EMAIL_META, true );
@@ -437,10 +437,10 @@ final class Loyalty_Wallet_Plugin {
 			<div class="lw-header">
 				<div class="lw-header-identity">
 					<div class="lw-header-logo <?php echo $logo_url ? 'has-logo' : ''; ?>">
-						<?php if ( $logo_url ) : ?><img src="<?php echo esc_url( $logo_url ); ?>" alt="<?php echo esc_attr( $wallet_name ); ?> logo"><?php else : ?><span class="dashicons dashicons-store" aria-hidden="true"></span><?php endif; ?>
+						<?php if ( $logo_url ) : ?><img src="<?php echo esc_url( $logo_url ); ?>" alt="<?php echo esc_attr( 'Logo de ' . $wallet_name ); ?>"><?php else : ?><span class="dashicons dashicons-store" aria-hidden="true"></span><?php endif; ?>
 					</div>
 					<div>
-					<span class="lw-eyebrow">LOYALTY WALLET</span>
+					<span class="lw-eyebrow">CARTERA DE LEALTAD</span>
 					<h1><?php echo esc_html( $wallet_name ); ?></h1>
 					</div>
 				</div>
@@ -450,7 +450,7 @@ final class Loyalty_Wallet_Plugin {
 						<input type="hidden" name="enabled" value="<?php echo $is_preview ? '0' : '1'; ?>">
 						<?php wp_nonce_field( 'loyalty_wallet_toggle_preview' ); ?>
 						<label class="lw-switch-label">
-							<span><strong>See as client</strong><small><?php echo $is_preview ? 'Client view is active' : 'Preview the restricted experience'; ?></small></span>
+							<span><strong>Ver como cliente</strong><small><?php echo $is_preview ? 'La vista de cliente está activa' : 'Previsualiza la experiencia restringida'; ?></small></span>
 							<button type="submit" class="lw-switch <?php echo $is_preview ? 'is-on' : ''; ?>" role="switch" aria-checked="<?php echo $is_preview ? 'true' : 'false'; ?>"><span></span></button>
 						</label>
 					</form>
@@ -463,19 +463,19 @@ final class Loyalty_Wallet_Plugin {
 
 			<div class="lw-grid lw-qr-grid">
 				<div class="lw-card lw-balance lw-tabs-card">
-					<span class="lw-tabs-label">LOYALTY TOOLS</span>
-					<div class="lw-vertical-tabs" role="tablist" aria-label="Loyalty tools">
-						<button type="button" class="lw-nav-tab" id="lw-customers-tab" role="tab" aria-selected="false" aria-controls="lw-customers-panel"><span class="dashicons dashicons-groups"></span><span><strong>Customers</strong><small><?php echo esc_html( count( $customers ) ); ?> saved</small></span><b aria-hidden="true">→</b></button>
+					<span class="lw-tabs-label">HERRAMIENTAS DE LEALTAD</span>
+					<div class="lw-vertical-tabs" role="tablist" aria-label="Herramientas de lealtad">
+						<button type="button" class="lw-nav-tab" id="lw-customers-tab" role="tab" aria-selected="false" aria-controls="lw-customers-panel"><span class="dashicons dashicons-groups"></span><span><strong>Clientes</strong><small><?php echo esc_html( count( $customers ) ); ?> guardados</small></span><b aria-hidden="true">→</b></button>
 						<button type="button" class="lw-nav-tab" id="lw-rewards-tab" role="tab" aria-selected="false" aria-controls="lw-rewards-panel"><span class="dashicons dashicons-cart"></span><span><strong>Canjear puntos</strong><small>Productos y recompensas</small></span><b aria-hidden="true">→</b></button>
-						<button type="button" class="lw-nav-tab" id="lw-activity-tab" role="tab" aria-selected="false" aria-controls="lw-activity-panel"><span class="dashicons dashicons-chart-bar"></span><span><strong>Activity</strong><small>Annual visits</small></span><b aria-hidden="true">→</b></button>
+						<button type="button" class="lw-nav-tab" id="lw-activity-tab" role="tab" aria-selected="false" aria-controls="lw-activity-panel"><span class="dashicons dashicons-chart-bar"></span><span><strong>Actividad</strong><small>Visitas anuales</small></span><b aria-hidden="true">→</b></button>
 						<?php if ( $is_admin && ! $is_preview ) : ?>
-							<button type="button" class="lw-nav-tab lw-configuration-tab is-active" id="lw-configuration-tab" role="tab" aria-selected="true" aria-controls="lw-code-editor"><span class="dashicons dashicons-admin-generic"></span><span><strong>Configuration</strong><small>Business, Google and access</small></span><b aria-hidden="true">⌄</b></button>
-							<div class="lw-configuration-nav" aria-label="Configuration sections">
+							<button type="button" class="lw-nav-tab lw-configuration-tab is-active" id="lw-configuration-tab" role="tab" aria-selected="true" aria-controls="lw-code-editor"><span class="dashicons dashicons-admin-generic"></span><span><strong>Configuración</strong><small>Negocio, Google y acceso</small></span><b aria-hidden="true">⌄</b></button>
+							<div class="lw-configuration-nav" aria-label="Secciones de configuración">
 								<button type="button" class="lw-subnav-tab is-active" id="lw-name-tab" role="tab" aria-selected="true" aria-controls="lw-name-settings"><span class="dashicons dashicons-store"></span><span><strong>Negocio</strong><small>Nombre, contacto y logo</small></span></button>
-								<button type="button" class="lw-subnav-tab" id="lw-review-tab" role="tab" aria-selected="false" aria-controls="lw-qr-settings"><span class="dashicons dashicons-star-filled"></span><span><strong>Google Reviews</strong><small>Reviews, QR and credentials</small></span></button>
-								<button type="button" class="lw-subnav-tab" id="lw-google-loyalty-tab" role="tab" aria-selected="false" aria-controls="lw-google-loyalty-settings"><span class="dashicons dashicons-tickets-alt"></span><span><strong>Google Loyalty</strong><small>Wallet cards and issuer</small></span></button>
-								<button type="button" class="lw-subnav-tab" id="lw-messages-tab" role="tab" aria-selected="false" aria-controls="lw-message-settings"><span class="dashicons dashicons-format-chat"></span><span><strong>Global Messages</strong><small>Defaults for all customers</small></span></button>
-								<button type="button" class="lw-subnav-tab" id="lw-loyalty-tab" role="tab" aria-selected="false" aria-controls="lw-loyalty-settings"><span class="dashicons dashicons-admin-users"></span><span><strong>Client Access</strong><small>Restricted WordPress user</small></span></button>
+								<button type="button" class="lw-subnav-tab" id="lw-review-tab" role="tab" aria-selected="false" aria-controls="lw-qr-settings"><span class="dashicons dashicons-star-filled"></span><span><strong>Reseñas de Google</strong><small>Reseñas, QR y credenciales</small></span></button>
+								<button type="button" class="lw-subnav-tab" id="lw-google-loyalty-tab" role="tab" aria-selected="false" aria-controls="lw-google-loyalty-settings"><span class="dashicons dashicons-tickets-alt"></span><span><strong>Lealtad de Google</strong><small>Tarjetas de Wallet y emisor</small></span></button>
+								<button type="button" class="lw-subnav-tab" id="lw-messages-tab" role="tab" aria-selected="false" aria-controls="lw-message-settings"><span class="dashicons dashicons-format-chat"></span><span><strong>Mensajes globales</strong><small>Predeterminados para clientes</small></span></button>
+								<button type="button" class="lw-subnav-tab" id="lw-loyalty-tab" role="tab" aria-selected="false" aria-controls="lw-loyalty-settings"><span class="dashicons dashicons-admin-users"></span><span><strong>Acceso de clientes</strong><small>Usuario restringido de WordPress</small></span></button>
 							</div>
 						<?php endif; ?>
 					</div>
@@ -489,46 +489,46 @@ final class Loyalty_Wallet_Plugin {
 						<?php Loyalty_Wallet_Google_Wallet_Module::render_settings( get_current_user_id() ); ?>
 						<?php Loyalty_Wallet_Engagement_Module::render_settings( get_current_user_id() ); ?>
 						<div id="lw-name-settings" class="lw-settings-panel" role="tabpanel" aria-labelledby="lw-name-tab">
-							<div class="lw-settings-heading"><h2>Negocio</h2><p>Edita el nombre, información de contacto y logo que se muestran en Loyalty Wallet.</p></div>
+							<div class="lw-settings-heading"><h2>Negocio</h2><p>Edita el nombre, información de contacto y logo que se muestran en la cartera de lealtad.</p></div>
 							<div class="lw-wallet-identity-fields">
-								<label for="lw-wallet-name">Wallet / business name<input id="lw-wallet-name" name="wallet_name" type="text" value="<?php echo esc_attr( $wallet_name ); ?>" placeholder="Croc's Resort & Casino" maxlength="120" required></label>
-								<label for="lw-wallet-email">Wallet notification email<input id="lw-wallet-email" name="wallet_email" type="email" value="<?php echo esc_attr( $wallet_email ); ?>" placeholder="owner@example.com"></label>
-								<label for="lw-wallet-website">Business website<input id="lw-wallet-website" name="wallet_website" type="url" value="<?php echo esc_attr( $wallet_website ); ?>" placeholder="https://example.com"></label>
-								<label for="lw-wallet-business-whatsapp">Business WhatsApp<input id="lw-wallet-business-whatsapp" name="wallet_business_whatsapp" type="tel" value="<?php echo esc_attr( $wallet_business_whatsapp ); ?>" placeholder="+506 8888 8888"><small>Include the country code.</small></label>
+								<label for="lw-wallet-name">Nombre del negocio<input id="lw-wallet-name" name="wallet_name" type="text" value="<?php echo esc_attr( $wallet_name ); ?>" placeholder="Croc's Resort & Casino" maxlength="120" required></label>
+								<label for="lw-wallet-email">Correo para notificaciones<input id="lw-wallet-email" name="wallet_email" type="email" value="<?php echo esc_attr( $wallet_email ); ?>" placeholder="propietario@ejemplo.com"></label>
+								<label for="lw-wallet-website">Sitio web del negocio<input id="lw-wallet-website" name="wallet_website" type="url" value="<?php echo esc_attr( $wallet_website ); ?>" placeholder="https://ejemplo.com"></label>
+								<label for="lw-wallet-business-whatsapp">WhatsApp del negocio<input id="lw-wallet-business-whatsapp" name="wallet_business_whatsapp" type="tel" value="<?php echo esc_attr( $wallet_business_whatsapp ); ?>" placeholder="+506 8888 8888"><small>Incluye el código del país.</small></label>
 							</div>
-							<label for="lw-wallet-logo">Business logo</label>
+							<label for="lw-wallet-logo">Logo del negocio</label>
 							<div class="lw-logo-upload">
-								<div class="lw-logo-preview" id="lw-logo-preview"><?php if ( $logo_url ) : ?><img src="<?php echo esc_url( $logo_url ); ?>" alt="Current business logo"><?php else : ?><span class="dashicons dashicons-format-image"></span><?php endif; ?></div>
+								<div class="lw-logo-preview" id="lw-logo-preview"><?php if ( $logo_url ) : ?><img src="<?php echo esc_url( $logo_url ); ?>" alt="Logo actual del negocio"><?php else : ?><span class="dashicons dashicons-format-image"></span><?php endif; ?></div>
 								<div>
 									<input id="lw-business-logo-media-id" name="wallet_logo_media_id" type="hidden" value="">
 									<input id="lw-wallet-logo" name="wallet_logo" type="file" accept="image/jpeg,image/png,image/webp" hidden>
 									<div class="lw-logo-actions">
-										<label class="button lw-wallet-upload-button" for="lw-wallet-logo"><span class="dashicons dashicons-upload"></span> Upload logo</label>
-										<button type="button" class="button lw-media-library-button" data-media-target="lw-business-logo-media-id" data-preview-target="lw-logo-preview" data-file-target="lw-wallet-logo"><span class="dashicons dashicons-admin-media"></span> Add from Media Library</button>
+										<label class="button lw-wallet-upload-button" for="lw-wallet-logo"><span class="dashicons dashicons-upload"></span> Subir logo</label>
+										<button type="button" class="button lw-media-library-button" data-media-target="lw-business-logo-media-id" data-preview-target="lw-logo-preview" data-file-target="lw-wallet-logo"><span class="dashicons dashicons-admin-media"></span> Agregar desde la biblioteca</button>
 									</div>
-									<small>JPG, PNG or WebP. Maximum 5 MB.</small>
+									<small>JPG, PNG o WebP. Máximo 5 MB.</small>
 								</div>
 							</div>
 						</div>
-						<?php submit_button( 'Save changes', 'primary', 'submit', false ); ?>
+						<?php submit_button( 'Guardar cambios', 'primary', 'submit', false ); ?>
 					</form>
 					<?php if ( $is_admin && ! $is_preview ) : ?>
 						<div id="lw-loyalty-settings" class="lw-settings-panel lw-loyalty-admin-settings" role="tabpanel" aria-labelledby="lw-loyalty-tab" hidden>
 							<div class="lw-settings-heading">
-								<h2>Client access</h2>
-								<p>Manage the restricted WordPress access used by your Loyalty client.</p>
+								<h2>Acceso de clientes</h2>
+								<p>Administra el acceso restringido de WordPress utilizado por tu cliente de lealtad.</p>
 							</div>
 							<section class="lw-client-access-card">
 								<div class="lw-client-access-heading">
 									<span class="dashicons dashicons-admin-users" aria-hidden="true"></span>
-									<div><h3>Create a Loyalty client</h3><p>The new account will only have access to the Loyalty tab in WordPress.</p></div>
+									<div><h3>Crear un cliente de lealtad</h3><p>La cuenta nueva solo tendrá acceso a la pestaña de Lealtad en WordPress.</p></div>
 								</div>
 								<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="lw-create-client-form">
 									<input type="hidden" name="action" value="loyalty_wallet_create_client">
 									<?php wp_nonce_field( 'loyalty_wallet_create_client' ); ?>
-									<label>Username<input name="client_username" type="text" autocomplete="username" required></label>
-									<label>Email<input name="client_email" type="email" autocomplete="email" required></label>
-									<?php submit_button( 'Create client account', 'primary', 'create_client_submit', false ); ?>
+									<label>Usuario<input name="client_username" type="text" autocomplete="username" required></label>
+									<label>Correo<input name="client_email" type="email" autocomplete="email" required></label>
+									<?php submit_button( 'Crear cuenta de cliente', 'primary', 'create_client_submit', false ); ?>
 								</form>
 							</section>
 						</div>
@@ -545,48 +545,48 @@ final class Loyalty_Wallet_Plugin {
 	private static function render_notice( $password ): void {
 		$notice = isset( $_GET['lw_notice'] ) ? sanitize_key( wp_unslash( $_GET['lw_notice'] ) ) : '';
 		$messages = array(
-			'invalid' => array( 'error', 'Enter a valid username and email.' ),
-			'exists'  => array( 'error', 'That username or email is already in use.' ),
-			'error'   => array( 'error', 'The client account could not be created.' ),
-			'created' => array( 'success', 'Client created successfully.' ),
-			'invalid_url' => array( 'error', 'Enter a valid public URL.' ),
-			'invalid_place_id' => array( 'error', 'Enter a valid Google Place ID.' ),
-			'invalid_google_review_url' => array( 'error', 'Enter a valid public HTTPS Google review link, such as https://g.page/r/.../review.' ),
-			'invalid_name'     => array( 'error', 'Enter a wallet or business name.' ),
-			'invalid_program_name' => array( 'error', 'Enter a loyalty program name.' ),
-			'invalid_logo'     => array( 'error', 'Choose a valid JPG, PNG or WebP logo under 5 MB.' ),
-			'invalid_wallet_email' => array( 'error', 'Enter a valid wallet notification email.' ),
-			'invalid_business_website' => array( 'error', 'Enter a valid business website URL.' ),
-			'invalid_business_whatsapp' => array( 'error', 'Enter a valid business WhatsApp number including the country code.' ),
-			'invalid_wallet_settings' => array( 'error', 'Complete the Google Wallet Issuer ID, class suffix, service account email and public URLs.' ),
-			'invalid_wallet_private_key' => array( 'error', 'Enter a valid Google service account private key.' ),
-			'invalid_wallet_service_account_json' => array( 'error', 'Upload a valid Google service account credentials JSON file no larger than 1 MB.' ),
-			'invalid_wallet_logo' => array( 'error', 'Upload a valid PNG, JPG or WebP image no larger than 5 MB.' ),
-			'invalid_wallet_hero' => array( 'error', 'Upload a valid PNG, JPG or WebP banner no larger than 5 MB.' ),
-			'invalid_wallet_design' => array( 'error', 'Choose a valid card color and a public HTTPS banner URL.' ),
-			'invalid_wallet_promotion' => array( 'error', 'Complete the promotion title and public HTTPS URL. The optional image must be a valid PNG, JPG or WebP under 5 MB.' ),
-			'invalid_wallet_appointment' => array( 'error', 'Add a button label and a public HTTPS booking URL, or leave the URL empty and configure Business WhatsApp under Negocio.' ),
-			'wallet_configuration_saved' => array( 'success', 'Google Loyalty configuration saved successfully.' ),
-			'wallet_design_saved' => array( 'success', 'Google Wallet card design saved successfully.' ),
-			'wallet_promotions_saved' => array( 'success', 'Promotions and appointment settings saved successfully.' ),
-			'wallet_promotions_restored' => array( 'success', 'The previous promotions and appointment settings were restored.' ),
-			'wallet_no_promotion_backup' => array( 'error', 'No previous promotions backup is available yet.' ),
-			'invalid_reminder' => array( 'error', 'Complete the reminder date, channel and message.' ),
-			'invalid_global_messages' => array( 'error', 'Complete all global message templates. Each message can contain up to 2,000 characters.' ),
-			'missing_wallet_email' => array( 'error', 'Add a Wallet notification email before scheduling WhatsApp reminders.' ),
-			'missing_birthday' => array( 'error', 'Add the customer birthday before enabling birthday reminders.' ),
-			'reminder_saved' => array( 'success', 'Reminder scheduled.' ),
-			'global_messages_saved' => array( 'success', 'Global message defaults updated for all customers.' ),
-			'name_saved'       => array( 'success', 'Business information updated successfully.' ),
-			'url_saved'   => array( 'success', 'Client QR code updated successfully.' ),
-			'invalid_customer' => array( 'error', 'Enter a valid customer name, email and review.' ),
-			'invalid_review_source' => array( 'error', 'Select a valid review source. Instagram reviews require a public instagram.com link.' ),
-			'customer_added'   => array( 'success', 'Customer and review saved successfully.' ),
-			'customer_updated' => array( 'success', 'Customer updated successfully.' ),
-			'invalid_reward'   => array( 'error', 'Enter a valid product name and point cost.' ),
-			'reward_saved'     => array( 'success', 'Reward saved successfully.' ),
-			'reward_deleted'   => array( 'success', 'Reward deleted successfully.' ),
-			'wallet_points_sync_failed' => array( 'error', 'Settings were saved, but existing Google Wallet cards could not be updated.' ),
+			'invalid' => array( 'error', 'Escribe un usuario y correo válidos.' ),
+			'exists'  => array( 'error', 'Ese usuario o correo ya está en uso.' ),
+			'error'   => array( 'error', 'No se pudo crear la cuenta del cliente.' ),
+			'created' => array( 'success', 'Cliente creado correctamente.' ),
+			'invalid_url' => array( 'error', 'Escribe una URL pública válida.' ),
+			'invalid_place_id' => array( 'error', 'Escribe un ID de lugar de Google válido.' ),
+			'invalid_google_review_url' => array( 'error', 'Escribe un enlace HTTPS público de reseñas de Google, por ejemplo https://g.page/r/.../review.' ),
+			'invalid_name'     => array( 'error', 'Escribe el nombre del negocio.' ),
+			'invalid_program_name' => array( 'error', 'Escribe el nombre del programa de lealtad.' ),
+			'invalid_logo'     => array( 'error', 'Elige un logo JPG, PNG o WebP válido de menos de 5 MB.' ),
+			'invalid_wallet_email' => array( 'error', 'Escribe un correo válido para notificaciones.' ),
+			'invalid_business_website' => array( 'error', 'Escribe una URL válida para el sitio web del negocio.' ),
+			'invalid_business_whatsapp' => array( 'error', 'Escribe un número de WhatsApp válido, incluido el código del país.' ),
+			'invalid_wallet_settings' => array( 'error', 'Completa el ID del emisor, el sufijo de clase, el correo de la cuenta de servicio y las URL públicas de Google Wallet.' ),
+			'invalid_wallet_private_key' => array( 'error', 'Escribe una clave privada válida de la cuenta de servicio de Google.' ),
+			'invalid_wallet_service_account_json' => array( 'error', 'Sube un archivo JSON válido de credenciales de Google de máximo 1 MB.' ),
+			'invalid_wallet_logo' => array( 'error', 'Sube una imagen PNG, JPG o WebP válida de máximo 5 MB.' ),
+			'invalid_wallet_hero' => array( 'error', 'Sube un banner PNG, JPG o WebP válido de máximo 5 MB.' ),
+			'invalid_wallet_design' => array( 'error', 'Elige un color válido y una URL HTTPS pública para el banner.' ),
+			'invalid_wallet_promotion' => array( 'error', 'Completa el título y la URL HTTPS pública de la promoción. La imagen opcional debe ser PNG, JPG o WebP y pesar menos de 5 MB.' ),
+			'invalid_wallet_appointment' => array( 'error', 'Agrega el texto del botón y una URL HTTPS pública para reservas, o deja la URL vacía y configura el WhatsApp del negocio.' ),
+			'wallet_configuration_saved' => array( 'success', 'La configuración de lealtad de Google se guardó correctamente.' ),
+			'wallet_design_saved' => array( 'success', 'El diseño de la tarjeta de Google Wallet se guardó correctamente.' ),
+			'wallet_promotions_saved' => array( 'success', 'La configuración de promociones y citas se guardó correctamente.' ),
+			'wallet_promotions_restored' => array( 'success', 'Se restauró la configuración anterior de promociones y citas.' ),
+			'wallet_no_promotion_backup' => array( 'error', 'Todavía no hay una copia anterior de las promociones.' ),
+			'invalid_reminder' => array( 'error', 'Completa la fecha, el canal y el mensaje del recordatorio.' ),
+			'invalid_global_messages' => array( 'error', 'Completa todas las plantillas globales. Cada mensaje puede tener hasta 2.000 caracteres.' ),
+			'missing_wallet_email' => array( 'error', 'Agrega un correo para notificaciones antes de programar recordatorios de WhatsApp.' ),
+			'missing_birthday' => array( 'error', 'Agrega el cumpleaños del cliente antes de activar recordatorios de cumpleaños.' ),
+			'reminder_saved' => array( 'success', 'Recordatorio programado.' ),
+			'global_messages_saved' => array( 'success', 'Los mensajes predeterminados se actualizaron para todos los clientes.' ),
+			'name_saved'       => array( 'success', 'La información del negocio se actualizó correctamente.' ),
+			'url_saved'   => array( 'success', 'El código QR del cliente se actualizó correctamente.' ),
+			'invalid_customer' => array( 'error', 'Escribe un nombre, correo y reseña válidos para el cliente.' ),
+			'invalid_review_source' => array( 'error', 'Selecciona un origen válido. Las reseñas de Instagram requieren un enlace público de instagram.com.' ),
+			'customer_added'   => array( 'success', 'El cliente y la reseña se guardaron correctamente.' ),
+			'customer_updated' => array( 'success', 'El cliente se actualizó correctamente.' ),
+			'invalid_reward'   => array( 'error', 'Escribe un nombre de producto y costo en puntos válidos.' ),
+			'reward_saved'     => array( 'success', 'La recompensa se guardó correctamente.' ),
+			'reward_deleted'   => array( 'success', 'La recompensa se eliminó correctamente.' ),
+			'wallet_points_sync_failed' => array( 'error', 'La configuración se guardó, pero no fue posible actualizar las tarjetas existentes de Google Wallet.' ),
 		);
 		if ( ! isset( $messages[ $notice ] ) ) {
 			return;
@@ -594,10 +594,10 @@ final class Loyalty_Wallet_Plugin {
 		if ( 'wallet_points_sync_failed' === $notice ) {
 			$sync_error = sanitize_text_field( (string) get_user_meta( get_current_user_id(), '_loyalty_wallet_google_wallet_sync_error', true ) );
 			if ( $sync_error ) {
-				$messages[ $notice ][1] .= ' Google response: ' . $sync_error;
+				$messages[ $notice ][1] .= ' Respuesta de Google: ' . $sync_error;
 			}
 		}
-		printf( '<div class="notice notice-%1$s inline"><p><strong>%2$s</strong>%3$s</p></div>', esc_attr( $messages[ $notice ][0] ), esc_html( $messages[ $notice ][1] ), $password ? ' Temporary password: <code>' . esc_html( $password ) . '</code> (copy it now)' : '' );
+		printf( '<div class="notice notice-%1$s inline"><p><strong>%2$s</strong>%3$s</p></div>', esc_attr( $messages[ $notice ][0] ), esc_html( $messages[ $notice ][1] ), $password ? ' Contraseña temporal: <code>' . esc_html( $password ) . '</code> (cópiala ahora)' : '' );
 	}
 
 	public static function admin_styles(): void {

@@ -145,14 +145,14 @@ final class Loyalty_Wallet_Engagement_Module {
 				return;
 			}
 			if ( 'email' === $item['channel'] ) {
-				wp_mail( $customer['email'], 'Appointment reminder', $item['message'] );
+				wp_mail( $customer['email'], 'Recordatorio de cita', $item['message'] );
 				$item['status'] = 'sent';
 				$repeat_item = $item;
 			} else {
 				$wallet_email = (string) get_user_meta( $user_id, self::EMAIL_META, true );
 				if ( is_email( $wallet_email ) ) {
 					$link = admin_url( 'admin.php?page=loyalty-wallet&lw_tab=customers#lw-customer-' . rawurlencode( (string) $item['customer_id'] ) );
-					wp_mail( $wallet_email, 'WhatsApp reminder pending: ' . $customer['name'], "A WhatsApp reminder is ready to send.\n\nCustomer: {$customer['name']}\nAppointment: {$item['appointment_date']}\nOpen Loyalty Wallet: {$link}" );
+					wp_mail( $wallet_email, 'Recordatorio de WhatsApp pendiente: ' . $customer['name'], "Hay un recordatorio de WhatsApp listo para enviar.\n\nCliente: {$customer['name']}\nCita: {$item['appointment_date']}\nAbrir Loyalty Wallet: {$link}" );
 				}
 			}
 			$item['notified'] = true;

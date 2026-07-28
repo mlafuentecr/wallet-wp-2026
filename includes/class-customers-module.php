@@ -329,7 +329,7 @@ final class Loyalty_Wallet_Customers_Module {
 		$cost      = absint( $reward['points'] ?? 0 );
 
 		if ( ! $customer_id || ! $request_id || ! $cost ) {
-			return new WP_Error( 'invalid_redemption', 'The redemption request is incomplete.' );
+			return new WP_Error( 'invalid_redemption', 'La solicitud de canje está incompleta.' );
 		}
 
 		foreach ( $customers as &$customer ) {
@@ -340,20 +340,20 @@ final class Loyalty_Wallet_Customers_Module {
 			$customer['redemptions'] = isset( $customer['redemptions'] ) && is_array( $customer['redemptions'] ) ? $customer['redemptions'] : array();
 			foreach ( $customer['redemptions'] as $redemption ) {
 				if ( isset( $redemption['request_id'] ) && hash_equals( (string) $redemption['request_id'], $request_id ) ) {
-					return new WP_Error( 'duplicate_redemption', 'This redemption was already processed.' );
+					return new WP_Error( 'duplicate_redemption', 'Este canje ya fue procesado.' );
 				}
 			}
 
 			$balance = absint( $customer['points'] ?? 0 );
 			if ( $balance < $cost ) {
-				return new WP_Error( 'insufficient_points', 'The customer does not have enough points for this reward.' );
+				return new WP_Error( 'insufficient_points', 'El cliente no tiene suficientes puntos para esta recompensa.' );
 			}
 
 			$redemption = array(
 				'id'          => wp_generate_uuid4(),
 				'request_id'  => $request_id,
 				'reward_id'   => sanitize_text_field( (string) ( $reward['id'] ?? '' ) ),
-				'reward_name' => sanitize_text_field( (string) ( $reward['name'] ?? 'Reward' ) ),
+				'reward_name' => sanitize_text_field( (string) ( $reward['name'] ?? 'Recompensa' ) ),
 				'points'      => $cost,
 				'created_at'  => current_time( 'mysql' ),
 				'created_by'  => get_current_user_id(),
@@ -374,7 +374,7 @@ final class Loyalty_Wallet_Customers_Module {
 		unset( $customer );
 
 		if ( ! $updated ) {
-			return new WP_Error( 'customer_not_found', 'The scanned customer could not be found.' );
+			return new WP_Error( 'customer_not_found', 'No se encontró el cliente escaneado.' );
 		}
 
 		update_user_meta( $user_id, self::META_KEY, $customers );

@@ -91,7 +91,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		}
 		$hero_url = self::public_asset_url( $hero_url, $public_url );
 		$background_color = sanitize_hex_color( (string) get_user_meta( $user_id, self::BACKGROUND_COLOR, true ) );
-		$wallet_name      = (string) get_user_meta( $user_id, self::NAME_META, true ) ?: 'Loyalty Wallet';
+		$wallet_name      = (string) get_user_meta( $user_id, self::NAME_META, true ) ?: 'Cartera de lealtad';
 		$program_name     = (string) get_user_meta( $user_id, self::PROGRAM_NAME_META, true );
 		$program_name     = $program_name ?: $wallet_name . ' Loyalty';
 		$contact_help     = self::contact_help( $user_id );
@@ -107,11 +107,11 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		$logo_url_ready   = self::is_public_https_url( $logo_url );
 		$configuration_error = '';
 		if ( ! $has_credentials ) {
-			$configuration_error = 'Complete the Issuer ID and service account credentials.';
+			$configuration_error = 'Completa el ID del emisor y las credenciales de la cuenta de servicio.';
 		} elseif ( ! $public_url_ready ) {
-			$configuration_error = 'Use a public HTTPS landing URL. Local and .local addresses cannot be reached by Google Wallet.';
+			$configuration_error = 'Usa una URL pública HTTPS. Google Wallet no puede acceder a direcciones locales ni terminadas en .local.';
 		} elseif ( ! $logo_url_ready ) {
-			$configuration_error = 'Use a logo hosted on a public HTTPS URL that Google Wallet can access.';
+			$configuration_error = 'Usa un logo alojado en una URL pública HTTPS a la que Google Wallet pueda acceder.';
 		}
 
 		return array(
@@ -467,13 +467,13 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 	public static function sync_loyalty_points( int $user_id, int $points ): bool {
 		$wallet = self::data( $user_id );
 		if ( ! $wallet['is_configured'] ) {
-			update_user_meta( $user_id, '_loyalty_wallet_google_wallet_sync_error', 'Google Wallet is not fully configured.' );
+			update_user_meta( $user_id, '_loyalty_wallet_google_wallet_sync_error', 'Google Wallet no está completamente configurado.' );
 			return false;
 		}
 
 		$access_token = self::access_token( $user_id, $wallet );
 		if ( ! $access_token ) {
-			update_user_meta( $user_id, '_loyalty_wallet_google_wallet_sync_error', 'Google OAuth access token request failed.' );
+			update_user_meta( $user_id, '_loyalty_wallet_google_wallet_sync_error', 'No se pudo obtener el token de acceso OAuth de Google.' );
 			return false;
 		}
 
@@ -537,7 +537,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 				continue;
 			}
 			$customer = $customers_by_object[ $object_id ] ?? array(
-				'name'             => sanitize_text_field( (string) ( $resource['accountName'] ?? 'Loyalty member' ) ),
+				'name'             => sanitize_text_field( (string) ( $resource['accountName'] ?? 'Miembro de lealtad' ) ),
 				'points'           => absint( $resource['loyaltyPoints']['balance']['int'] ?? $points ),
 				'wallet_member_id' => sanitize_text_field( (string) ( $resource['accountId'] ?? $resource['barcode']['value'] ?? '' ) ),
 				'next_visit'       => '',
@@ -628,13 +628,13 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 			Loyalty_Wallet_Google_Identity_Module::handle_public_request( $user_id, $google, $wallet );
 		}
 		$wallet_name = (string) get_user_meta( $user_id, self::NAME_META, true );
-		$wallet_name = $wallet_name ?: 'Loyalty Wallet';
+		$wallet_name = $wallet_name ?: 'Cartera de lealtad';
 		$logo_id     = absint( get_user_meta( $user_id, self::LOGO_META, true ) );
 		$logo_url    = $logo_id ? (string) wp_get_attachment_image_url( $logo_id, 'medium' ) : $wallet['logo_url'];
 		$logo_url    = self::public_asset_url( $logo_url, $wallet['public_url'] );
 		$wallet_url  = '';
 		$error       = '';
-		$member_name = 'Loyalty member';
+		$member_name = 'Miembro de lealtad';
 		$cookie_name = 'lw_wallet_member_' . $user_id;
 		$member_id   = isset( $_COOKIE[ $cookie_name ] ) ? sanitize_text_field( wp_unslash( $_COOKIE[ $cookie_name ] ) ) : '';
 
@@ -655,11 +655,11 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 
 		$google_signin_enabled = ! empty( $google['client_id'] );
 		if ( ! $wallet['is_configured'] ) {
-			$error = $wallet['configuration_error'] ?: 'Google Wallet is not configured for this business yet.';
+			$error = $wallet['configuration_error'] ?: 'Google Wallet todavía no está configurado para este negocio.';
 		} elseif ( ! $google_signin_enabled ) {
 			$wallet_url = self::create_save_url( $user_id, $member_name, $member_id, $google, $wallet );
 			if ( ! $wallet_url ) {
-				$error = 'The Google Wallet pass could not be signed. Please contact the business.';
+				$error = 'No se pudo firmar la tarjeta de Google Wallet. Comunícate con el negocio.';
 			}
 		}
 
@@ -671,7 +671,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		);
 		wp_enqueue_style( 'loyalty-wallet-google-wallet-public', $public_style_url, array(), (string) filemtime( LOYALTY_WALLET_DIR . 'assets/google-wallet-public.css' ) );
 		if ( $google_signin_enabled ) {
-			wp_enqueue_script( 'loyalty-wallet-google-identity', 'https://accounts.google.com/gsi/client', array(), null, true );
+			wp_enqueue_script( 'loyalty-wallet-google-identity', 'https://accounts.google.com/gsi/client?hl=es', array(), null, true );
 			$public_script_url = self::public_asset_url(
 				LOYALTY_WALLET_URL . 'assets/google-wallet-public.js',
 				$wallet['public_url']
@@ -723,7 +723,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 			'classId'       => $class_id,
 			'state'         => 'ACTIVE',
 			'accountId'     => $member_id,
-			'accountName'   => $member_name ?: 'Loyalty member',
+			'accountName'   => $member_name ?: 'Miembro de lealtad',
 			'loyaltyPoints' => array( 'label' => 'Puntos', 'balance' => array( 'int' => $points ) ),
 			'barcode'       => array( 'type' => 'QR_CODE', 'value' => $member_id, 'alternateText' => ' ' ),
 			'textModulesData' => self::business_text_modules( $user_id, $next_visit ),
@@ -757,7 +757,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 			? wp_date( 'd/m/Y', strtotime( $next_visit ) )
 			: 'No programada';
 		$fields = array(
-			'accountName'   => sanitize_text_field( (string) ( $customer['name'] ?? 'Loyalty member' ) ),
+			'accountName'   => sanitize_text_field( (string) ( $customer['name'] ?? 'Miembro de lealtad' ) ),
 			'loyaltyPoints' => array( 'label' => 'Puntos', 'balance' => array( 'int' => $points ) ),
 			'barcode'       => array(
 				'type'          => 'QR_CODE',
@@ -775,7 +775,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 	}
 
 	private static function loyalty_class_fields( int $user_id, array $wallet, bool $include_disabled_actions = false ): array {
-		$wallet_name = (string) get_user_meta( $user_id, self::NAME_META, true ) ?: 'Loyalty Wallet';
+		$wallet_name = (string) get_user_meta( $user_id, self::NAME_META, true ) ?: 'Cartera de lealtad';
 		$program_name = (string) get_user_meta( $user_id, self::PROGRAM_NAME_META, true );
 		$program_name = $program_name ?: $wallet_name . ' Loyalty';
 		$fields = array(
@@ -888,7 +888,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		$website  = (string) get_user_meta( $user_id, self::WEBSITE_META, true );
 		$whatsapp = preg_replace( '/\D+/', '', (string) get_user_meta( $user_id, self::WHATSAPP_META, true ) );
 		if ( $website && wp_http_validate_url( $website ) ) {
-			$links[] = array( 'id' => 'business_website', 'uri' => $website, 'description' => 'Website del negocio' );
+			$links[] = array( 'id' => 'business_website', 'uri' => $website, 'description' => 'Sitio web del negocio' );
 		}
 		if ( strlen( $whatsapp ) >= 8 && strlen( $whatsapp ) <= 15 ) {
 			$links[] = array( 'id' => 'business_whatsapp', 'uri' => 'https://wa.me/' . $whatsapp, 'description' => 'WhatsApp del negocio' );
@@ -1000,6 +1000,8 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		$scheme = (string) wp_parse_url( $public_url, PHP_URL_SCHEME );
 		$host   = (string) wp_parse_url( $public_url, PHP_URL_HOST );
 		$port   = wp_parse_url( $public_url, PHP_URL_PORT );
+		$base_path = trim( (string) wp_parse_url( $public_url, PHP_URL_PATH ), '/' );
+		$path      = '/' . ( $base_path ? $base_path . '/' : '' ) . ltrim( $path, '/' );
 		return $scheme . '://' . $host . ( $port ? ':' . absint( $port ) : '' ) . $path;
 	}
 
@@ -1060,7 +1062,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		return media_handle_upload(
 			'wallet_logo_upload',
 			0,
-			array( 'post_title' => 'Google Wallet logo' ),
+			array( 'post_title' => 'Logo de Google Wallet' ),
 			array(
 				'test_form' => false,
 				// The browser upload has already been validated above. Its normalized
@@ -1109,7 +1111,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		return media_handle_upload(
 			'wallet_hero_upload',
 			0,
-			array( 'post_title' => 'Google Wallet banner' ),
+			array( 'post_title' => 'Banner de Google Wallet' ),
 			array(
 				'test_form' => false,
 				'mimes'     => array( 'png' => 'image/png', 'jpg|jpeg' => 'image/jpeg', 'webp' => 'image/webp' ),
@@ -1144,7 +1146,7 @@ final class Loyalty_Wallet_Google_Wallet_Module {
 		return media_handle_upload(
 			'wallet_promo_image_upload',
 			0,
-			array( 'post_title' => 'Google Wallet promotion image' ),
+			array( 'post_title' => 'Imagen de promoción de Google Wallet' ),
 			array(
 				'test_form' => false,
 				'mimes'     => array( 'png' => 'image/png', 'jpg|jpeg' => 'image/jpeg', 'webp' => 'image/webp' ),

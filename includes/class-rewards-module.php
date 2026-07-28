@@ -80,7 +80,7 @@ final class Loyalty_Wallet_Rewards_Module {
 			'b' => $user_id,
 			'c' => sanitize_text_field( (string) ( $customer['id'] ?? '' ) ),
 			'm' => sanitize_text_field( (string) ( $customer['wallet_member_id'] ?? '' ) ),
-			'n' => sanitize_text_field( (string) ( $customer['name'] ?? 'Loyalty member' ) ),
+			'n' => sanitize_text_field( (string) ( $customer['name'] ?? 'Miembro de lealtad' ) ),
 			'p' => absint( $customer['points'] ?? 0 ),
 		);
 		$encoded = self::base64_url_encode( wp_json_encode( $payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) );
@@ -91,27 +91,27 @@ final class Loyalty_Wallet_Rewards_Module {
 		$code = trim( $code );
 		if ( preg_match( '/^LW[A-Z0-9]{12}$/', $code ) ) {
 			$legacy = Loyalty_Wallet_Customers_Module::find( $user_id, '', $code );
-			return $legacy ?: new WP_Error( 'customer_not_found', 'The scanned customer could not be found.' );
+			return $legacy ?: new WP_Error( 'customer_not_found', 'No se encontró el cliente escaneado.' );
 		}
 
 		$parts = explode( '.', $code );
 		if ( 3 !== count( $parts ) || 'LW1' !== $parts[0] ) {
-			return new WP_Error( 'invalid_customer_qr', 'This is not a valid Loyalty Wallet customer QR code.' );
+			return new WP_Error( 'invalid_customer_qr', 'Este no es un código QR válido de un cliente de Loyalty Wallet.' );
 		}
 		$expected = substr( hash_hmac( 'sha256', $parts[1], self::signing_key( $user_id ) ), 0, 32 );
 		if ( ! hash_equals( $expected, $parts[2] ) ) {
-			return new WP_Error( 'invalid_customer_qr', 'The customer QR signature is invalid.' );
+			return new WP_Error( 'invalid_customer_qr', 'La firma del código QR del cliente no es válida.' );
 		}
 		$payload = json_decode( self::base64_url_decode( $parts[1] ), true );
 		if ( ! is_array( $payload ) || 1 !== absint( $payload['v'] ?? 0 ) || $user_id !== absint( $payload['b'] ?? 0 ) ) {
-			return new WP_Error( 'invalid_customer_qr', 'This QR belongs to another business or is invalid.' );
+			return new WP_Error( 'invalid_customer_qr', 'Este código QR pertenece a otro negocio o no es válido.' );
 		}
 		$customer = Loyalty_Wallet_Customers_Module::find(
 			$user_id,
 			sanitize_text_field( (string) ( $payload['c'] ?? '' ) ),
 			sanitize_text_field( (string) ( $payload['m'] ?? '' ) )
 		);
-		return $customer ?: new WP_Error( 'customer_not_found', 'The scanned customer no longer exists.' );
+		return $customer ?: new WP_Error( 'customer_not_found', 'El cliente escaneado ya no existe.' );
 	}
 
 	public static function ajax_lookup(): void {
@@ -148,7 +148,7 @@ final class Loyalty_Wallet_Rewards_Module {
 			}
 		}
 		if ( ! $reward ) {
-			wp_send_json_error( array( 'message' => 'The selected reward is no longer available.' ), 400 );
+			wp_send_json_error( array( 'message' => 'La recompensa seleccionada ya no está disponible.' ), 400 );
 		}
 		$result = Loyalty_Wallet_Customers_Module::redeem( $user_id, (string) $customer['id'], $reward, $request_id );
 		if ( is_wp_error( $result ) ) {
@@ -159,7 +159,7 @@ final class Loyalty_Wallet_Rewards_Module {
 				'customer'      => self::public_customer( $result['customer'] ),
 				'reward'        => $reward,
 				'walletSynced'  => (bool) $result['wallet_synced'],
-				'message'       => sprintf( '%s redeemed for %d points.', $reward['name'], $reward['points'] ),
+				'message'       => sprintf( '%s canjeado por %d puntos.', $reward['name'], $reward['points'] ),
 			)
 		);
 	}
@@ -184,7 +184,7 @@ final class Loyalty_Wallet_Rewards_Module {
 
 	private static function verify_ajax_request(): void {
 		if ( ! current_user_can( 'access_loyalty_wallet' ) ) {
-			wp_send_json_error( array( 'message' => 'You do not have permission to redeem points.' ), 403 );
+			wp_send_json_error( array( 'message' => 'No tienes permiso para canjear puntos.' ), 403 );
 		}
 		check_ajax_referer( 'loyalty_wallet_redemption', 'nonce' );
 	}

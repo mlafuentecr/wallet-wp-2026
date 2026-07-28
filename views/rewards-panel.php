@@ -49,7 +49,7 @@
 					<label>Producto<input name="reward_name" type="text" value="<?php echo esc_attr( $reward['name'] ); ?>" maxlength="100" required></label>
 					<label>Puntos<input name="reward_points" type="number" value="<?php echo esc_attr( absint( $reward['points'] ) ); ?>" min="1" max="100000" required></label>
 					<button type="submit" class="button">Guardar</button>
-					<button type="submit" class="button lw-delete-reward" name="action" value="loyalty_wallet_delete_reward" aria-label="<?php echo esc_attr( 'Delete ' . $reward['name'] ); ?>"><span class="dashicons dashicons-trash"></span></button>
+					<button type="submit" class="button lw-delete-reward" name="action" value="loyalty_wallet_delete_reward" aria-label="<?php echo esc_attr( 'Eliminar ' . $reward['name'] ); ?>"><span class="dashicons dashicons-trash"></span></button>
 				</form>
 			<?php endforeach; ?>
 		</div>

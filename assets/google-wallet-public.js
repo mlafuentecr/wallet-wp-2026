@@ -30,7 +30,7 @@
 			body: new URLSearchParams(data).toString()
 		}).then(function (response) {
 			return response.json().then(function (payload) {
-				if (!response.ok || !payload.success) throw new Error(payload.message || 'The request could not be completed.');
+				if (!response.ok || !payload.success) throw new Error(payload.message || 'No se pudo completar la solicitud.');
 				return payload.data;
 			});
 		});
@@ -38,10 +38,10 @@
 
 	window.loyaltyWalletGoogleCredential = function (response) {
 		if (!response || !response.credential) {
-			setStatus('Google Sign-In did not return a valid credential.', true);
+			setStatus('El inicio de sesión con Google no devolvió una credencial válida.', true);
 			return;
 		}
-		setStatus('Verifying your Google account…', false);
+		setStatus('Verificando tu cuenta de Google…', false);
 		request({ lw_identity_action: 'verify', credential: response.credential })
 			.then(function (identity) {
 				tokenInput.value = identity.enrollment_token;
@@ -55,7 +55,7 @@
 				}
 				signinStage.hidden = true;
 				phoneStage.hidden = false;
-				setStatus('Google account verified.', false);
+				setStatus('Cuenta de Google verificada.', false);
 				phoneInput.focus();
 			})
 			.catch(function (error) {
@@ -68,7 +68,7 @@
 		if (!phoneForm.reportValidity()) return;
 		var submit = phoneForm.querySelector('button[type=submit]');
 		submit.disabled = true;
-		setStatus('Creating your customer profile and loyalty card…', false);
+		setStatus('Creando tu perfil de cliente y tarjeta de lealtad…', false);
 		request({
 			lw_identity_action: 'complete',
 			enrollment_token: tokenInput.value,
