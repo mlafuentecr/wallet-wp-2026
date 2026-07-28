@@ -20,10 +20,33 @@
 			<label class="lw-sandbox-option"><input name="google_sandbox_mode" type="checkbox" value="1" <?php checked( $google['sandbox_mode'] ); ?>><span><strong>Modo de pruebas</strong><small>Usa reseñas de prueba sin conectar Google</small></span></label>
 			<div class="lw-google-status <?php echo $google['is_configured'] ? 'is-ready' : ''; ?>"><span class="lw-status-dot"></span><span><strong>Perfil de Negocio de Google</strong><small><?php echo $google['is_configured'] ? 'Configuración guardada — lista para autorizar' : 'Sin configurar'; ?></small></span></div>
 			<a class="button lw-google-profile-link" href="https://business.google.com/add" target="_blank" rel="noopener noreferrer"><span class="dashicons dashicons-google"></span> Agregar o reclamar Perfil de Negocio <span aria-hidden="true">↗</span></a>
-			<div class="lw-label-with-link"><label for="lw-google-client-id">ID de cliente OAuth</label><a href="https://console.cloud.google.com/auth/clients" target="_blank" rel="noopener noreferrer">Abrir clientes OAuth <span aria-hidden="true">↗</span></a></div><input id="lw-google-client-id" name="google_client_id" type="text" value="<?php echo esc_attr( $google['client_id'] ); ?>" placeholder="000000000000-xxxx.apps.googleusercontent.com">
-			<div class="lw-label-with-link"><label for="lw-google-client-secret">Secreto del cliente OAuth</label><a href="https://console.cloud.google.com/auth/clients" target="_blank" rel="noopener noreferrer">Administrar credenciales OAuth <span aria-hidden="true">↗</span></a></div><input id="lw-google-client-secret" name="google_client_secret" type="password" value="" placeholder="<?php echo $google['has_secret'] ? 'Guardado — escribe un valor nuevo para reemplazarlo' : 'Escribe el secreto del cliente'; ?>" autocomplete="new-password">
-			<div class="lw-label-with-link"><label for="lw-google-account-id">ID de cuenta de Google</label><a href="https://business.google.com/locations" target="_blank" rel="noopener noreferrer">Abrir Perfil de Negocio <span aria-hidden="true">↗</span></a></div><input id="lw-google-account-id" name="google_account_id" type="text" value="<?php echo esc_attr( $google['account_id'] ); ?>" placeholder="accounts/123456789">
-			<div class="lw-label-with-link"><label for="lw-google-location-id">ID de ubicación de Google</label><a href="https://business.google.com/locations" target="_blank" rel="noopener noreferrer">Abrir ubicaciones del negocio <span aria-hidden="true">↗</span></a></div><input id="lw-google-location-id" name="google_location_id" type="text" value="<?php echo esc_attr( $google['location_id'] ); ?>" placeholder="locations/987654321">
+			<div class="lw-oauth-json-import">
+				<div><strong>Archivo OAuth de Google</strong><small>Carga el archivo <code>client_secret_….json</code>. El navegador copiará automáticamente <code>web.client_id</code> y <code>web.client_secret</code>; el archivo no se sube ni se conserva.</small></div>
+				<input id="lw-google-oauth-json" type="file" accept="application/json,.json" hidden>
+				<label class="button" for="lw-google-oauth-json"><span class="dashicons dashicons-upload"></span>Cargar client_secret.json</label>
+				<span id="lw-google-oauth-json-status" class="lw-oauth-json-status" role="status"></span>
+			</div>
+			<div class="lw-google-credential-field">
+				<div class="lw-label-with-link"><label for="lw-google-client-id"><code>client_id</code> — ID de cliente OAuth</label><a href="https://console.cloud.google.com/auth/clients" target="_blank" rel="noopener noreferrer">Abrir clientes OAuth <span aria-hidden="true">↗</span></a></div>
+				<input id="lw-google-client-id" name="google_client_id" type="text" value="<?php echo esc_attr( $google['client_id'] ); ?>" placeholder="000000000000-xxxx.apps.googleusercontent.com">
+				<small>En el JSON de Google: <code>web.client_id</code></small>
+			</div>
+			<div class="lw-google-credential-field">
+				<div class="lw-label-with-link"><label for="lw-google-client-secret"><code>client_secret</code> — Secreto del cliente OAuth</label><a href="https://console.cloud.google.com/auth/clients" target="_blank" rel="noopener noreferrer">Administrar credenciales OAuth <span aria-hidden="true">↗</span></a></div>
+				<input id="lw-google-client-secret" name="google_client_secret" type="password" value="" placeholder="<?php echo $google['has_secret'] ? 'Guardado — escribe un valor nuevo para reemplazarlo' : 'Escribe el secreto del cliente'; ?>" autocomplete="new-password">
+				<small>En el JSON de Google: <code>web.client_secret</code></small>
+			</div>
+			<div class="lw-google-resource-note"><span class="dashicons dashicons-info-outline"></span><span><strong>Los siguientes valores no vienen en client_secret.json.</strong><small>Google Business Profile los devuelve en el campo <code>name</code> después de autorizar la cuenta.</small></span></div>
+			<div class="lw-google-credential-field">
+				<div class="lw-label-with-link"><label for="lw-google-account-id"><code>name</code> de Account — Cuenta de Google Business Profile</label><a href="https://business.google.com/locations" target="_blank" rel="noopener noreferrer">Abrir Perfil de Negocio <span aria-hidden="true">↗</span></a></div>
+				<input id="lw-google-account-id" name="google_account_id" type="text" value="<?php echo esc_attr( $google['account_id'] ); ?>" placeholder="accounts/123456789">
+				<small>Formato exacto de Google: <code>accounts/{accountId}</code></small>
+			</div>
+			<div class="lw-google-credential-field">
+				<div class="lw-label-with-link"><label for="lw-google-location-id"><code>name</code> de Location — Ubicación de Google Business Profile</label><a href="https://business.google.com/locations" target="_blank" rel="noopener noreferrer">Abrir ubicaciones del negocio <span aria-hidden="true">↗</span></a></div>
+				<input id="lw-google-location-id" name="google_location_id" type="text" value="<?php echo esc_attr( $google['location_id'] ); ?>" placeholder="locations/987654321">
+				<small>Formato exacto de Google: <code>locations/{locationId}</code></small>
+			</div>
 		</div>
 	</details>
 </div>

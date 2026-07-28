@@ -41,7 +41,44 @@
 	var qrOpen = document.getElementById('lw-qr-open');
 	var qrCopy = document.getElementById('lw-qr-copy');
 	var qrCopyStatus = document.getElementById('lw-qr-copy-status');
+	var googleOauthJson = document.getElementById('lw-google-oauth-json');
+	var googleOauthJsonStatus = document.getElementById('lw-google-oauth-json-status');
+	var googleClientId = document.getElementById('lw-google-client-id');
+	var googleClientSecret = document.getElementById('lw-google-client-secret');
 	if (!customersTab || !activityTab || !namePanel || !customersPanel || !activityPanel || !section || !image || !empty || !qrActions || !qrOpen || !qrCopy || !qrCopyStatus) return;
+	if (googleOauthJson && googleOauthJsonStatus && googleClientId && googleClientSecret) {
+		googleOauthJson.addEventListener('change', function () {
+			var file = googleOauthJson.files && googleOauthJson.files[0];
+			googleOauthJsonStatus.classList.remove('is-error', 'is-success');
+			if (!file) {
+				googleOauthJsonStatus.textContent = '';
+				return;
+			}
+			if (file.size > 1024 * 1024 || (!/\.json$/i.test(file.name) && file.type !== 'application/json')) {
+				googleOauthJson.value = '';
+				googleOauthJsonStatus.textContent = 'Selecciona el archivo JSON descargado de Google, de máximo 1 MB.';
+				googleOauthJsonStatus.classList.add('is-error');
+				return;
+			}
+			var oauthReader = new FileReader();
+			oauthReader.onload = function (event) {
+				try {
+					var payload = JSON.parse(String(event.target.result || ''));
+					var credentials = payload && payload.web;
+					if (!credentials || !credentials.client_id || !credentials.client_secret) throw new Error('invalid_oauth_json');
+					googleClientId.value = String(credentials.client_id);
+					googleClientSecret.value = String(credentials.client_secret);
+					googleOauthJsonStatus.textContent = 'client_id y client_secret copiados. Presiona Guardar cambios.';
+					googleOauthJsonStatus.classList.add('is-success');
+				} catch (error) {
+					googleOauthJson.value = '';
+					googleOauthJsonStatus.textContent = 'Este archivo no contiene web.client_id y web.client_secret.';
+					googleOauthJsonStatus.classList.add('is-error');
+				}
+			};
+			oauthReader.readAsText(file);
+		});
+	}
 	function setPanelFields(panel, enabled) {
 		if (!panel) return;
 		panel.querySelectorAll('input, select, textarea').forEach(function (field) {
