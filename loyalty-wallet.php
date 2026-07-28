@@ -41,6 +41,9 @@ final class Loyalty_Wallet_Plugin {
 		add_action( 'admin_post_loyalty_wallet_toggle_preview', array( __CLASS__, 'toggle_preview' ) );
 		add_action( 'admin_post_loyalty_wallet_create_client', array( __CLASS__, 'create_client' ) );
 		add_action( 'admin_post_loyalty_wallet_save_url', array( __CLASS__, 'save_client_url' ) );
+		add_action( 'admin_post_loyalty_wallet_google_connect', array( 'Loyalty_Wallet_Google_Reviews_Module', 'start_oauth' ) );
+		add_action( 'admin_post_loyalty_wallet_google_callback', array( 'Loyalty_Wallet_Google_Reviews_Module', 'oauth_callback' ) );
+		add_action( 'admin_post_loyalty_wallet_google_refresh', array( 'Loyalty_Wallet_Google_Reviews_Module', 'refresh_resources' ) );
 		add_action( 'admin_post_loyalty_wallet_restore_promotion_settings', array( __CLASS__, 'restore_promotion_settings' ) );
 		add_action( 'admin_post_loyalty_wallet_add_customer', array( __CLASS__, 'add_customer' ) );
 		add_action( 'admin_post_loyalty_wallet_update_customer', array( __CLASS__, 'update_customer' ) );
@@ -168,7 +171,7 @@ final class Loyalty_Wallet_Plugin {
 		global $pagenow;
 		$is_loyalty_page = 'admin.php' === $pagenow && isset( $_GET['page'] ) && self::MENU_SLUG === sanitize_key( wp_unslash( $_GET['page'] ) );
 		$action          = isset( $_REQUEST['action'] ) ? sanitize_key( wp_unslash( $_REQUEST['action'] ) ) : '';
-		$client_actions  = array( 'loyalty_wallet_save_url', 'loyalty_wallet_add_customer', 'loyalty_wallet_update_customer', 'loyalty_wallet_delete_customer', 'loyalty_wallet_add_visit', 'loyalty_wallet_save_reward', 'loyalty_wallet_delete_reward', 'loyalty_wallet_save_reminder', 'loyalty_wallet_mark_reminder_sent' );
+		$client_actions  = array( 'loyalty_wallet_save_url', 'loyalty_wallet_google_connect', 'loyalty_wallet_google_callback', 'loyalty_wallet_google_refresh', 'loyalty_wallet_add_customer', 'loyalty_wallet_update_customer', 'loyalty_wallet_delete_customer', 'loyalty_wallet_add_visit', 'loyalty_wallet_save_reward', 'loyalty_wallet_delete_reward', 'loyalty_wallet_save_reminder', 'loyalty_wallet_mark_reminder_sent' );
 		if ( self::is_previewing() ) {
 			$client_actions[] = 'loyalty_wallet_toggle_preview';
 		}
@@ -552,6 +555,20 @@ final class Loyalty_Wallet_Plugin {
 			'invalid_url' => array( 'error', 'Escribe una URL pública válida.' ),
 			'invalid_place_id' => array( 'error', 'Escribe un ID de lugar de Google válido.' ),
 			'invalid_google_review_url' => array( 'error', 'Escribe un enlace HTTPS público de reseñas de Google, por ejemplo https://g.page/r/.../review.' ),
+			'invalid_google_account' => array( 'error', 'Selecciona una cuenta válida devuelta por Google Business Profile.' ),
+			'invalid_google_location' => array( 'error', 'Selecciona una ubicación válida devuelta por Google Business Profile.' ),
+			'google_oauth_credentials_missing' => array( 'error', 'Primero carga y guarda el archivo client_secret.json de Google.' ),
+			'google_oauth_invalid_state' => array( 'error', 'La solicitud de conexión con Google venció o no es válida. Inténtalo nuevamente.' ),
+			'google_oauth_cancelled' => array( 'error', 'La autorización de Google fue cancelada.' ),
+			'google_oauth_failed' => array( 'error', 'Google no devolvió un código de autorización válido.' ),
+			'google_oauth_token_failed' => array( 'error', 'No se pudo obtener el acceso de Google. Revisa el Client ID, el secreto y la URI de redirección.' ),
+			'google_oauth_reconnect_required' => array( 'error', 'La autorización de Google venció o fue revocada. Vuelve a conectar la cuenta.' ),
+			'google_business_api_permission' => array( 'error', 'Google negó el acceso a Business Profile. Habilita las API de Account Management y Business Information en el proyecto.' ),
+			'google_business_api_failed' => array( 'error', 'No fue posible consultar Google Business Profile en este momento.' ),
+			'google_no_business_accounts' => array( 'error', 'La cuenta autorizada no administra ningún Perfil de Negocio de Google.' ),
+			'google_no_business_locations' => array( 'error', 'La cuenta seleccionada no contiene ubicaciones de negocio disponibles.' ),
+			'google_oauth_connected' => array( 'success', 'Google Business Profile se conectó y se seleccionó el negocio correctamente.' ),
+			'google_resources_refreshed' => array( 'success', 'Las cuentas y ubicaciones de Google se actualizaron correctamente.' ),
 			'invalid_name'     => array( 'error', 'Escribe el nombre del negocio.' ),
 			'invalid_program_name' => array( 'error', 'Escribe el nombre del programa de lealtad.' ),
 			'invalid_logo'     => array( 'error', 'Elige un logo JPG, PNG o WebP válido de menos de 5 MB.' ),
